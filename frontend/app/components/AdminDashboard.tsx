@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "../lib/api";
-import { Trash2, Search, User, MapPin, Calendar, Activity, TrendingUp, Users, FileText, MessageSquare } from "lucide-react";
+import { Trash2, Search, User, MapPin, Calendar, Activity, TrendingUp, Users, FileText, MessageSquare, Edit } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import AdminEditUserModal from "./AdminEditUserModal";
+import ReviewModal from "./ReviewModal";
 
 // Stats Card Component
 const StatsCard = ({ title, value, icon: Icon, color }: { title: string, value: number, icon: any, color: string }) => (
@@ -90,6 +93,7 @@ const ConfirmationModal = ({
 );
 
 export default function AdminDashboard() {
+    const router = useRouter();
     const [users, setUsers] = useState<any[]>([]);
     const [plans, setPlans] = useState<any[]>([]);
     const [reviews, setReviews] = useState<any[]>([]);
@@ -98,7 +102,7 @@ export default function AdminDashboard() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
-    // Modal State
+    // Modal States
     const [deleteModal, setDeleteModal] = useState<{
         isOpen: boolean;
         type: 'user' | 'plan' | 'review' | 'request' | null;
@@ -111,27 +115,44 @@ export default function AdminDashboard() {
         isLoading: false
     });
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [usersData, plansData, reviewsData, requestsData] = await Promise.all([
-                    api.users.getAll(),
-                    api.travelPlans.getAll(),
-                    api.reviews.getAll(),
-                    api.requests.getAll()
-                ]);
-                setUsers(usersData);
-                setPlans(plansData);
-                setReviews(reviewsData);
-                setRequests(requestsData);
-            } catch (error) {
-                console.error("Failed to fetch admin data", error);
-                toast.error("Failed to load admin data");
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    const [editUserModal, setEditUserModal] = useState<{
+        isOpen: boolean;
+        user: any | null;
+    }>({
+        isOpen: false,
+        user: null
+    });
 
+    const [reviewModal, setReviewModal] = useState<{
+        isOpen: boolean;
+        review: any | null;
+    }>({
+        isOpen: false,
+        review: null
+    });
+
+
+    const fetchData = async () => {
+        try {
+            const [usersData, plansData, reviewsData, requestsData] = await Promise.all([
+                api.users.getAll(),
+                api.travelPlans.getAll(),
+                api.reviews.getAll(),
+                api.requests.getAll()
+            ]);
+            setUsers(usersData);
+            setPlans(plansData);
+            setReviews(reviewsData);
+            setRequests(requestsData);
+        } catch (error) {
+            console.error("Failed to fetch admin data", error);
+            toast.error("Failed to load admin data");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchData();
     }, []);
 
@@ -179,6 +200,27 @@ export default function AdminDashboard() {
         });
     };
 
+    const handleEditUser = (user: any) => {
+        setEditUserModal({ isOpen: true, user });
+    };
+
+    const handleEditPlan = (planId: string) => {
+        router.push(`/travel-plans/${planId}/edit`);
+    };
+
+    const handleEditReview = (review: any) => {
+        setReviewModal({ isOpen: true, review });
+    };
+
+    const onUserUpdated = () => {
+        fetchData(); // Refresh all data to ensure consistency
+    };
+
+    const onReviewUpdated = () => {
+        fetchData();
+    };
+
+
     const filteredUsers = users.filter(u =>
         u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         u.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -204,9 +246,9 @@ export default function AdminDashboard() {
     if (isLoading) {
         return <div className="animate-pulse space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-gray-100 dark:bg-gray-800 rounded-2xl"></div>)}
+                {[1, 2, 3, 4].map(i => <motion.div key={i} animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.5, repeat: Infinity }} className="h-32 bg-gray-100 dark:bg-gray-800 rounded-2xl"></motion.div>)}
             </div>
-            <div className="h-96 bg-gray-100 dark:bg-gray-800 rounded-2xl"></div>
+            <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.5, repeat: Infinity }} className="h-96 bg-gray-100 dark:bg-gray-800 rounded-2xl"></motion.div>
         </div>;
     }
 
@@ -277,9 +319,9 @@ export default function AdminDashboard() {
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={activeTab}
-                            initial={{ opacity: 0, scale: 0.98 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.98 }}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.2 }}
                         >
                             <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700">
@@ -352,8 +394,15 @@ export default function AdminDashboard() {
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <button
+                                                        onClick={() => handleEditUser(user)}
+                                                        className="text-text-secondary hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors mr-1"
+                                                        title="Edit User"
+                                                    >
+                                                        <Edit size={18} />
+                                                    </button>
+                                                    <button
                                                         onClick={() => openDeleteModal('user', user.id)}
-                                                        className="text-text-secondary hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition-colors"
+                                                        className="text-text-secondary hover:text-red-500 hover:bg-gray-100 dark:hover:bg-red-900/20 p-2 rounded-lg transition-colors"
                                                         title="Delete User"
                                                     >
                                                         <Trash2 size={18} />
@@ -396,8 +445,15 @@ export default function AdminDashboard() {
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <button
+                                                        onClick={() => handleEditPlan(plan.id)}
+                                                        className="text-text-secondary hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors mr-1"
+                                                        title="Edit Plan"
+                                                    >
+                                                        <Edit size={18} />
+                                                    </button>
+                                                    <button
                                                         onClick={() => openDeleteModal('plan', plan.id)}
-                                                        className="text-text-secondary hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition-colors"
+                                                        className="text-text-secondary hover:text-red-500 hover:bg-gray-100 dark:hover:bg-red-900/20 p-2 rounded-lg transition-colors"
                                                         title="Delete Plan"
                                                     >
                                                         <Trash2 size={18} />
@@ -440,8 +496,15 @@ export default function AdminDashboard() {
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <button
+                                                        onClick={() => handleEditReview(review)}
+                                                        className="text-text-secondary hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors mr-1"
+                                                        title="Edit Review"
+                                                    >
+                                                        <Edit size={18} />
+                                                    </button>
+                                                    <button
                                                         onClick={() => openDeleteModal('review', review.id)}
-                                                        className="text-text-secondary hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition-colors"
+                                                        className="text-text-secondary hover:text-red-500 hover:bg-gray-100 dark:hover:bg-red-900/20 p-2 rounded-lg transition-colors"
                                                         title="Delete Review"
                                                     >
                                                         <Trash2 size={18} />
@@ -481,7 +544,7 @@ export default function AdminDashboard() {
                                                 <td className="px-6 py-4 text-right">
                                                     <button
                                                         onClick={() => openDeleteModal('request', request.id)}
-                                                        className="text-text-secondary hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition-colors"
+                                                        className="text-text-secondary hover:text-red-500 hover:bg-gray-100 dark:hover:bg-red-900/20 p-2 rounded-lg transition-colors"
                                                         title="Delete Request"
                                                     >
                                                         <Trash2 size={18} />
@@ -494,23 +557,39 @@ export default function AdminDashboard() {
 
                                 {/* Empty States */}
                                 {activeTab === 'users' && filteredUsers.length === 0 && (
-                                    <div className="p-8 text-center text-text-secondary dark:text-gray-400">
-                                        No users found matching your search.
+                                    <div className="p-12 text-center text-text-secondary dark:text-gray-400 flex flex-col items-center justify-center">
+                                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                                            <Users size={32} className="text-gray-400" />
+                                        </div>
+                                        <h3 className="text-lg font-medium text-text-primary dark:text-white mb-1">No users found</h3>
+                                        <p className="text-sm">Try adjusting your search terms.</p>
                                     </div>
                                 )}
                                 {activeTab === 'plans' && filteredPlans.length === 0 && (
-                                    <div className="p-8 text-center text-text-secondary dark:text-gray-400">
-                                        No travel plans found.
+                                    <div className="p-12 text-center text-text-secondary dark:text-gray-400 flex flex-col items-center justify-center">
+                                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                                            <MapPin size={32} className="text-gray-400" />
+                                        </div>
+                                        <h3 className="text-lg font-medium text-text-primary dark:text-white mb-1">No travel plans found</h3>
+                                        <p className="text-sm">Try adjusting your search terms.</p>
                                     </div>
                                 )}
                                 {activeTab === 'reviews' && filteredReviews.length === 0 && (
-                                    <div className="p-8 text-center text-text-secondary dark:text-gray-400">
-                                        No reviews activity yet.
+                                    <div className="p-12 text-center text-text-secondary dark:text-gray-400 flex flex-col items-center justify-center">
+                                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                                            <MessageSquare size={32} className="text-gray-400" />
+                                        </div>
+                                        <h3 className="text-lg font-medium text-text-primary dark:text-white mb-1">No reviews yet</h3>
+                                        <p className="text-sm">Reviews will appear here once users submit them.</p>
                                     </div>
                                 )}
                                 {activeTab === 'requests' && filteredRequests.length === 0 && (
-                                    <div className="p-8 text-center text-text-secondary dark:text-gray-400">
-                                        No join requests found.
+                                    <div className="p-12 text-center text-text-secondary dark:text-gray-400 flex flex-col items-center justify-center">
+                                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                                            <Activity size={32} className="text-gray-400" />
+                                        </div>
+                                        <h3 className="text-lg font-medium text-text-primary dark:text-white mb-1">No join requests</h3>
+                                        <p className="text-sm">Requests to join trips will appear here.</p>
                                     </div>
                                 )}
                             </div>
@@ -530,6 +609,24 @@ export default function AdminDashboard() {
                 onCancel={() => setDeleteModal({ isOpen: false, type: null, id: null, isLoading: false })}
                 isLoading={deleteModal.isLoading}
             />
+
+            <AdminEditUserModal
+                isOpen={editUserModal.isOpen}
+                onClose={() => setEditUserModal({ isOpen: false, user: null })}
+                user={editUserModal.user}
+                onUserUpdated={onUserUpdated}
+            />
+
+            {reviewModal.isOpen && reviewModal.review && (
+                <ReviewModal
+                    isOpen={reviewModal.isOpen}
+                    onClose={() => setReviewModal({ isOpen: false, review: null })}
+                    revieweeId={reviewModal.review.reviewee?.id}
+                    revieweeName={reviewModal.review.reviewee?.name}
+                    initialData={reviewModal.review} // Needs to match structure, will check
+                    onReviewSubmitted={onReviewUpdated}
+                />
+            )}
         </div>
     );
 }

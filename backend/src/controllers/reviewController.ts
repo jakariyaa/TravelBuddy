@@ -160,7 +160,8 @@ export const updateReview = async (req: Request, res: Response) => {
             return;
         }
 
-        if (review.reviewerId !== userId) {
+        // @ts-ignore
+        if (review.reviewerId !== userId && req.user?.role !== 'ADMIN') {
             res.status(403).json({ message: 'Forbidden' });
             return;
         }

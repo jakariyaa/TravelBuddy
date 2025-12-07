@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSession } from "../../lib/auth-client";
 import { api } from "../../lib/api";
 import Navbar from "../../components/Navbar";
@@ -15,6 +15,7 @@ import { motion } from "framer-motion";
 
 export default function ProfilePage() {
     const params = useParams();
+    const router = useRouter();
     const { data: session } = useSession();
     const [user, setUser] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -280,18 +281,6 @@ export default function ProfilePage() {
                                 </div>
                             </div>
 
-                            {/* Contact */}
-                            <div className="bg-white dark:bg-gray-900 p-7 rounded-[2rem] shadow-lg shadow-gray-200/50 dark:shadow-black/20 border border-gray-100 dark:border-gray-800">
-                                <h3 className="font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3 text-lg">
-                                    <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400">
-                                        <Mail size={22} />
-                                    </div>
-                                    Contact
-                                </h3>
-                                <p className="text-base text-gray-600 dark:text-gray-300 font-medium">
-                                    {user.email}
-                                </p>
-                            </div>
                         </motion.div>
 
                         {/* Right Column: Content Tabs */}
@@ -342,7 +331,7 @@ export default function ProfilePage() {
                                                     : "This user hasn't posted any upcoming travel plans yet."}
                                             </p>
                                             {isOwnProfile && (
-                                                <button className="px-8 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-teal-700 transition-all shadow-xl shadow-primary/20 hover:shadow-2xl hover:-translate-y-1">
+                                                <button onClick={() => router.push('/travel-plans/add')} className="px-8 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-teal-700 transition-all shadow-xl shadow-primary/20 hover:shadow-2xl hover:-translate-y-1">
                                                     Create Travel Plan
                                                 </button>
                                             )}

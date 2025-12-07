@@ -183,7 +183,8 @@ export const updatePlan = async (req: Request, res: Response) => {
             return;
         }
 
-        if (existingPlan.userId !== userId) {
+        // @ts-ignore
+        if (existingPlan.userId !== userId && req.user?.role !== 'ADMIN') {
             res.status(403).json({ message: 'Forbidden' });
             return;
         }
@@ -293,7 +294,9 @@ export const deletePlan = async (req: Request, res: Response) => {
             return;
         }
 
-        if (existingPlan.userId !== userId) {
+        // Check if user is owner or admin
+        // @ts-ignore
+        if (existingPlan.userId !== userId && req.user?.role !== 'ADMIN') {
             res.status(403).json({ message: 'Forbidden' });
             return;
         }
@@ -395,7 +398,8 @@ export const uploadPlanImages = async (req: Request, res: Response) => {
             return;
         }
 
-        if (existingPlan.userId !== userId) {
+        // @ts-ignore
+        if (existingPlan.userId !== userId && req.user?.role !== 'ADMIN') {
             res.status(403).json({ message: 'Forbidden' });
             return;
         }
@@ -456,7 +460,8 @@ export const markPlanAsCompleted = async (req: Request, res: Response) => {
             return;
         }
 
-        if (plan.userId !== userId) {
+        // @ts-ignore
+        if (plan.userId !== userId && req.user?.role !== 'ADMIN') {
             res.status(403).json({ message: 'Forbidden' });
             return;
         }

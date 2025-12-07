@@ -57,6 +57,17 @@ export const api = {
             return uploadWithAuth("/users/profile/image", formData);
         },
         delete: (id: string) => fetchWithAuth(`/users/${id}`, { method: "DELETE" }),
+        update: (id: string, data: any) => fetchWithAuth(`/users/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(data),
+        }),
+        search: (query: string, interests?: string[]) => {
+            const params = new URLSearchParams();
+            if (query) params.append('query', query);
+            if (interests && interests.length > 0) params.append('interests', interests.join(','));
+            return fetchWithAuth(`/users/search?${params.toString()}`);
+        },
+        getMatches: () => fetchWithAuth('/users/matches'),
     },
     travelPlans: {
         getAll: () => fetchWithAuth("/travel-plans"),

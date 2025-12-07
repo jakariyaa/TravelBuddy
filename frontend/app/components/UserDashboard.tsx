@@ -5,6 +5,7 @@ import Link from "next/link";
 import { api } from "../lib/api";
 import { Calendar, MapPin, Users, ArrowRight, Clock, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import MatchedTravelers from "./MatchedTravelers";
 
 export default function UserDashboard({ user }: { user: any }) {
     const [upcomingPlans, setUpcomingPlans] = useState<any[]>([]);
@@ -70,6 +71,10 @@ export default function UserDashboard({ user }: { user: any }) {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <MatchedTravelers />
+                </div>
+
                 {/* Upcoming Plans */}
                 <div className="space-y-6">
                     <div className="flex items-center justify-between">
@@ -169,7 +174,7 @@ export default function UserDashboard({ user }: { user: any }) {
                                             <p className="font-bold text-sm text-text-primary dark:text-white">{request.travelPlan.destination}</p>
                                             <p className="text-xs text-text-secondary dark:text-gray-400">
                                                 Status: <span className={`font-medium ${request.status === 'APPROVED' ? 'text-green-500' :
-                                                        request.status === 'REJECTED' ? 'text-red-500' : 'text-yellow-500'
+                                                    request.status === 'REJECTED' ? 'text-red-500' : 'text-yellow-500'
                                                     }`}>{request.status}</span>
                                             </p>
                                         </div>

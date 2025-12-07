@@ -121,11 +121,8 @@ export default function PricingPage() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="flex flex-col h-full bg-white dark:bg-black rounded-3xl p-8 shadow-xl relative overflow-hidden border border-gray-200 dark:border-gray-800"
+                            className="flex flex-col h-full bg-yellow-50 dark:bg-black rounded-3xl p-8 shadow-xl relative overflow-hidden border border-gray-200 dark:border-gray-800"
                         >
-                            <div className="absolute top-0 right-0 p-4">
-                                <Sparkles className="text-yellow-400" />
-                            </div>
                             <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Premium</h3>
                             <p className="text-gray-600 dark:text-gray-400 mb-6">For the serious traveler.</p>
                             <div className="text-4xl font-bold mb-8 text-gray-900 dark:text-white">
