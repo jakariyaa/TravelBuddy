@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { register, login, getMe } from '../controllers/authController.js';
-
+import { getMe } from '../controllers/authController.js';
 import { authenticateUser } from '../middleware/authMiddleware.js';
+import { auth } from '../lib/auth.js';
+import { toNodeHandler } from 'better-auth/node';
 
 const router = Router();
 
-router.post('/register', register);
-router.post('/login', login);
 router.get('/me', authenticateUser, getMe);
+router.all(/.*/, toNodeHandler(auth));
 
 export default router;

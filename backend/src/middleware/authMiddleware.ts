@@ -1,33 +1,31 @@
 import { type Request, type Response, type NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { auth } from '../lib/auth.js';
+import { fromNodeHeaders } from "better-auth/node";
 
-interface AuthRequest extends Request {
-    user?: {
-        userId: string;
-        role: string;
-    };
-}
-
-export const authenticateUser = (req: AuthRequest, res: Response, next: NextFunction) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-
-    if (!token) {
-        res.status(401).json({ message: 'Authentication required' });
-        return;
-    }
-
+export const authenticateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { userId: string; role: string };
-        req.user = decoded;
+        const session = await auth.api.getSession({
+            headers: fromNodeHeaders(req.headers)
+        });
+
+        if (!session) {
+            res.status(401).json({ message: 'Unauthorized' });
+            return;
+        }
+
+        // @ts-ignore
+        req.user = session.user;
         next();
     } catch (error) {
-        res.status(401).json({ message: 'Invalid token' });
+        console.error('Auth error:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
 
-export const authorizeAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authorizeAdmin = (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
     if (req.user?.role !== 'ADMIN') {
-        res.status(403).json({ message: 'Access denied' });
+        res.status(403).json({ message: 'Forbidden: Admins only' });
         return;
     }
     next();
