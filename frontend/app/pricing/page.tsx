@@ -89,19 +89,19 @@ export default function PricingPage() {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
+                            className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow"
                         >
                             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Free</h3>
                             <p className="text-gray-500 dark:text-gray-400 mb-6">Essential features to get started.</p>
                             <div className="text-4xl font-bold text-gray-900 dark:text-white mb-8">$0<span className="text-lg text-gray-500 font-normal">/mo</span></div>
-                            <ul className="space-y-4 mb-8">
+                            <ul className="space-y-4 mb-8 flex-grow">
                                 <li className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
                                     <Check size={20} className="text-primary" />
                                     <span>Basic Profile</span>
                                 </li>
                                 <li className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
                                     <Check size={20} className="text-primary" />
-                                    <span>Wait 24h for Join Requests</span>
+                                    <span>3 Active Join Requests</span>
                                 </li>
                                 <li className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
                                     <Check size={20} className="text-primary" />
@@ -110,7 +110,7 @@ export default function PricingPage() {
                             </ul>
                             <button
                                 onClick={() => router.push('/register')}
-                                className="w-full py-3 px-6 rounded-xl border-2 border-primary text-primary font-semibold hover:bg-primary hover:text-white transition-colors"
+                                className="w-full py-3 px-6 rounded-xl border-2 border-primary text-primary font-semibold hover:bg-primary hover:text-white transition-colors mt-auto"
                             >
                                 Get Started
                             </button>
@@ -121,20 +121,20 @@ export default function PricingPage() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="bg-gray-900 dark:bg-black rounded-3xl p-8 shadow-xl relative overflow-hidden text-white border border-gray-800"
+                            className="flex flex-col h-full bg-white dark:bg-black rounded-3xl p-8 shadow-xl relative overflow-hidden border border-gray-200 dark:border-gray-800"
                         >
                             <div className="absolute top-0 right-0 p-4">
                                 <Sparkles className="text-yellow-400" />
                             </div>
-                            <h3 className="text-2xl font-bold mb-2">Premium</h3>
-                            <p className="text-gray-400 mb-6">For the serious traveler.</p>
-                            <div className="text-4xl font-bold mb-8">
+                            <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Premium</h3>
+                            <p className="text-gray-600 dark:text-gray-400 mb-6">For the serious traveler.</p>
+                            <div className="text-4xl font-bold mb-8 text-gray-900 dark:text-white">
                                 ${billingCycle === 'monthly' ? '9.99' : '99.00'}
                                 <span className="text-lg text-gray-500 font-normal">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
                             </div>
-                            <ul className="space-y-4 mb-8">
+                            <ul className="space-y-4 mb-8 flex-grow">
                                 {features.map((feature, i) => (
-                                    <li key={i} className="flex items-center gap-3">
+                                    <li key={i} className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                                         <div className="bg-primary/20 p-1 rounded-full">
                                             <Check size={14} className="text-primary" />
                                         </div>
@@ -145,7 +145,7 @@ export default function PricingPage() {
                             <button
                                 onClick={() => handleSubscribe(billingCycle)}
                                 disabled={isLoading !== null}
-                                className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-primary to-teal-600 text-white font-bold hover:shadow-lg hover:shadow-primary/25 transition-all flex items-center justify-center gap-2"
+                                className="mt-auto w-full py-3 px-6 rounded-xl bg-gradient-to-r from-primary to-teal-600 text-white font-bold hover:shadow-lg hover:shadow-primary/25 transition-all flex items-center justify-center gap-2"
                             >
                                 {isLoading === billingCycle ? (
                                     <>

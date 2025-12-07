@@ -11,6 +11,7 @@ import { MapPin, Calendar, Globe, Edit2, User, Mail, Star, BadgeCheck } from "lu
 import ReviewList from "../../components/ReviewList";
 import ReviewModal from "../../components/ReviewModal";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 export default function ProfilePage() {
     const params = useParams();
@@ -59,7 +60,6 @@ export default function ProfilePage() {
         try {
             await api.reviews.delete(reviewId);
             toast.success("Review deleted successfully");
-            // Refresh reviews
             const reviewsData = await api.reviews.getUserReviews(params.id as string);
             setReviews(reviewsData.reviews);
             setReviewStats(reviewsData.stats);
@@ -70,17 +70,16 @@ export default function ProfilePage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-background flex flex-col">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
                 <Navbar />
                 <main className="flex-grow container mx-auto px-4 py-8">
-                    <div className="animate-pulse space-y-8">
-                        <div className="h-64 bg-gray-200 rounded-3xl w-full"></div>
+                    <div className="animate-pulse space-y-8 max-w-6xl mx-auto">
+                        <div className="h-80 bg-gray-200 dark:bg-gray-800 rounded-[2.5rem] w-full"></div>
                         <div className="flex flex-col md:flex-row gap-8">
                             <div className="w-full md:w-1/3 space-y-4">
-                                <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-                                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                                <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>
                             </div>
-                            <div className="w-full md:w-2/3 h-96 bg-gray-200 rounded-2xl"></div>
+                            <div className="w-full md:w-2/3 h-96 bg-gray-200 dark:bg-gray-800 rounded-3xl"></div>
                         </div>
                     </div>
                 </main>
@@ -90,12 +89,15 @@ export default function ProfilePage() {
 
     if (error || !user) {
         return (
-            <div className="min-h-screen bg-background flex flex-col">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
                 <Navbar />
-                <main className="flex-grow flex items-center justify-center">
-                    <div className="text-center">
-                        <h2 className="text-2xl font-bold text-text-primary dark:text-white">User not found</h2>
-                        <p className="text-text-secondary dark:text-gray-400 mt-2">The user you are looking for does not exist.</p>
+                <main className="flex-grow flex items-center justify-center p-4">
+                    <div className="text-center bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl max-w-md w-full border border-gray-100 dark:border-gray-700">
+                        <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <User size={32} className="text-gray-400" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">User not found</h2>
+                        <p className="text-gray-500 dark:text-gray-400">The user you are looking for does not exist or may have been removed.</p>
                     </div>
                 </main>
                 <Footer />
@@ -103,207 +105,267 @@ export default function ProfilePage() {
         );
     }
 
+    // Animation Variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+    };
+
     return (
-        <div className="min-h-screen bg-background flex flex-col">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans">
             <Navbar />
 
-            <main className="flex-grow container mt-12 mx-auto px-4 py-8 sm:px-6 lg:px-8">
-                {/* Profile Header Card */}
-                <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
-                    <div className="h-48 bg-gradient-to-r from-teal-600 to-teal-400 relative">
-                        {/* Cover Image Placeholder - could be added to schema later */}
-                    </div>
-
-                    <div className="px-8 pb-8">
-                        <div className="relative flex justify-between items-end -mt-16 mb-6">
-                            <div className="relative">
-                                <img
-                                    src={user.image || "https://i.pravatar.cc/150?img=68"}
-                                    alt={user.name}
-                                    className="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 shadow-md object-cover bg-white dark:bg-gray-700"
-                                />
-                                {/* Online Status Indicator could go here */}
-                            </div>
-
-                            {isOwnProfile && (
-                                <button
-                                    onClick={() => setIsEditModalOpen(true)}
-                                    className="mb-2 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-full text-sm font-medium text-text-primary dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-2 shadow-sm"
-                                >
-                                    <Edit2 size={16} />
-                                    Edit Profile
-                                </button>
-                            )}
+            <main className="flex-grow container mx-auto px-4 pt-24 pb-8 sm:px-6 lg:px-8 max-w-7xl">
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={containerVariants}
+                    className="space-y-8"
+                >
+                    {/* Profile Hero Card */}
+                    <motion.div variants={itemVariants} className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-xl shadow-gray-200/50 dark:shadow-black/20 overflow-hidden border border-gray-100 dark:border-gray-800 relative">
+                        {/* Decorative Background */}
+                        <div className="h-64 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-primary via-teal-500 to-emerald-500 opacity-90"></div>
+                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                            {/* Abstract Shapes */}
+                            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
+                            <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full -translate-x-1/4 translate-y-1/4 blur-2xl"></div>
                         </div>
 
-                        <div className="space-y-4">
-                            <div>
-                                <h1 className="text-3xl font-bold text-text-primary dark:text-white flex items-center gap-2">
-                                    {user.name}
-                                    {user.isVerified && (
-                                        <div className="relative group">
-                                            <BadgeCheck className="text-primary fill-primary/10" size={24} />
-                                            <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
-                                                Verified Traveler
-                                            </div>
-                                        </div>
-                                    )}
-                                </h1>
-                                <p className="text-text-secondary dark:text-gray-400 flex items-center gap-2 mt-1">
-                                    <MapPin size={16} className="text-primary" />
-                                    {user.currentLocation || "Location not set"}
-                                </p>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <div className="flex gap-0.5">
-                                        {[1, 2, 3, 4, 5].map((star) => (
-                                            <Star
-                                                key={star}
-                                                size={16}
-                                                className={`${star <= Math.round(reviewStats.averageRating)
-                                                    ? "fill-yellow-400 text-yellow-400"
-                                                    : "text-gray-300 dark:text-gray-600"
-                                                    }`}
+                        <div className="px-8 sm:px-12 pb-10">
+                            <div className="relative flex flex-col md:flex-row justify-between items-center md:items-end -mt-12 mb-8 gap-6">
+                                <div className="relative">
+                                    <div className="relative inline-block">
+                                        <div className="w-40 h-40 rounded-[2rem] border-[6px] border-white dark:border-gray-900 shadow-2xl overflow-hidden bg-white dark:bg-gray-800">
+                                            <img
+                                                src={user.image || "https://i.pravatar.cc/150?img=68"}
+                                                alt={user.name}
+                                                className="w-full h-full object-cover"
                                             />
-                                        ))}
-                                    </div>
-                                    <span className="text-sm text-text-secondary dark:text-gray-400">
-                                        ({reviewStats.totalReviews} reviews)
-                                    </span>
-                                </div>
-                            </div>
-
-                            <p className="text-text-secondary dark:text-gray-400 max-w-2xl leading-relaxed">
-                                {user.bio || "No bio yet."}
-                            </p>
-
-                            <div className="flex flex-wrap gap-4 pt-4 border-t border-gray-50 dark:border-gray-700">
-                                <div className="flex items-center gap-2 text-sm text-text-secondary dark:text-gray-400 bg-gray-50 dark:bg-gray-900 px-3 py-1.5 rounded-full">
-                                    <Calendar size={16} className="text-primary" />
-                                    Joined {new Date(user.createdAt).toLocaleDateString()}
-                                </div>
-                                <div className="flex items-center gap-2 text-sm text-text-secondary dark:text-gray-400 bg-gray-50 dark:bg-gray-900 px-3 py-1.5 rounded-full">
-                                    <Globe size={16} className="text-primary" />
-                                    {user.visitedCountries?.length || 0} Countries Visited
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {/* Left Column: Info */}
-                    <div className="space-y-8">
-                        {/* Travel Interests */}
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-                            <h3 className="font-bold text-text-primary dark:text-white mb-4 flex items-center gap-2">
-                                <User size={20} className="text-primary" />
-                                Travel Interests
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                {user.travelInterests?.length > 0 ? (
-                                    user.travelInterests.map((interest: string, index: number) => (
-                                        <span
-                                            key={index}
-                                            className="px-3 py-1 bg-teal-50 dark:bg-teal-900/30 text-primary text-sm font-medium rounded-full"
-                                        >
-                                            {interest}
-                                        </span>
-                                    ))
-                                ) : (
-                                    <p className="text-text-tertiary dark:text-gray-500 text-sm">No interests added yet.</p>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Visited Countries */}
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-                            <h3 className="font-bold text-text-primary dark:text-white mb-4 flex items-center gap-2">
-                                <Globe size={20} className="text-primary" />
-                                Visited Countries
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                {user.visitedCountries?.length > 0 ? (
-                                    user.visitedCountries.map((country: string, index: number) => (
-                                        <span
-                                            key={index}
-                                            className="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-sm font-medium rounded-full"
-                                        >
-                                            {country}
-                                        </span>
-                                    ))
-                                ) : (
-                                    <p className="text-text-tertiary dark:text-gray-500 text-sm">No countries added yet.</p>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Contact/Social - Placeholder */}
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-                            <h3 className="font-bold text-text-primary dark:text-white mb-4 flex items-center gap-2">
-                                <Mail size={20} className="text-primary" />
-                                Contact
-                            </h3>
-                            <p className="text-sm text-text-secondary dark:text-gray-400">
-                                {user.email}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Right Column: Content (Plans, Reviews) */}
-                    <div className="md:col-span-2 space-y-8">
-                        {/* Tabs (Placeholder for now) */}
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-                            <div className="flex border-b border-gray-100 dark:border-gray-700">
-                                <button
-                                    onClick={() => setActiveTab('plans')}
-                                    className={`px-6 py-4 text-sm font-bold border-b-2 transition-colors ${activeTab === 'plans'
-                                        ? 'text-primary border-primary bg-teal-50/50 dark:bg-teal-900/20'
-                                        : 'text-text-secondary dark:text-gray-400 border-transparent hover:text-text-primary dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
-                                        }`}
-                                >
-                                    Upcoming Plans
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('reviews')}
-                                    className={`px-6 py-4 text-sm font-bold border-b-2 transition-colors ${activeTab === 'reviews'
-                                        ? 'text-primary border-primary bg-teal-50/50 dark:bg-teal-900/20'
-                                        : 'text-text-secondary dark:text-gray-400 border-transparent hover:text-text-primary dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
-                                        }`}
-                                >
-                                    Reviews
-                                </button>
-                            </div>
-
-                            <div className="p-8">
-                                {activeTab === 'plans' ? (
-                                    <div className="text-center py-8">
-                                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 mb-4">
-                                            <Calendar className="text-gray-400" size={32} />
                                         </div>
-                                        <h3 className="text-lg font-bold text-text-primary dark:text-white mb-2">No upcoming plans</h3>
-                                        <p className="text-text-secondary dark:text-gray-400 max-w-sm mx-auto">
-                                            {isOwnProfile
-                                                ? "You haven't created any travel plans yet. Start planning your next adventure!"
-                                                : "This user hasn't posted any upcoming travel plans yet."}
-                                        </p>
-                                        {isOwnProfile && (
-                                            <button className="mt-6 px-6 py-2 bg-primary text-white rounded-full font-bold hover:bg-teal-800 transition-colors shadow-lg shadow-teal-900/20 dark:shadow-none">
-                                                Create Travel Plan
-                                            </button>
+                                        {/* Status Indicator */}
+                                        <div className="absolute bottom-3 right-3 w-5 h-5 bg-green-500 border-4 border-white dark:border-gray-900 rounded-full"></div>
+                                    </div>
+                                </div>
+
+                                <div className="flex-grow pb-2 md:pb-4 text-center md:text-left w-full md:w-auto">
+                                    <div className="flex flex-col md:flex-row items-center md:items-start md:justify-start gap-2 md:gap-3 mb-2">
+                                        <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                                            {user.name}
+                                        </h1>
+                                        {user.isVerified && (
+                                            <div className="relative group cursor-help mt-1 md:mt-0">
+                                                <BadgeCheck className="text-blue-500 fill-blue-500/10" size={28} />
+                                                <div className="absolute bottom-full mb-3 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-gray-900/90 backdrop-blur text-white text-xs px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap border border-gray-700">
+                                                    Verified Traveler
+                                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900/90"></div>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
-                                ) : (
-                                    <ReviewList
-                                        reviews={reviews}
-                                        currentUserId={session?.user?.id}
-                                        onEdit={handleEditReview}
-                                        onDelete={handleDeleteReview}
-                                    />
+                                    <div className="flex flex-col md:flex-row items-center md:items-start gap-4 text-gray-500 dark:text-gray-400 font-medium justify-center md:justify-start">
+                                        <span className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 px-3 py-1 rounded-full text-sm">
+                                            <MapPin size={16} className="text-primary" />
+                                            {user.currentLocation || "Location not set"}
+                                        </span>
+                                        <span className="hidden md:inline text-gray-300">•</span>
+                                        <span className="flex items-center gap-1.5 text-sm">
+                                            <Calendar size={16} className="text-primary/70" />
+                                            Joined {new Date(user.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {isOwnProfile && (
+                                    <button
+                                        onClick={() => setIsEditModalOpen(true)}
+                                        className="mb-4 px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-200 dark:hover:border-gray-600 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+                                    >
+                                        <Edit2 size={18} />
+                                        Edit Profile
+                                    </button>
                                 )}
                             </div>
+
+                            <div className="space-y-8">
+                                <div className="relative bg-gray-50 dark:bg-gray-800/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-800/50">
+                                    <p className="text-gray-600 dark:text-gray-300 max-w-4xl text-lg leading-relaxed italic">
+                                        "{user.bio || "No bio yet."}"
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center justify-center text-center">
+                                        <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{reviewStats.totalReviews}</span>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Reviews</span>
+                                    </div>
+                                    <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center justify-center text-center">
+                                        <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1 flex items-center gap-1">
+                                            {reviewStats.averageRating.toFixed(1)} <Star size={20} className="text-yellow-400 fill-yellow-400" />
+                                        </span>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Rating</span>
+                                    </div>
+                                    <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center justify-center text-center">
+                                        <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{user.visitedCountries?.length || 0}</span>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Countries</span>
+                                    </div>
+                                    <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center justify-center text-center">
+                                        <span className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{/* Placeholder for Trips */}0</span>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Trips</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    </motion.div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Left Column: Info Cards */}
+                        <motion.div variants={itemVariants} className="space-y-6">
+                            {/* Travel Interests */}
+                            <div className="bg-white dark:bg-gray-900 p-7 rounded-[2rem] shadow-lg shadow-gray-200/50 dark:shadow-black/20 border border-gray-100 dark:border-gray-800">
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3 text-lg">
+                                    <div className="p-2.5 bg-teal-100 dark:bg-teal-900/30 rounded-xl text-teal-600 dark:text-teal-400">
+                                        <User size={22} />
+                                    </div>
+                                    Travel Interests
+                                </h3>
+                                <div className="flex flex-wrap gap-2.5">
+                                    {user.travelInterests?.length > 0 ? (
+                                        user.travelInterests.map((interest: string, index: number) => (
+                                            <span
+                                                key={index}
+                                                className="px-4 py-2 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl border border-gray-100 dark:border-gray-700"
+                                            >
+                                                {interest}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <p className="text-gray-400 text-sm italic">No interests added yet.</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Visited Countries */}
+                            <div className="bg-white dark:bg-gray-900 p-7 rounded-[2rem] shadow-lg shadow-gray-200/50 dark:shadow-black/20 border border-gray-100 dark:border-gray-800">
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3 text-lg">
+                                    <div className="p-2.5 bg-orange-100 dark:bg-orange-900/30 rounded-xl text-orange-600 dark:text-orange-400">
+                                        <Globe size={22} />
+                                    </div>
+                                    Visited Countries
+                                </h3>
+                                <div className="flex flex-wrap gap-2.5">
+                                    {user.visitedCountries?.length > 0 ? (
+                                        user.visitedCountries.map((country: string, index: number) => (
+                                            <span
+                                                key={index}
+                                                className="px-4 py-2 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl border border-gray-100 dark:border-gray-700"
+                                            >
+                                                {country}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <p className="text-gray-400 text-sm italic">No countries added yet.</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Contact */}
+                            <div className="bg-white dark:bg-gray-900 p-7 rounded-[2rem] shadow-lg shadow-gray-200/50 dark:shadow-black/20 border border-gray-100 dark:border-gray-800">
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3 text-lg">
+                                    <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400">
+                                        <Mail size={22} />
+                                    </div>
+                                    Contact
+                                </h3>
+                                <p className="text-base text-gray-600 dark:text-gray-300 font-medium">
+                                    {user.email}
+                                </p>
+                            </div>
+                        </motion.div>
+
+                        {/* Right Column: Content Tabs */}
+                        <motion.div variants={itemVariants} className="md:col-span-2 space-y-8">
+                            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-lg shadow-gray-200/50 dark:shadow-black/20 border border-gray-100 dark:border-gray-800 overflow-hidden">
+                                <div className="flex border-b border-gray-100 dark:border-gray-800 px-2 overflow-x-auto">
+                                    <button
+                                        onClick={() => setActiveTab('plans')}
+                                        className={`px-8 py-5 text-sm font-bold border-b-2 transition-all relative ${activeTab === 'plans'
+                                            ? 'text-primary border-primary'
+                                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-transparent'
+                                            }`}
+                                    >
+                                        Upcoming Plans
+                                        {activeTab === 'plans' && (
+                                            <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab('reviews')}
+                                        className={`px-8 py-5 text-sm font-bold border-b-2 transition-all relative ${activeTab === 'reviews'
+                                            ? 'text-primary border-primary'
+                                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-transparent'
+                                            }`}
+                                    >
+                                        Reviews
+                                        {activeTab === 'reviews' && (
+                                            <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                                        )}
+                                    </button>
+                                </div>
+
+                                <div className="p-8 sm:p-10 min-h-[400px]">
+                                    {activeTab === 'plans' ? (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="h-full flex flex-col items-center justify-center text-center py-12"
+                                        >
+                                            <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-full mb-6">
+                                                <Calendar className="text-gray-300 dark:text-gray-600" size={48} />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No upcoming plans</h3>
+                                            <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-8">
+                                                {isOwnProfile
+                                                    ? "You haven't created any travel plans yet. Start planning your next adventure today!"
+                                                    : "This user hasn't posted any upcoming travel plans yet."}
+                                            </p>
+                                            {isOwnProfile && (
+                                                <button className="px-8 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-teal-700 transition-all shadow-xl shadow-primary/20 hover:shadow-2xl hover:-translate-y-1">
+                                                    Create Travel Plan
+                                                </button>
+                                            )}
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            <ReviewList
+                                                reviews={reviews}
+                                                currentUserId={session?.user?.id}
+                                                onEdit={handleEditReview}
+                                                onDelete={handleDeleteReview}
+                                            />
+                                        </motion.div>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
                     </div>
-                </div>
+                </motion.div>
             </main>
 
             <Footer />
@@ -329,7 +391,6 @@ export default function ProfilePage() {
                         comment: editingReview.comment
                     }}
                     onReviewSubmitted={async () => {
-                        // Refresh reviews
                         const reviewsData = await api.reviews.getUserReviews(params.id as string);
                         setReviews(reviewsData.reviews);
                         setReviewStats(reviewsData.stats);

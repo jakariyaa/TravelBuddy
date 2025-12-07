@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, MapPin, User, DollarSign } from "lucide-react";
+import { Calendar, MapPin, User, DollarSign, BadgeCheck } from "lucide-react";
 
 interface TravelPlanCardProps {
     plan: any;
@@ -32,7 +32,10 @@ export default function TravelPlanCard({ plan }: TravelPlanCardProps) {
                             alt={plan.user?.name}
                             className="w-6 h-6 rounded-full object-cover"
                         />)}
-                        <span className="text-xs text-text-secondary dark:text-gray-400 font-medium">{plan.user?.name}</span>
+                        <span className="text-xs text-text-secondary dark:text-gray-400 font-medium flex items-center gap-1">
+                            {plan.user?.name}
+                            {plan.user?.isVerified && <BadgeCheck size={14} className="text-blue-500 fill-blue-500/10" />}
+                        </span>
                     </div>
 
                     <h3 className="text-lg font-bold text-text-primary dark:text-white mb-2 group-hover:text-primary transition-colors">

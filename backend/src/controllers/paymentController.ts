@@ -3,7 +3,8 @@ import Stripe from 'stripe';
 import { prisma } from '../lib/prisma.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-    apiVersion: '2024-12-18.acacia', // Use latest or appropriate version
+    // @ts-ignore
+    apiVersion: '2025-11-17.clover',
 });
 
 // Price IDs - In a real app, these should be in env or DB
@@ -81,8 +82,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
                 },
             ],
             mode: 'subscription',
-            success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard?success=true`,
-            cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/pricing?canceled=true`,
+            success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/cancelled`,
             metadata: {
                 userId: userId,
                 planType: plan
@@ -112,7 +113,14 @@ export const handleWebhook = async (req: Request, res: Response) => {
             // Given the context7 failure, let's assume standard behavior but lenient for dev
             event = req.body;
         } else {
-            event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+            // @ts-ignore
+            const rawBody = req.rawBody;
+            if (!rawBody) {
+                console.error("No rawBody found on request. Make sure express.json({ verify }) is configured.");
+                res.status(400).send("Webhook Error: No raw body");
+                return;
+            }
+            event = stripe.webhooks.constructEvent(rawBody, sig, endpointSecret);
         }
     } catch (err: any) {
         console.error(`Webhook Error: ${err.message}`);

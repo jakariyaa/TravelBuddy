@@ -1,6 +1,6 @@
 "use client";
 
-import { Star, MapPin, UserPlus } from "lucide-react";
+import { Star, MapPin, UserPlus, BadgeCheck } from "lucide-react";
 import Link from "next/link";
 
 const travelers = [
@@ -11,6 +11,7 @@ const travelers = [
         location: "New York, USA",
         trips: 45,
         rating: 4.9,
+        isVerified: true,
         bio: "Adventure seeker and photography enthusiast. Always looking for the next mountain to climb."
     },
     {
@@ -29,6 +30,7 @@ const travelers = [
         location: "Barcelona, Spain",
         trips: 28,
         rating: 5.0,
+        isVerified: true,
         bio: "Digital nomad loving the beach life. Expert in finding the best coworking spots with a view."
     },
     {
@@ -67,7 +69,10 @@ export default function TopTravelers() {
                                     {traveler.rating}
                                 </div>
                             </div>
-                            <h3 className="text-xl font-bold text-text-primary dark:text-white mb-1">{traveler.name}</h3>
+                            <h3 className="text-xl font-bold text-text-primary dark:text-white mb-1 flex items-center justify-center gap-1">
+                                {traveler.name}
+                                {traveler.isVerified && <BadgeCheck size={18} className="text-blue-500 fill-blue-500/10" />}
+                            </h3>
                             <div className="flex items-center justify-center gap-1 text-text-secondary dark:text-gray-400 text-sm mb-3">
                                 <MapPin size={14} />
                                 {traveler.location}

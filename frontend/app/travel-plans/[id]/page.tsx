@@ -7,7 +7,7 @@ import { api } from "../../lib/api";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useSession } from "../../lib/auth-client";
-import { Loader2, Calendar, MapPin, DollarSign, Users, ArrowLeft, Trash2, Edit2, CheckCircle, Star } from "lucide-react";
+import { Loader2, Calendar, MapPin, DollarSign, Users, ArrowLeft, Trash2, Edit2, CheckCircle, Star, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 import ReviewModal from "../../components/ReviewModal";
 
@@ -321,7 +321,10 @@ export default function TravelPlanDetailsPage() {
                                         className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm group-hover:border-primary transition-colors"
                                     />
                                     <div>
-                                        <p className="font-bold text-text-primary dark:text-white group-hover:text-primary transition-colors">{plan.user?.name}</p>
+                                        <p className="font-bold text-text-primary dark:text-white group-hover:text-primary transition-colors flex items-center gap-1">
+                                            {plan.user?.name}
+                                            {plan.user?.isVerified && <BadgeCheck size={16} className="text-blue-500 fill-blue-500/10" />}
+                                        </p>
                                         <p className="text-sm text-text-secondary dark:text-gray-300 line-clamp-1">{plan.user?.bio || "Travel enthusiast"}</p>
                                     </div>
                                 </Link>

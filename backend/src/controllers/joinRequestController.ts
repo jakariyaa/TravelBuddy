@@ -47,6 +47,37 @@ export const createRequest = async (req: Request, res: Response) => {
             return;
         }
 
+        // Feature Limitation: Check active requests count for non-premium users
+        // Fetch user subscription status
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { isVerified: true, subscriptionStatus: true }
+        });
+
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+            return;
+        }
+
+        // If not verified/active, check count
+        if (!user.isVerified) {
+            const activeRequestsCount = await prisma.joinRequest.count({
+                where: {
+                    userId,
+                    status: 'PENDING'
+                }
+            });
+
+            const MAX_FREE_REQUESTS = 3;
+            if (activeRequestsCount >= MAX_FREE_REQUESTS) {
+                res.status(403).json({
+                    message: `Free plan limit reached (${MAX_FREE_REQUESTS} active requests). Upgrade to Premium for unlimited requests.`,
+                    code: 'LIMIT_REACHED'
+                });
+                return;
+            }
+        }
+
         const request = await prisma.joinRequest.create({
             data: {
                 userId,
