@@ -56,14 +56,16 @@ export default function MatchedTravelers() {
                                         alt={user.name}
                                         className="w-16 h-16 rounded-full object-cover border-2 border-white dark:border-gray-700"
                                     />
-                                    <div className="absolute -bottom-1 -right-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-white dark:border-gray-800">
-                                        {user.score} Shared
-                                    </div>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-text-primary dark:text-white truncate group-hover:text-primary transition-colors">
-                                        {user.name}
-                                    </h3>
+                                    <div className="flex justify-between items-start">
+                                        <h3 className="font-bold text-text-primary dark:text-white truncate max-w-[150px] group-hover:text-primary transition-colors">
+                                            {user.name}
+                                        </h3>
+                                        <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                            {user.score} Shared
+                                        </span>
+                                    </div>
                                     {user.currentLocation && (
                                         <div className="flex items-center gap-1 text-xs text-text-secondary dark:text-gray-400 mt-0.5">
                                             <MapPin size={12} />

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, Compass, UserPlus, Map, User, LogOut, LayoutDashboard, Users, FileText, CreditCard } from "lucide-react";
+import { Menu, X, Compass, UserPlus, Map, User, LogOut, LayoutDashboard, Users, FileText, CreditCard, Plane } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession, signOut } from "../lib/auth-client";
 import { useRouter } from "next/navigation";
@@ -28,8 +28,13 @@ export default function Navbar() {
                 <div className="flex justify-between h-16 items-center">
                     {/* Logo */}
                     <div className="flex-shrink-0 flex items-center">
-                        <Link href="/" className="flex items-center gap-2">
-                            <span className="text-2xl font-bold text-primary">TravelBuddy</span>
+                        <Link href="/" className="flex items-center gap-3 group">
+                            <div className="w-10 h-10 bg-gradient-to-br from-primary to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 transform -rotate-3 group-hover:rotate-0 transition-all duration-300">
+                                <Plane className="text-white transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" size={24} />
+                            </div>
+                            <span className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-primary to-teal-600 dark:from-white dark:via-primary dark:to-teal-400 tracking-tight">
+                                TravelBuddy
+                            </span>
                         </Link>
                     </div>
 
@@ -112,10 +117,10 @@ export default function Navbar() {
                                     </Link>
                                     <button
                                         onClick={handleLogout}
-                                        className="text-text-secondary dark:text-gray-300 hover:text-red-500 transition-colors"
-                                        title="Logout"
+                                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-red-500 bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-full transition-all border border-transparent hover:border-red-200 dark:hover:border-red-900/50"
                                     >
-                                        <LogOut size={20} />
+                                        <LogOut size={16} />
+                                        Logout
                                     </button>
                                 </div>
                             )}

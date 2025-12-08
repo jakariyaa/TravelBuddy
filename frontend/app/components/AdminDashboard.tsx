@@ -3,29 +3,23 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "../lib/api";
-import { Trash2, Search, User, MapPin, Calendar, Activity, TrendingUp, Users, FileText, MessageSquare, Edit } from "lucide-react";
+import {
+    Trash2,
+    Search,
+    MapPin as LuMapPin,
+    Calendar,
+    Activity as LuActivity,
+    TrendingUp,
+    Users as LuUsers,
+    FileText,
+    MessageSquare as LuMessageSquare,
+    Edit
+} from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import AdminEditUserModal from "./AdminEditUserModal";
 import ReviewModal from "./ReviewModal";
-
-// Stats Card Component
-const StatsCard = ({ title, value, icon: Icon, color }: { title: string, value: number, icon: any, color: string }) => (
-    <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between"
-    >
-        <div>
-            <p className="text-sm font-medium text-text-secondary dark:text-gray-400">{title}</p>
-            <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-2">{value}</h3>
-        </div>
-        <div className={`p-4 rounded-xl ${color} bg-opacity-10 dark:bg-opacity-20`}>
-            <Icon className={color.replace('bg-', 'text-')} size={24} />
-        </div>
-    </motion.div>
-);
 
 // Confirmation Modal Component
 const ConfirmationModal = ({
@@ -253,10 +247,10 @@ export default function AdminDashboard() {
     }
 
     const tabs = [
-        { id: 'users', label: `Users (${users.length})`, icon: Users },
+        { id: 'users', label: `Users (${users.length})`, icon: LuUsers },
         { id: 'plans', label: `Plans (${plans.length})`, icon: FileText },
-        { id: 'reviews', label: `Reviews (${reviews.length})`, icon: MessageSquare },
-        { id: 'requests', label: `Requests (${requests.length})`, icon: Activity },
+        { id: 'reviews', label: `Reviews (${reviews.length})`, icon: LuMessageSquare },
+        { id: 'requests', label: `Requests (${requests.length})`, icon: LuActivity },
     ];
 
     return (
@@ -280,10 +274,37 @@ export default function AdminDashboard() {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <StatsCard title="Total Users" value={users.length} icon={Users} color="bg-blue-500" />
-                <StatsCard title="Active Plans" value={plans.length} icon={MapPin} color="bg-emerald-500" />
-                <StatsCard title="Total Reviews" value={reviews.length} icon={MessageSquare} color="bg-amber-500" />
-                <StatsCard title="Join Requests" value={requests.length} icon={Activity} color="bg-purple-500" />
+                {/* Users Card */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 border-l-4 border-l-blue-500">
+                    <div>
+                        <p className="text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider">Total Users</p>
+                        <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-1">{users.length}</h3>
+                    </div>
+                </div>
+
+                {/* Plans Card */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 border-l-4 border-l-emerald-500">
+                    <div>
+                        <p className="text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider">Active Plans</p>
+                        <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-1">{plans.length}</h3>
+                    </div>
+                </div>
+
+                {/* Reviews Card */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 border-l-4 border-l-amber-500">
+                    <div>
+                        <p className="text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider">Total Reviews</p>
+                        <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-1">{reviews.length}</h3>
+                    </div>
+                </div>
+
+                {/* Requests Card */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 border-l-4 border-l-purple-500">
+                    <div>
+                        <p className="text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider">Join Requests</p>
+                        <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-1">{requests.length}</h3>
+                    </div>
+                </div>
             </div>
 
             {/* Main Content */}
@@ -415,7 +436,7 @@ export default function AdminDashboard() {
                                             <tr key={plan.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <Link href={`/travel-plans/${plan.id}`} className="font-semibold text-text-primary dark:text-white hover:text-primary transition-colors flex items-center gap-2">
-                                                        <MapPin size={16} className="text-primary" />
+                                                        <LuMapPin size={16} className="text-primary" />
                                                         {plan.destination}
                                                     </Link>
                                                 </td>
@@ -559,7 +580,7 @@ export default function AdminDashboard() {
                                 {activeTab === 'users' && filteredUsers.length === 0 && (
                                     <div className="p-12 text-center text-text-secondary dark:text-gray-400 flex flex-col items-center justify-center">
                                         <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                                            <Users size={32} className="text-gray-400" />
+                                            <LuUsers size={32} className="text-gray-400" />
                                         </div>
                                         <h3 className="text-lg font-medium text-text-primary dark:text-white mb-1">No users found</h3>
                                         <p className="text-sm">Try adjusting your search terms.</p>
@@ -568,7 +589,7 @@ export default function AdminDashboard() {
                                 {activeTab === 'plans' && filteredPlans.length === 0 && (
                                     <div className="p-12 text-center text-text-secondary dark:text-gray-400 flex flex-col items-center justify-center">
                                         <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                                            <MapPin size={32} className="text-gray-400" />
+                                            <LuMapPin size={32} className="text-gray-400" />
                                         </div>
                                         <h3 className="text-lg font-medium text-text-primary dark:text-white mb-1">No travel plans found</h3>
                                         <p className="text-sm">Try adjusting your search terms.</p>
@@ -577,7 +598,7 @@ export default function AdminDashboard() {
                                 {activeTab === 'reviews' && filteredReviews.length === 0 && (
                                     <div className="p-12 text-center text-text-secondary dark:text-gray-400 flex flex-col items-center justify-center">
                                         <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                                            <MessageSquare size={32} className="text-gray-400" />
+                                            <LuMessageSquare size={32} className="text-gray-400" />
                                         </div>
                                         <h3 className="text-lg font-medium text-text-primary dark:text-white mb-1">No reviews yet</h3>
                                         <p className="text-sm">Reviews will appear here once users submit them.</p>
@@ -586,7 +607,7 @@ export default function AdminDashboard() {
                                 {activeTab === 'requests' && filteredRequests.length === 0 && (
                                     <div className="p-12 text-center text-text-secondary dark:text-gray-400 flex flex-col items-center justify-center">
                                         <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                                            <Activity size={32} className="text-gray-400" />
+                                            <LuActivity size={32} className="text-gray-400" />
                                         </div>
                                         <h3 className="text-lg font-medium text-text-primary dark:text-white mb-1">No join requests</h3>
                                         <p className="text-sm">Requests to join trips will appear here.</p>

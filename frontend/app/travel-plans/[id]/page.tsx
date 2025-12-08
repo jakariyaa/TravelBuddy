@@ -19,6 +19,7 @@ export default function TravelPlanDetailsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isJoinRequesting, setIsJoinRequesting] = useState(false);
     const [participants, setParticipants] = useState<any[]>([]);
+    const [existingRequest, setExistingRequest] = useState<any>(null); // Track existing request
     const [reviews, setReviews] = useState<any[]>([]); // Not directly used in the provided snippet, but added as per instruction
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [selectedReviewee, setSelectedReviewee] = useState<{ id: string; name: string } | null>(null);
@@ -64,7 +65,25 @@ export default function TravelPlanDetailsPage() {
         if (params.id) {
             fetchPlan();
         }
-    }, [params.id, session?.user?.id]); // Added session.user.id to dependencies for participant fetching logic
+    }, [params.id, session?.user?.id]);
+
+    useEffect(() => {
+        const checkExistingRequest = async () => {
+            if (session?.user?.id && plan && !isOwner) {
+                try {
+                    const myRequests = await api.joinRequests.getMyRequests();
+                    const request = myRequests.find((r: any) => r.travelPlanId === plan.id);
+                    setExistingRequest(request);
+                } catch (error) {
+                    console.error("Failed to fetch my requests", error);
+                }
+            }
+        };
+
+        if (session && plan && !isOwner) {
+            checkExistingRequest();
+        }
+    }, [session, plan, isOwner]);
 
     const handleDelete = async () => {
         if (!confirm("Are you sure you want to delete this travel plan?")) return;
@@ -106,11 +125,27 @@ export default function TravelPlanDetailsPage() {
         }
         setIsJoinRequesting(true);
         try {
-            await api.joinRequests.create(plan.id);
+            await api.joinRequests.create({ travelPlanId: plan.id });
             toast.success("Join request sent successfully!");
             // Optionally update UI to show request sent status
         } catch (err: any) {
             toast.error(err.message || "Failed to send join request.");
+        } finally {
+            setIsJoinRequesting(false);
+        }
+    };
+
+    const handleCancelRequest = async () => {
+        if (!existingRequest) return;
+        if (!confirm("Are you sure you want to cancel your request to join?")) return;
+
+        setIsJoinRequesting(true);
+        try {
+            await api.requests.delete(existingRequest.id);
+            toast.success("Join request cancelled.");
+            setExistingRequest(null);
+        } catch (err: any) {
+            toast.error(err.message || "Failed to cancel request.");
         } finally {
             setIsJoinRequesting(false);
         }
@@ -269,6 +304,27 @@ export default function TravelPlanDetailsPage() {
                                         {isJoinRequesting && <Loader2 className="animate-spin h-5 w-5" />}
                                         Request to Join Trip
                                     </button>
+                                )}
+                                {existingRequest && existingRequest.status === 'PENDING' && (
+                                    <button
+                                        onClick={handleCancelRequest}
+                                        disabled={isJoinRequesting}
+                                        className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-colors border border-red-100 flex items-center justify-center gap-2 mt-3"
+                                    >
+                                        {isJoinRequesting ? <Loader2 className="animate-spin h-5 w-5" /> : <Trash2 size={18} />}
+                                        Cancel Request
+                                    </button>
+                                )}
+                                {existingRequest && existingRequest.status === 'APPROVED' && (
+                                    <div className="w-full py-3 bg-green-50 text-green-700 rounded-xl font-bold border border-green-100 flex items-center justify-center gap-2 mt-3">
+                                        <CheckCircle size={20} />
+                                        Request Approved
+                                    </div>
+                                )}
+                                {existingRequest && existingRequest.status === 'REJECTED' && (
+                                    <div className="w-full py-3 bg-gray-50 text-gray-500 rounded-xl font-medium border border-gray-100 flex items-center justify-center gap-2 mt-3">
+                                        Request Rejected
+                                    </div>
                                 )}
                             </div>
                         )}

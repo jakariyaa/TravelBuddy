@@ -119,75 +119,72 @@ export default function UserDashboard({ user }: { user: any }) {
                     )}
                 </div>
 
-                {/* Join Requests & My Requests */}
-                <div className="space-y-8">
-                    {/* Received Requests */}
-                    <div className="space-y-4">
-                        <h2 className="text-xl font-bold text-text-primary dark:text-white">Pending Requests</h2>
-                        {joinRequests.length > 0 ? (
-                            <div className="space-y-3">
-                                {joinRequests.map((request) => (
-                                    <div key={request.id} className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className="flex items-center gap-3">
-                                                <img
-                                                    src={request.user.image || "https://i.pravatar.cc/150?img=68"}
-                                                    alt={request.user.name}
-                                                    className="w-10 h-10 rounded-full object-cover"
-                                                />
-                                                <div>
-                                                    <p className="font-bold text-sm text-text-primary dark:text-white">{request.user.name}</p>
-                                                    <p className="text-xs text-text-secondary dark:text-gray-400">wants to join {request.travelPlan.destination}</p>
-                                                </div>
+                {/* Received Requests */}
+                <div className="space-y-4">
+                    <h2 className="text-xl font-bold text-text-primary dark:text-white">Pending Requests</h2>
+                    {joinRequests.length > 0 ? (
+                        <div className="space-y-3">
+                            {joinRequests.map((request) => (
+                                <div key={request.id} className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <img
+                                                src={request.user.image || "https://i.pravatar.cc/150?img=68"}
+                                                alt={request.user.name}
+                                                className="w-10 h-10 rounded-full object-cover"
+                                            />
+                                            <div>
+                                                <p className="font-bold text-sm text-text-primary dark:text-white">{request.user.name}</p>
+                                                <p className="text-xs text-text-secondary dark:text-gray-400">wants to join {request.travelPlan.destination}</p>
                                             </div>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => handleRequestAction(request.id, 'APPROVED')}
-                                                className="flex-1 py-2 bg-green-50 text-green-600 rounded-lg text-sm font-bold hover:bg-green-100 transition-colors flex items-center justify-center gap-2"
-                                            >
-                                                <CheckCircle size={16} /> Accept
-                                            </button>
-                                            <button
-                                                onClick={() => handleRequestAction(request.id, 'REJECTED')}
-                                                className="flex-1 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
-                                            >
-                                                <XCircle size={16} /> Decline
-                                            </button>
-                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-text-secondary dark:text-gray-400 text-sm">No pending requests.</p>
-                        )}
-                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleRequestAction(request.id, 'APPROVED')}
+                                            className="flex-1 py-2 bg-green-50 text-green-600 rounded-lg text-sm font-bold hover:bg-green-100 transition-colors flex items-center justify-center gap-2"
+                                        >
+                                            <CheckCircle size={16} /> Accept
+                                        </button>
+                                        <button
+                                            onClick={() => handleRequestAction(request.id, 'REJECTED')}
+                                            className="flex-1 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                                        >
+                                            <XCircle size={16} /> Decline
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-text-secondary dark:text-gray-400 text-sm">No pending requests.</p>
+                    )}
+                </div>
 
-                    {/* My Sent Requests */}
-                    <div className="space-y-4">
-                        <h2 className="text-xl font-bold text-text-primary dark:text-white">My Sent Requests</h2>
-                        {myRequests.length > 0 ? (
-                            <div className="space-y-3">
-                                {myRequests.map((request) => (
-                                    <div key={request.id} className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                                        <div>
-                                            <p className="font-bold text-sm text-text-primary dark:text-white">{request.travelPlan.destination}</p>
-                                            <p className="text-xs text-text-secondary dark:text-gray-400">
-                                                Status: <span className={`font-medium ${request.status === 'APPROVED' ? 'text-green-500' :
-                                                    request.status === 'REJECTED' ? 'text-red-500' : 'text-yellow-500'
-                                                    }`}>{request.status}</span>
-                                            </p>
-                                        </div>
-                                        <Link href={`/travel-plans/${request.travelPlanId}`} className="p-2 text-text-secondary hover:text-primary transition-colors">
-                                            <ArrowRight size={18} />
-                                        </Link>
+                {/* My Sent Requests */}
+                <div className="space-y-4">
+                    <h2 className="text-xl font-bold text-text-primary dark:text-white">My Sent Requests</h2>
+                    {myRequests.length > 0 ? (
+                        <div className="space-y-3">
+                            {myRequests.map((request) => (
+                                <div key={request.id} className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                                    <div>
+                                        <p className="font-bold text-sm text-text-primary dark:text-white">{request.travelPlan.destination}</p>
+                                        <p className="text-xs text-text-secondary dark:text-gray-400">
+                                            Status: <span className={`font-medium ${request.status === 'APPROVED' ? 'text-green-500' :
+                                                request.status === 'REJECTED' ? 'text-red-500' : 'text-yellow-500'
+                                                }`}>{request.status}</span>
+                                        </p>
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-text-secondary dark:text-gray-400 text-sm">You haven't sent any requests.</p>
-                        )}
-                    </div>
+                                    <Link href={`/travel-plans/${request.travelPlanId}`} className="p-2 text-text-secondary hover:text-primary transition-colors">
+                                        <ArrowRight size={18} />
+                                    </Link>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-text-secondary dark:text-gray-400 text-sm">You haven't sent any requests.</p>
+                    )}
                 </div>
             </div>
         </div>

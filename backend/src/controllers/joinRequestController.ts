@@ -129,6 +129,12 @@ export const getPlanRequests = async (req: Request, res: Response) => {
                         image: true,
                         bio: true
                     }
+                },
+                travelPlan: {
+                    select: {
+                        id: true,
+                        destination: true
+                    }
                 }
             },
             orderBy: { createdAt: 'desc' }
@@ -254,7 +260,17 @@ export const deleteRequest = async (req: Request, res: Response) => {
         const requesterRole = req.user?.role;
         const { requestId } = req.params;
 
-        if (requesterRole !== 'ADMIN') {
+        const request = await prisma.joinRequest.findUnique({
+            where: { id: requestId }
+        });
+
+        if (!request) {
+            res.status(404).json({ message: 'Request not found' });
+            return;
+        }
+
+        // Allow if admin or if user is the one who made the request
+        if (requesterRole !== 'ADMIN' && request.userId !== userId) {
             res.status(403).json({ message: 'Forbidden' });
             return;
         }

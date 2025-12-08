@@ -105,6 +105,26 @@ export const getUserById = async (req: Request, res: Response) => {
                 currentLocation: true,
                 createdAt: true,
                 isVerified: true,
+                travelPlans: {
+                    where: {
+                        startDate: {
+                            gte: new Date(),
+                        }
+                    },
+                    select: {
+                        id: true,
+                        destination: true,
+                        startDate: true,
+                        endDate: true,
+                        images: true,
+                        budget: true,
+                        travelType: true,
+                        status: true,
+                    },
+                    orderBy: {
+                        startDate: 'asc',
+                    }
+                }
             },
         });
 

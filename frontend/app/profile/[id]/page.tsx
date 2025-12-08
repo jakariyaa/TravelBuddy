@@ -7,7 +7,8 @@ import { api } from "../../lib/api";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import EditProfileModal from "../../components/EditProfileModal";
-import { MapPin, Calendar, Globe, Edit2, User, Mail, Star, BadgeCheck } from "lucide-react";
+import { MapPin, Calendar, Globe, Edit2, User, Mail, Star, BadgeCheck, Briefcase } from "lucide-react";
+import TravelPlanCard from "../../components/TravelPlanCard";
 import ReviewList from "../../components/ReviewList";
 import ReviewModal from "../../components/ReviewModal";
 import { toast } from "sonner";
@@ -155,8 +156,6 @@ export default function ProfilePage() {
                                                 className="w-full h-full object-cover"
                                             />
                                         </div>
-                                        {/* Status Indicator */}
-                                        <div className="absolute bottom-3 right-3 w-5 h-5 bg-green-500 border-4 border-white dark:border-gray-900 rounded-full"></div>
                                     </div>
                                 </div>
 
@@ -315,27 +314,35 @@ export default function ProfilePage() {
 
                                 <div className="p-8 sm:p-10 min-h-[400px]">
                                     {activeTab === 'plans' ? (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.3 }}
-                                            className="h-full flex flex-col items-center justify-center text-center py-12"
-                                        >
-                                            <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-full mb-6">
-                                                <Calendar className="text-gray-300 dark:text-gray-600" size={48} />
+                                        user.travelPlans && user.travelPlans.length > 0 ? (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                                                {user.travelPlans.map((plan: any) => (
+                                                    <TravelPlanCard key={plan.id} plan={{ ...plan, user: user }} />
+                                                ))}
                                             </div>
-                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No upcoming plans</h3>
-                                            <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-8">
-                                                {isOwnProfile
-                                                    ? "You haven't created any travel plans yet. Start planning your next adventure today!"
-                                                    : "This user hasn't posted any upcoming travel plans yet."}
-                                            </p>
-                                            {isOwnProfile && (
-                                                <button onClick={() => router.push('/travel-plans/add')} className="px-8 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-teal-700 transition-all shadow-xl shadow-primary/20 hover:shadow-2xl hover:-translate-y-1">
-                                                    Create Travel Plan
-                                                </button>
-                                            )}
-                                        </motion.div>
+                                        ) : (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="h-full flex flex-col items-center justify-center text-center py-12"
+                                            >
+                                                <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-full mb-6">
+                                                    <Calendar className="text-gray-300 dark:text-gray-600" size={48} />
+                                                </div>
+                                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No upcoming plans</h3>
+                                                <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-8">
+                                                    {isOwnProfile
+                                                        ? "You haven't created any travel plans yet. Start planning your next adventure today!"
+                                                        : "This user hasn't posted any upcoming travel plans yet."}
+                                                </p>
+                                                {isOwnProfile && (
+                                                    <button onClick={() => router.push('/travel-plans/add')} className="px-8 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-teal-700 transition-all shadow-xl shadow-primary/20 hover:shadow-2xl hover:-translate-y-1">
+                                                        Create Travel Plan
+                                                    </button>
+                                                )}
+                                            </motion.div>
+                                        )
                                     ) : (
                                         <motion.div
                                             initial={{ opacity: 0, y: 10 }}
