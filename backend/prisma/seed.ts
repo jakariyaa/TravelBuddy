@@ -19,7 +19,77 @@ async function main() {
     const users = [];
     const travelInterestsOptions = ['Hiking', 'Food', 'Photography', 'History', 'Beach', 'Nightlife', 'Nature', 'Art', 'Adventure', 'Relaxation'];
 
-    // Create 20 new female users
+    // Create Specific Top Travelers
+    console.log('Creating Top Travelers...');
+    const topTravelersData = [
+        {
+            name: "Sarah Jenkins",
+            email: "sarah.jenkins@example.com",
+            image: "https://i.pravatar.cc/150?img=32",
+            currentLocation: "New York, USA",
+            bio: "Adventure seeker and photography enthusiast. Always looking for the next mountain to climb.",
+            isVerified: true,
+            travelInterests: ['Adventure', 'Photography', 'Hiking']
+        },
+        {
+            name: "David Chen",
+            email: "david.chen@example.com",
+            image: "https://i.pravatar.cc/150?img=11",
+            currentLocation: "Vancouver, Canada",
+            bio: "Foodie traveler exploring the world one dish at a time. Let's find the best street food!",
+            isVerified: false,
+            travelInterests: ['Food', 'Culture', 'Urban']
+        },
+        {
+            name: "Elena Rodriguez",
+            email: "elena.rodriguez@example.com",
+            image: "https://i.pravatar.cc/150?img=5",
+            currentLocation: "Barcelona, Spain",
+            bio: "Digital nomad loving the beach life. Expert in finding the best coworking spots with a view.",
+            isVerified: true,
+            travelInterests: ['Beach', 'Digital Nomad', 'Relaxation']
+        },
+        {
+            name: "Michael Chang",
+            email: "michael.chang@example.com",
+            image: "https://i.pravatar.cc/150?img=59",
+            currentLocation: "Singapore",
+            bio: "History buff and architecture lover. I plan detailed itineraries for cultural immersion.",
+            isVerified: false,
+            travelInterests: ['History', 'Architecture', 'Culture']
+        }
+    ];
+
+    for (const traveler of topTravelersData) {
+        const user = await prisma.user.upsert({
+            where: { email: traveler.email },
+            update: {},
+            create: {
+                name: traveler.name,
+                email: traveler.email,
+                image: traveler.image,
+                bio: traveler.bio,
+                role: 'USER',
+                travelInterests: traveler.travelInterests,
+                visitedCountries: [faker.location.country(), faker.location.country()],
+                currentLocation: traveler.currentLocation,
+                isVerified: traveler.isVerified,
+                subscriptionStatus: 'ACTIVE',
+                accounts: {
+                    create: {
+                        providerId: 'credential',
+                        accountId: traveler.email,
+                        password: passwordHash,
+                        scope: 'read:user',
+                    }
+                }
+            }
+        });
+        users.push(user);
+        console.log(`Created Top Traveler: ${traveler.name}`);
+    }
+
+    // Create 20 new female users (keeping existing logic)
     console.log('Creating 20 new female users...');
     for (let i = 0; i < 20; i++) {
         const firstName = faker.person.firstName('female');
@@ -102,6 +172,66 @@ async function main() {
         plans.push(plan);
     }
     console.log('Created 40 travel plans.');
+
+    // Create Popular Destinations
+    console.log('Creating Popular Destinations...');
+    const popularDestinations = [
+        {
+            destination: "Bali, Indonesia",
+            image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            budget: 800,
+            description: "Tropical paradise with beautiful beaches and vibrant culture.",
+            interests: ['Beach', 'Nature', 'Culture'],
+            userIndex: 0 // Sarah
+        },
+        {
+            destination: "Kyoto, Japan",
+            image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            budget: 1200,
+            description: "Ancient temples, traditional tea houses, and stunning gardens.",
+            interests: ['History', 'Culture', 'Nature'],
+            userIndex: 3 // Michael
+        },
+        {
+            destination: "Santorini, Greece",
+            image: "https://cdn.sanity.io/images/nxpteyfv/goguides/9ca4581e7f31535984243dfa9c08c12c8a30ffeb-1600x1066.jpg",
+            budget: 1500,
+            description: "Iconic white buildings with blue domes overlooking the sea.",
+            interests: ['Beach', 'Photography', 'Romance'],
+            userIndex: 2 // Elena
+        },
+        {
+            destination: "Machu Picchu, Peru",
+            image: "https://images.unsplash.com/photo-1587595431973-160d0d94add1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+            budget: 1100,
+            description: "Incan citadel set high in the Andes Mountains.",
+            interests: ['History', 'Adventure', 'Hiking'],
+            userIndex: 1 // David
+        }
+    ];
+
+    for (const dest of popularDestinations) {
+        // Ensure we have a user to assign to (fallback to first user if index out of bounds)
+        const owner = users[dest.userIndex] || users[0];
+
+        const plan = await prisma.travelPlan.create({
+            data: {
+                userId: owner.id,
+                destination: dest.destination,
+                startDate: faker.date.future(),
+                endDate: faker.date.future(), // Logic for end date > start date is simplified here, assume simple for seed
+                budget: dest.budget,
+                budgetRange: `$${dest.budget} - $${dest.budget + 500}`,
+                travelType: 'Adventure',
+                description: dest.description,
+                images: [dest.image],
+                interests: dest.interests,
+                status: 'UPCOMING'
+            }
+        });
+        plans.push(plan); // Add to plans for reviews
+        console.log(`Created Pop Destination: ${dest.destination}`);
+    }
 
     // Create 60 reviews
     console.log('Creating 60 reviews...');

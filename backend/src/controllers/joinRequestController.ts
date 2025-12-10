@@ -104,6 +104,11 @@ export const getPlanRequests = async (req: Request, res: Response) => {
             return;
         }
 
+        if (!planId) {
+            res.status(400).json({ message: 'Plan ID is required' });
+            return;
+        }
+
         const plan = await prisma.travelPlan.findUnique({
             where: { id: planId }
         });
@@ -161,6 +166,11 @@ export const respondToRequest = async (req: Request, res: Response) => {
 
         if (!['APPROVED', 'REJECTED'].includes(status)) {
             res.status(400).json({ message: 'Invalid status' });
+            return;
+        }
+
+        if (!requestId) {
+            res.status(400).json({ message: 'Request ID is required' });
             return;
         }
 
@@ -259,6 +269,14 @@ export const deleteRequest = async (req: Request, res: Response) => {
         // @ts-ignore
         const requesterRole = req.user?.role;
         const { requestId } = req.params;
+
+        // @ts-ignore
+        const userId = req.user?.id;
+
+        if (!requestId) {
+            res.status(400).json({ message: 'Request ID is required' });
+            return;
+        }
 
         const request = await prisma.joinRequest.findUnique({
             where: { id: requestId }

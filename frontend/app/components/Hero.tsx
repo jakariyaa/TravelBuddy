@@ -42,7 +42,7 @@ export default function Hero() {
 
                         <div className="flex flex-col sm:flex-row gap-4">
                             <Link
-                                href="/register"
+                                href="/find-buddy"
                                 className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-full text-white bg-primary hover:bg-teal-800 transition-all shadow-lg shadow-teal-900/20 hover:shadow-teal-900/30 transform hover:-translate-y-1"
                             >
                                 Find Travel Buddies

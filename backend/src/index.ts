@@ -16,7 +16,7 @@ import joinRequestRoutes from './routes/joinRequestRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true
 }));
 app.use(express.json({
@@ -40,3 +40,5 @@ app.get('/', (req: Request, res: Response) => {
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+export default app;

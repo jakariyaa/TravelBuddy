@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signUp } from "../lib/auth-client";
+import { signUp, signIn } from "../lib/auth-client";
 import { Loader2, Mail, Lock, User, ArrowRight, Github } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -170,6 +170,12 @@ export default function RegisterPage() {
                             <div className="mt-6 grid grid-cols-2 gap-3">
                                 <button
                                     type="button"
+                                    onClick={async () => {
+                                        await signIn.social({
+                                            provider: "google",
+                                            callbackURL: "/",
+                                        });
+                                    }}
                                     className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-700 text-sm font-medium text-text-secondary dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                                 >
                                     <svg className="h-5 w-5" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24">
@@ -179,6 +185,12 @@ export default function RegisterPage() {
                                 </button>
                                 <button
                                     type="button"
+                                    onClick={async () => {
+                                        await signIn.social({
+                                            provider: "github",
+                                            callbackURL: "/",
+                                        });
+                                    }}
                                     className="w-full inline-flex justify-center py-2.5 px-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-700 text-sm font-medium text-text-secondary dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                                 >
                                     <Github className="h-5 w-5" />
