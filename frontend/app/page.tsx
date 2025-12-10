@@ -17,7 +17,7 @@ export default function Home() {
       {/* Hero has its own internal animations */}
       <Hero />
 
-      <div className="space-y-20 pb-20">
+      <div className="pb-20">
         <SectionWrapper delay={0.1}>
           <WhyChooseUs />
         </SectionWrapper>

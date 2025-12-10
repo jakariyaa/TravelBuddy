@@ -311,7 +311,7 @@ export const searchUsers = async (req: Request, res: Response) => {
                 currentLocation: true,
                 isVerified: true
             },
-            take: 20
+            take: 100
         });
 
         res.json(users);
