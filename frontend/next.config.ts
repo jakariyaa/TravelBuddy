@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:5000/api/:path*",
+        destination: "https://travelbuddy-server.jakariya.eu.org/api/:path*",
       },
     ];
   },

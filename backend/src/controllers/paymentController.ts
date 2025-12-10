@@ -46,13 +46,15 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 
         // If user doesn't have a stripe customer ID, create one
         if (!customerId) {
-            const customer = await stripe.customers.create({
-                email: user.email,
-                name: user.name,
+            const customerParams: Stripe.CustomerCreateParams = {
                 metadata: {
                     userId: user.id
                 }
-            });
+            };
+            if (user.email) customerParams.email = user.email;
+            if (user.name) customerParams.name = user.name;
+
+            const customer = await stripe.customers.create(customerParams);
             customerId = customer.id;
             await prisma.user.update({
                 where: { id: userId },
