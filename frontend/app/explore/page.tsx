@@ -11,7 +11,10 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function ExplorePage() {
     const [plans, setPlans] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [error, setError] = useState("");
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
 
     // Search Filters
     const [destination, setDestination] = useState("");
@@ -21,8 +24,15 @@ export default function ExplorePage() {
     const [interests, setInterests] = useState("");
     const [showFilters, setShowFilters] = useState(false);
 
-    const fetchPlans = async () => {
-        setIsLoading(true);
+    const fetchPlans = async (reset = false) => {
+        if (reset) {
+            setIsLoading(true);
+            setPage(1);
+            setHasMore(true);
+        } else {
+            setIsFetchingMore(true);
+        }
+
         try {
             // Build query string
             const params = new URLSearchParams();
@@ -32,30 +42,72 @@ export default function ExplorePage() {
             if (endDate) params.append("endDate", endDate);
             if (interests) params.append("interests", interests);
 
-            const queryString = params.toString();
-            const data = queryString
-                ? await api.travelPlans.search(queryString)
-                : await api.travelPlans.getAll();
+            // Pagination
+            const currentPage = reset ? 1 : page;
+            params.append("page", currentPage.toString());
+            params.append("limit", "9"); // Load 9 per page (3x3 grid)
 
-            setPlans(data);
+            const queryString = params.toString();
+            // api.travelPlans.search handles query string appending generally
+            // If queryString is empty, search endpoint will return all with defaults
+            const data = await api.travelPlans.search(queryString);
+
+            if (reset) {
+                setPlans(data);
+            } else {
+                setPlans(prev => [...prev, ...data]);
+            }
+
+            // If we got fewer items than limit, we reached the end
+            if (data.length < 9) {
+                setHasMore(false);
+            } else {
+                setPage(currentPage + 1);
+            }
+
         } catch (err) {
             setError("Failed to load travel plans");
         } finally {
             setIsLoading(false);
+            setIsFetchingMore(false);
         }
     };
 
     useEffect(() => {
-        fetchPlans();
+        // Initial load
+        fetchPlans(true);
     }, []);
 
     // Debounced search
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            fetchPlans();
+            fetchPlans(true); // Reset on filter change
         }, 500);
         return () => clearTimeout(timeoutId);
     }, [destination, travelType, startDate, endDate, interests]);
+
+    // Intersection Observer for Infinite Scroll
+    useEffect(() => {
+        if (!hasMore || isLoading || isFetchingMore) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting) {
+                    fetchPlans(false);
+                }
+            },
+            { threshold: 0.5 } // Trigger when 50% visible (or closer to bottom)
+        );
+
+        const sentinel = document.getElementById("scroll-sentinel");
+        if (sentinel) {
+            observer.observe(sentinel);
+        }
+
+        return () => {
+            if (sentinel) observer.unobserve(sentinel);
+        };
+    }, [hasMore, isLoading, isFetchingMore, plans]); // Dependencies are crucial here
 
     // Animation Variants
     const containerVariants = {
@@ -81,7 +133,7 @@ export default function ExplorePage() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans">
             <Navbar />
 
-            <main className="flex-grow pt-24 pb-12">
+            <main className="flex-grow pt-16 pb-12">
                 {/* Hero Section */}
                 <div className="relative overflow-hidden bg-white dark:bg-gray-900 pb-16 pt-8 mb-12">
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 opacity-70"></div>
@@ -121,7 +173,7 @@ export default function ExplorePage() {
                                     />
                                     <button
                                         className="bg-primary hover:bg-teal-700 text-white p-3 rounded-full transition-colors flex-shrink-0"
-                                        onClick={fetchPlans}
+                                        onClick={() => fetchPlans(true)}
                                     >
                                         <Search size={24} />
                                     </button>
@@ -137,9 +189,7 @@ export default function ExplorePage() {
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                             <Compass className="text-primary" size={28} />
                             Explore Trips
-                            <span className="text-sm font-normal text-gray-500 ml-2 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
-                                {plans.length} results
-                            </span>
+                            {/* Removed total count as it's harder to track with infinite scroll without extra API call */}
                         </h2>
 
                         <button
@@ -248,7 +298,7 @@ export default function ExplorePage() {
                     </AnimatePresence>
 
                     {/* Results Grid */}
-                    {isLoading ? (
+                    {isLoading && !isFetchingMore ? (
                         <div className="flex flex-col items-center justify-center py-32">
                             <Loader2 className="animate-spin text-primary mb-4" size={48} />
                             <p className="text-gray-500 font-medium">Finding amazing trips...</p>
@@ -258,10 +308,10 @@ export default function ExplorePage() {
                             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
                                 <span className="text-2xl">⚠️</span>
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Oops! Something went wrong</h3>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Oops! Something went wrong.</h3>
                             <p className="text-gray-500 mb-6">{error}</p>
                             <button
-                                onClick={fetchPlans}
+                                onClick={() => fetchPlans(true)}
                                 className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
                             >
                                 Try Again
@@ -294,18 +344,30 @@ export default function ExplorePage() {
                             </button>
                         </motion.div>
                     ) : (
-                        <motion.div
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate="visible"
-                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                        >
-                            {plans.map((plan) => (
-                                <motion.div key={plan.id} variants={itemVariants} layout>
-                                    <TravelPlanCard plan={plan} />
-                                </motion.div>
-                            ))}
-                        </motion.div>
+                        <>
+                            <motion.div
+                                variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
+                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                            >
+                                {plans.map((plan) => (
+                                    <motion.div key={plan.id} variants={itemVariants} layout>
+                                        <TravelPlanCard plan={plan} />
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+
+                            {/* Sentinel and Loading Spinner for Infinite Scroll */}
+                            <div id="scroll-sentinel" className="h-20 flex items-center justify-center mt-8">
+                                {isFetchingMore && (
+                                    <Loader2 className="animate-spin text-primary" size={32} />
+                                )}
+                                {!hasMore && plans.length > 0 && (
+                                    <p className="text-gray-400 text-sm">You've reached the end of the list.</p>
+                                )}
+                            </div>
+                        </>
                     )}
                 </div>
             </main>

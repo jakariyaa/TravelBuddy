@@ -314,7 +314,11 @@ export const deletePlan = async (req: Request, res: Response) => {
 
 export const searchPlans = async (req: Request, res: Response) => {
     try {
-        const { destination, startDate, endDate, travelType, interests } = req.query;
+        const { destination, startDate, endDate, travelType, interests, page = '1', limit = '10' } = req.query;
+
+        const pageNum = parseInt(String(page));
+        const limitNum = parseInt(String(limit));
+        const skip = (pageNum - 1) * limitNum;
 
         const where: any = {};
 
@@ -364,6 +368,8 @@ export const searchPlans = async (req: Request, res: Response) => {
                 },
             },
             orderBy: { startDate: 'asc' },
+            skip,
+            take: limitNum,
         });
 
         res.json(plans);
