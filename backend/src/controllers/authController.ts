@@ -1,11 +1,12 @@
-import { type Request, type Response } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
+import { catchAsync } from '../utils/catchAsync.js';
+import { AppError } from '../utils/AppError.js';
 
-export const getMe = async (req: Request, res: Response) => {
+export const getMe = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
     const user = req.user;
     if (!user) {
-        res.status(401).json({ message: 'Unauthorized' });
-        return;
+        return next(new AppError('Unauthorized', 401));
     }
     res.json(user);
-};
+});

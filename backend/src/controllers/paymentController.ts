@@ -1,6 +1,8 @@
-import { type Request, type Response } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import Stripe from 'stripe';
 import { prisma } from '../lib/prisma.js';
+import { catchAsync } from '../utils/catchAsync.js';
+import { AppError } from '../utils/AppError.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
     // @ts-ignore
@@ -20,85 +22,76 @@ const PLANS = {
     }
 };
 
-export const createCheckoutSession = async (req: Request, res: Response) => {
-    try {
-        // @ts-ignore
-        const userId = req.user?.id;
-        const { plan } = req.body; // 'monthly' or 'yearly'
+export const createCheckoutSession = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
+    const userId = req.user?.id;
+    const { plan } = req.body; // 'monthly' or 'yearly'
 
-        if (!userId) {
-            res.status(401).json({ message: 'Unauthorized' });
-            return;
-        }
-
-        if (!plan || !PLANS[plan as keyof typeof PLANS]) {
-            res.status(400).json({ message: 'Invalid plan selected' });
-            return;
-        }
-
-        const user = await prisma.user.findUnique({ where: { id: userId } });
-        if (!user) {
-            res.status(404).json({ message: 'User not found' });
-            return;
-        }
-
-        let customerId = user.stripeCustomerId;
-
-        // If user doesn't have a stripe customer ID, create one
-        if (!customerId) {
-            const customerParams: Stripe.CustomerCreateParams = {
-                metadata: {
-                    userId: user.id
-                }
-            };
-            if (user.email) customerParams.email = user.email;
-            if (user.name) customerParams.name = user.name;
-
-            const customer = await stripe.customers.create(customerParams);
-            customerId = customer.id;
-            await prisma.user.update({
-                where: { id: userId },
-                data: { stripeCustomerId: customerId }
-            });
-        }
-
-        const selectedPlan = PLANS[plan as keyof typeof PLANS];
-
-        const session = await stripe.checkout.sessions.create({
-            customer: customerId,
-            payment_method_types: ['card'],
-            line_items: [
-                {
-                    price_data: {
-                        currency: 'usd',
-                        product_data: {
-                            name: selectedPlan.name,
-                            description: 'Unlock Verified Badge and Premium Features',
-                        },
-                        unit_amount: selectedPlan.amount,
-                        recurring: {
-                            interval: plan === 'monthly' ? 'month' : 'year',
-                        },
-                    },
-                    quantity: 1,
-                },
-            ],
-            mode: 'subscription',
-            success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/cancelled`,
-            metadata: {
-                userId: userId,
-                planType: plan
-            }
-        });
-
-        res.json({ url: session.url });
-
-    } catch (error) {
-        console.error('CreateCheckoutSession error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+    if (!userId) {
+        return next(new AppError('Unauthorized', 401));
     }
-};
+
+    if (!plan || !PLANS[plan as keyof typeof PLANS]) {
+        return next(new AppError('Invalid plan selected', 400));
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    let customerId = user.stripeCustomerId;
+
+    // If user doesn't have a stripe customer ID, create one
+    if (!customerId) {
+        const customerParams: Stripe.CustomerCreateParams = {
+            metadata: {
+                userId: user.id
+            }
+        };
+        if (user.email) customerParams.email = user.email;
+        if (user.name) customerParams.name = user.name;
+
+        const customer = await stripe.customers.create(customerParams);
+        customerId = customer.id;
+        await prisma.user.update({
+            where: { id: userId },
+            data: { stripeCustomerId: customerId }
+        });
+    }
+
+    const selectedPlan = PLANS[plan as keyof typeof PLANS];
+
+    const session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        payment_method_types: ['card'],
+        line_items: [
+            {
+                price_data: {
+                    currency: 'usd',
+                    product_data: {
+                        name: selectedPlan.name,
+                        description: 'Unlock Verified Badge and Premium Features',
+                    },
+                    unit_amount: selectedPlan.amount,
+                    recurring: {
+                        interval: plan === 'monthly' ? 'month' : 'year',
+                    },
+                },
+                quantity: 1,
+            },
+        ],
+        mode: 'subscription',
+        success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/cancelled`,
+        metadata: {
+            userId: userId,
+            planType: plan
+        }
+    });
+
+    res.json({ url: session.url });
+});
 
 export const handleWebhook = async (req: Request, res: Response) => {
     const sig = req.headers['stripe-signature'];

@@ -1,8 +1,13 @@
+import { toast } from "sonner";
 import { authClient } from "./auth-client";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-async function fetchWithAuth(url: string, options: RequestInit = {}) {
+type RequestOptions = RequestInit & {
+    headers?: Record<string, string>;
+};
+
+async function fetchWithAuth(url: string, options: RequestOptions = {}) {
     const session = await authClient.getSession();
     // const token = session.data?.session?.token; 
 
@@ -10,37 +15,80 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
         ...options.headers,
     };
 
-    const response = await fetch(`${API_BASE_URL}${url}`, {
-        ...options,
-        headers: {
-            "Content-Type": "application/json",
-            ...headers,
-        },
-        credentials: "include",
-    });
+    try {
+        const response = await fetch(`${API_BASE_URL}${url}`, {
+            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                ...headers,
+            },
+            credentials: "include",
+        });
 
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: "An error occurred" }));
-        throw new Error(error.message || "Request failed");
+        if (!response.ok) {
+            const rawText = await response.text();
+            console.error('API Error:', {
+                url: `${API_BASE_URL}${url}`,
+                status: response.status,
+                statusText: response.statusText,
+                body: rawText
+            });
+
+            let errorMessage = "Request failed";
+            try {
+                const errorData = JSON.parse(rawText);
+                errorMessage = errorData.message || errorMessage;
+            } catch (e) {
+                // If JSON parse fails, use the raw text if short, or generic
+                if (rawText.length < 100) errorMessage = rawText;
+                else errorMessage = "An error occurred (Non-JSON response)";
+            }
+
+            // Trigger toast for user visibility
+            toast.error(errorMessage);
+
+            throw new Error(errorMessage);
+        }
+
+        return response.json();
+    } catch (error: any) {
+        // If it's a network error or something not caught above
+        if (error.message === "Failed to fetch") {
+            toast.error("Network error. Please check your connection.");
+        }
+        throw error;
     }
-
-    return response.json();
 }
 
 async function uploadWithAuth(url: string, formData: FormData, method: string = "POST") {
-    const response = await fetch(`${API_BASE_URL}${url}`, {
-        method,
-        body: formData,
-        credentials: "include",
-    });
+    const session = await authClient.getSession();
 
-    if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: "An error occurred" }));
-        throw new Error(error.message || "Upload failed");
+    try {
+        const response = await fetch(`${API_BASE_URL}${url}`, {
+            method,
+            body: formData,
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: "An error occurred" }));
+            const errorMessage = errorData.message || "Upload failed";
+
+            toast.error(errorMessage);
+
+            throw new Error(errorMessage);
+        }
+
+        return response.json();
+    } catch (error: any) {
+        if (error.message === "Failed to fetch") {
+            toast.error("Network error. Please check your connection.");
+        }
+        throw error;
     }
-
-    return response.json();
 }
+
+export { fetchWithAuth, uploadWithAuth };
 
 export const api = {
     users: {

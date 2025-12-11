@@ -37,6 +37,9 @@ app.get('/', (req: Request, res: Response) => {
     res.send('TravelBuddy Backend is running!');
 });
 
+import { globalErrorHandler } from './middleware/errorMiddleware.js';
+app.use(globalErrorHandler);
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

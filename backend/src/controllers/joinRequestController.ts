@@ -1,350 +1,292 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/prisma.js';
+import { catchAsync } from '../utils/catchAsync.js';
+import { AppError } from '../utils/AppError.js';
 
-export const createRequest = async (req: Request, res: Response) => {
-    try {
-        // @ts-ignore
-        const userId = req.user?.id;
-        const { travelPlanId, message } = req.body;
+export const createRequest = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
+    const userId = req.user?.id;
+    const { travelPlanId, message } = req.body;
 
-        if (!userId) {
-            res.status(401).json({ message: 'Unauthorized' });
-            return;
-        }
+    if (!userId) {
+        return next(new AppError('Unauthorized', 401));
+    }
 
-        if (!travelPlanId) {
-            res.status(400).json({ message: 'Travel Plan ID is required' });
-            return;
-        }
+    if (!travelPlanId) {
+        return next(new AppError('Travel Plan ID is required', 400));
+    }
 
-        // Check if plan exists
-        const plan = await prisma.travelPlan.findUnique({
-            where: { id: travelPlanId }
-        });
+    // Check if plan exists
+    const plan = await prisma.travelPlan.findUnique({
+        where: { id: travelPlanId }
+    });
 
-        if (!plan) {
-            res.status(404).json({ message: 'Travel plan not found' });
-            return;
-        }
+    if (!plan) {
+        return next(new AppError('Travel plan not found', 404));
+    }
 
-        if (plan.userId === userId) {
-            res.status(400).json({ message: 'Cannot join your own plan' });
-            return;
-        }
+    if (plan.userId === userId) {
+        return next(new AppError('Cannot join your own plan', 400));
+    }
 
-        // Check if request already exists
-        const existingRequest = await prisma.joinRequest.findUnique({
-            where: {
-                userId_travelPlanId: {
-                    userId,
-                    travelPlanId
-                }
-            }
-        });
-
-        if (existingRequest) {
-            res.status(400).json({ message: 'Request already sent' });
-            return;
-        }
-
-        // Feature Limitation: Check active requests count for non-premium users
-        // Fetch user subscription status
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            select: { isVerified: true, subscriptionStatus: true }
-        });
-
-        if (!user) {
-            res.status(404).json({ message: 'User not found' });
-            return;
-        }
-
-        // If not verified/active, check count
-        if (!user.isVerified) {
-            const activeRequestsCount = await prisma.joinRequest.count({
-                where: {
-                    userId,
-                    status: 'PENDING'
-                }
-            });
-
-            const MAX_FREE_REQUESTS = 3;
-            if (activeRequestsCount >= MAX_FREE_REQUESTS) {
-                res.status(403).json({
-                    message: `Free plan limit reached (${MAX_FREE_REQUESTS} active requests). Upgrade to Premium for unlimited requests.`,
-                    code: 'LIMIT_REACHED'
-                });
-                return;
-            }
-        }
-
-        const request = await prisma.joinRequest.create({
-            data: {
+    // Check if request already exists
+    const existingRequest = await prisma.joinRequest.findUnique({
+        where: {
+            userId_travelPlanId: {
                 userId,
-                travelPlanId,
-                message
+                travelPlanId
+            }
+        }
+    });
+
+    if (existingRequest) {
+        return next(new AppError('Request already sent', 400));
+    }
+
+    // Feature Limitation: Check active requests count for non-premium users
+    // Fetch user subscription status
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { isVerified: true, subscriptionStatus: true }
+    });
+
+    if (!user) {
+        return next(new AppError('User not found', 404));
+    }
+
+    // If not verified/active, check count
+    if (!user.isVerified) {
+        const activeRequestsCount = await prisma.joinRequest.count({
+            where: {
+                userId,
+                status: 'PENDING'
             }
         });
 
-        res.status(201).json(request);
-    } catch (error) {
-        console.error('CreateRequest error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        const MAX_FREE_REQUESTS = 3;
+        if (activeRequestsCount >= MAX_FREE_REQUESTS) {
+            return next(new AppError(`Free plan limit reached (${MAX_FREE_REQUESTS} active requests). Upgrade to Premium for unlimited requests.`, 403));
+        }
     }
-};
 
-export const getPlanRequests = async (req: Request, res: Response) => {
-    try {
-        // @ts-ignore
-        const userId = req.user?.id;
-        const { planId } = req.params;
-
-        if (!userId) {
-            res.status(401).json({ message: 'Unauthorized' });
-            return;
+    const request = await prisma.joinRequest.create({
+        data: {
+            userId,
+            travelPlanId,
+            message
         }
+    });
 
-        if (!planId) {
-            res.status(400).json({ message: 'Plan ID is required' });
-            return;
-        }
+    res.status(201).json(request);
+});
 
-        const plan = await prisma.travelPlan.findUnique({
-            where: { id: planId }
-        });
+export const getPlanRequests = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
+    const userId = req.user?.id;
+    const { planId } = req.params;
 
-        if (!plan) {
-            res.status(404).json({ message: 'Travel plan not found' });
-            return;
-        }
+    if (!userId) {
+        return next(new AppError('Unauthorized', 401));
+    }
 
-        // Only the host can view requests
-        if (plan.userId !== userId) {
-            res.status(403).json({ message: 'Forbidden' });
-            return;
-        }
+    if (!planId) {
+        return next(new AppError('Plan ID is required', 400));
+    }
 
-        const requests = await prisma.joinRequest.findMany({
-            where: { travelPlanId: planId },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        image: true,
-                        bio: true
-                    }
-                },
-                travelPlan: {
-                    select: {
-                        id: true,
-                        destination: true
-                    }
+    const plan = await prisma.travelPlan.findUnique({
+        where: { id: planId }
+    });
+
+    if (!plan) {
+        return next(new AppError('Travel plan not found', 404));
+    }
+
+    // Only the host can view requests
+    if (plan.userId !== userId) {
+        return next(new AppError('Forbidden', 403));
+    }
+
+    const requests = await prisma.joinRequest.findMany({
+        where: { travelPlanId: planId },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                    bio: true
                 }
             },
-            orderBy: { createdAt: 'desc' }
-        });
+            travelPlan: {
+                select: {
+                    id: true,
+                    destination: true
+                }
+            }
+        },
+        orderBy: { createdAt: 'desc' }
+    });
 
-        res.json(requests);
-    } catch (error) {
-        console.error('GetPlanRequests error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+    res.json(requests);
+});
+
+export const respondToRequest = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
+    const userId = req.user?.id;
+    const { requestId } = req.params;
+    const { status } = req.body;
+
+    if (!userId) {
+        return next(new AppError('Unauthorized', 401));
     }
-};
 
-export const respondToRequest = async (req: Request, res: Response) => {
-    try {
-        // @ts-ignore
-        const userId = req.user?.id;
-        const { requestId } = req.params;
-        const { status } = req.body;
-
-        if (!userId) {
-            res.status(401).json({ message: 'Unauthorized' });
-            return;
-        }
-
-        if (!['APPROVED', 'REJECTED'].includes(status)) {
-            res.status(400).json({ message: 'Invalid status' });
-            return;
-        }
-
-        if (!requestId) {
-            res.status(400).json({ message: 'Request ID is required' });
-            return;
-        }
-
-        const request = await prisma.joinRequest.findUnique({
-            where: { id: requestId },
-            include: { travelPlan: true }
-        });
-
-        if (!request) {
-            res.status(404).json({ message: 'Request not found' });
-            return;
-        }
-
-        // Only host can respond
-        if (request.travelPlan.userId !== userId) {
-            res.status(403).json({ message: 'Forbidden' });
-            return;
-        }
-
-        const updatedRequest = await prisma.joinRequest.update({
-            where: { id: requestId },
-            data: { status }
-        });
-
-        res.json(updatedRequest);
-    } catch (error) {
-        console.error('RespondToRequest error:', error);
-        res.status(500).json({ message: 'Internal server error' });
+    if (!['APPROVED', 'REJECTED'].includes(status)) {
+        return next(new AppError('Invalid status', 400));
     }
-};
 
-export const getUserRequests = async (req: Request, res: Response) => {
-    try {
-        // @ts-ignore
-        const userId = req.user?.id;
+    if (!requestId) {
+        return next(new AppError('Request ID is required', 400));
+    }
 
-        if (!userId) {
-            res.status(401).json({ message: 'Unauthorized' });
-            return;
-        }
+    const request = await prisma.joinRequest.findUnique({
+        where: { id: requestId },
+        include: { travelPlan: true }
+    });
 
-        const requests = await prisma.joinRequest.findMany({
-            where: { userId },
-            include: {
-                travelPlan: {
-                    select: {
-                        id: true,
-                        destination: true,
-                        startDate: true,
-                        endDate: true,
-                        status: true
-                    }
+    if (!request) {
+        return next(new AppError('Request not found', 404));
+    }
+
+    // Only host can respond
+    if (request.travelPlan.userId !== userId) {
+        return next(new AppError('Forbidden', 403));
+    }
+
+    const updatedRequest = await prisma.joinRequest.update({
+        where: { id: requestId },
+        data: { status }
+    });
+
+    res.json(updatedRequest);
+});
+
+export const getUserRequests = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
+    const userId = req.user?.id;
+
+    if (!userId) {
+        return next(new AppError('Unauthorized', 401));
+    }
+
+    const requests = await prisma.joinRequest.findMany({
+        where: { userId },
+        include: {
+            travelPlan: {
+                select: {
+                    id: true,
+                    destination: true,
+                    startDate: true,
+                    endDate: true,
+                    status: true
+                }
+            }
+        },
+        orderBy: { createdAt: 'desc' }
+    });
+
+    res.json(requests);
+});
+
+export const getAllRequests = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
+    const requesterRole = req.user?.role;
+
+    if (requesterRole !== 'ADMIN') {
+        return next(new AppError('Forbidden', 403));
+    }
+
+    const requests = await prisma.joinRequest.findMany({
+        include: {
+            user: {
+                select: { id: true, name: true, image: true }
+            },
+            travelPlan: {
+                select: { id: true, destination: true, user: { select: { name: true } } }
+            }
+        },
+        orderBy: { createdAt: 'desc' }
+    });
+
+    res.json(requests);
+});
+
+export const deleteRequest = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
+    const requesterRole = req.user?.role;
+    const { requestId } = req.params;
+
+    // @ts-ignore
+    const userId = req.user?.id;
+
+    if (!requestId) {
+        return next(new AppError('Request ID is required', 400));
+    }
+
+    const request = await prisma.joinRequest.findUnique({
+        where: { id: requestId }
+    });
+
+    if (!request) {
+        return next(new AppError('Request not found', 404));
+    }
+
+    // Allow if admin or if user is the one who made the request
+    if (requesterRole !== 'ADMIN' && request.userId !== userId) {
+        return next(new AppError('Forbidden', 403));
+    }
+
+    await prisma.joinRequest.delete({
+        where: { id: requestId }
+    });
+
+    res.json({ message: 'Request deleted' });
+});
+
+export const getRequestsForUserPlans = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
+    const userId = req.user?.id;
+
+    if (!userId) {
+        return next(new AppError('Unauthorized', 401));
+    }
+
+    // Fetch all requests for plans where the user is the host (userId matches)
+    const requests = await prisma.joinRequest.findMany({
+        where: {
+            travelPlan: {
+                userId: userId
+            }
+        },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                    bio: true
                 }
             },
-            orderBy: { createdAt: 'desc' }
-        });
-
-        res.json(requests);
-    } catch (error) {
-        console.error('GetUserRequests error:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
-
-export const getAllRequests = async (req: Request, res: Response) => {
-    try {
-        // @ts-ignore
-        const requesterRole = req.user?.role;
-
-        if (requesterRole !== 'ADMIN') {
-            res.status(403).json({ message: 'Forbidden' });
-            return;
-        }
-
-        const requests = await prisma.joinRequest.findMany({
-            include: {
-                user: {
-                    select: { id: true, name: true, image: true }
-                },
-                travelPlan: {
-                    select: { id: true, destination: true, user: { select: { name: true } } }
+            travelPlan: {
+                select: {
+                    id: true,
+                    destination: true,
                 }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
+            }
+        },
+        orderBy: { createdAt: 'desc' },
+        // Optional: Limit if needed, but "all pending" is usually the requirement
+        // take: 50 
+    });
 
-        res.json(requests);
-    } catch (error) {
-        console.error('GetAllRequests error:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
-
-export const deleteRequest = async (req: Request, res: Response) => {
-    try {
-        // @ts-ignore
-        const requesterRole = req.user?.role;
-        const { requestId } = req.params;
-
-        // @ts-ignore
-        const userId = req.user?.id;
-
-        if (!requestId) {
-            res.status(400).json({ message: 'Request ID is required' });
-            return;
-        }
-
-        const request = await prisma.joinRequest.findUnique({
-            where: { id: requestId }
-        });
-
-        if (!request) {
-            res.status(404).json({ message: 'Request not found' });
-            return;
-        }
-
-        // Allow if admin or if user is the one who made the request
-        if (requesterRole !== 'ADMIN' && request.userId !== userId) {
-            res.status(403).json({ message: 'Forbidden' });
-            return;
-        }
-
-        await prisma.joinRequest.delete({
-            where: { id: requestId }
-        });
-
-        res.json({ message: 'Request deleted' });
-    } catch (error) {
-        console.error('DeleteRequest error:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
-
-export const getRequestsForUserPlans = async (req: Request, res: Response) => {
-    try {
-        // @ts-ignore
-        const userId = req.user?.id;
-
-        if (!userId) {
-            res.status(401).json({ message: 'Unauthorized' });
-            return;
-        }
-
-        // Fetch all requests for plans where the user is the host (userId matches)
-        const requests = await prisma.joinRequest.findMany({
-            where: {
-                travelPlan: {
-                    userId: userId
-                }
-            },
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        image: true,
-                        bio: true
-                    }
-                },
-                travelPlan: {
-                    select: {
-                        id: true,
-                        destination: true,
-                    }
-                }
-            },
-            orderBy: { createdAt: 'desc' },
-            // Optional: Limit if needed, but "all pending" is usually the requirement
-            // take: 50 
-        });
-
-        res.json(requests);
-    } catch (error) {
-        console.error('GetRequestsForUserPlans error:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
+    res.json(requests);
+});
