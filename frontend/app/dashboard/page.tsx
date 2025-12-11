@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "../lib/auth-client";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import UserDashboard from "../components/UserDashboard";
-import AdminDashboard from "../components/AdminDashboard";
+import { useSession } from "@/app/utils/auth-client";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
+import UserDashboard from "@/app/components/UserDashboard";
+import AdminDashboard from "@/app/components/AdminDashboard";
 import { Loader2 } from "lucide-react";
-import { api } from "../lib/api";
+import { api } from "@/app/utils/api";
 
 export default function DashboardPage() {
     const { data: session, isPending } = useSession();

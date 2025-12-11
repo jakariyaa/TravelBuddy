@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useSession } from "../../lib/auth-client";
-import { api } from "../../lib/api";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import EditProfileModal from "../../components/EditProfileModal";
+import { useSession } from "@/app/utils/auth-client";
+import { api } from "@/app/utils/api";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
+import EditProfileModal from "@/app/components/EditProfileModal";
 import { MapPin, Calendar, Globe, Edit2, User, Mail, Star, BadgeCheck, Briefcase } from "lucide-react";
-import TravelPlanCard from "../../components/TravelPlanCard";
-import ReviewList from "../../components/ReviewList";
-import ReviewModal from "../../components/ReviewModal";
+import TravelPlanCard from "@/app/components/TravelPlanCard";
+import ReviewList from "@/app/components/ReviewList";
+import ReviewModal from "@/app/components/ReviewModal";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 

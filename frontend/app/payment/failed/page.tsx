@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { AlertCircle, RefreshCw, HelpCircle, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
 
 export default function PaymentFailedPage() {
     return (

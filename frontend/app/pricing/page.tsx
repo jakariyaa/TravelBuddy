@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { Check, Loader2, Sparkles } from "lucide-react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import { api } from "../lib/api";
-import { useSession } from "../lib/auth-client";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
+import { api } from "@/app/utils/api";
+import { useSession } from "@/app/utils/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";

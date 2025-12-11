@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Check, ArrowRight, ShieldCheck, User } from "lucide-react";
 import { motion } from "framer-motion";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import { useSession } from "../../lib/auth-client";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
+import { useSession } from "@/app/utils/auth-client";
 
 export default function PaymentSuccessPage() {
     const { data: session } = useSession();

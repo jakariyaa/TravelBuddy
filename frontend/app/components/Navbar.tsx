@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Menu, X, Compass, UserPlus, Map, User, LogOut, LayoutDashboard, Users, FileText, CreditCard, Plane } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSession, signOut } from "../lib/auth-client";
+import { useSession, signOut } from "@/app/utils/auth-client";
 import { useRouter } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 

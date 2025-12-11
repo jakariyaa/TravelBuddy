@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { api } from "../../lib/api";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import { useSession } from "../../lib/auth-client";
+import { api } from "@/app/utils/api";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
+import { useSession } from "@/app/utils/auth-client";
 import { Loader2, Calendar, MapPin, DollarSign, Users, ArrowLeft, Trash2, Edit2, CheckCircle, Star, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
-import ReviewModal from "../../components/ReviewModal";
+import ReviewModal from "@/app/components/ReviewModal";
 
 export default function TravelPlanDetailsPage() {
     const params = useParams();

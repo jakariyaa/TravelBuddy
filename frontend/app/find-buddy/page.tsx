@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Navbar from "../components/Navbar";
-import { api } from "../lib/api";
+import Navbar from "@/app/components/Navbar";
+import { api } from "@/app/utils/api";
 import { Search, MapPin, Filter, User } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";

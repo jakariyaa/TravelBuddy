@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { X, Camera, Loader2 } from "lucide-react";
-import { api } from "../lib/api";
+import { api } from "@/app/utils/api";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { toast } from "sonner";

@@ -3,14 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn } from "../lib/auth-client";
-import { Loader2, Mail, Lock, ArrowRight, Github } from "lucide-react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import { signUp, signIn } from "@/app/utils/auth-client";
+import { Loader2, Mail, Lock, User, ArrowRight, Github } from "lucide-react";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
 
 import { toast } from "sonner";
 
-export default function LoginPage() {
+export default function RegisterPage() {
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -22,18 +23,19 @@ export default function LoginPage() {
         setIsLoading(true);
         setError("");
 
-        await signIn.email({
+        await signUp.email({
             email,
             password,
+            name,
         }, {
             onSuccess: () => {
-                toast.success("Logged in successfully");
+                toast.success("Account created successfully");
                 router.push("/");
                 router.refresh();
             },
             onError: (ctx) => {
                 setError(ctx.error.message);
-                toast.error(ctx.error.message || "Failed to login");
+                toast.error(ctx.error.message || "Failed to create account");
                 setIsLoading(false);
             }
         });
@@ -47,12 +49,12 @@ export default function LoginPage() {
                 <div className="w-full max-w-md space-y-8">
                     <div className="text-center">
                         <h2 className="mt-6 text-3xl font-bold tracking-tight text-text-primary">
-                            Welcome back
+                            Create your account
                         </h2>
                         <p className="mt-2 text-sm text-text-secondary">
-                            Don't have an account?{" "}
-                            <Link href="/register" className="font-medium text-primary hover:text-teal-800 transition-colors">
-                                Sign up for free
+                            Already have an account?{" "}
+                            <Link href="/login" className="font-medium text-primary hover:text-teal-800 transition-colors">
+                                Sign in
                             </Link>
                         </p>
                     </div>
@@ -65,6 +67,28 @@ export default function LoginPage() {
                                     {error}
                                 </div>
                             )}
+
+                            <div>
+                                <label htmlFor="name" className="block text-sm font-medium text-text-primary">
+                                    Full Name
+                                </label>
+                                <div className="mt-1 relative rounded-md shadow-sm">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <User className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                        id="name"
+                                        name="name"
+                                        type="text"
+                                        autoComplete="name"
+                                        required
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm bg-gray-50 dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800 transition-all dark:text-white"
+                                        placeholder="John Doe"
+                                    />
+                                </div>
+                            </div>
 
                             <div>
                                 <label htmlFor="email" className="block text-sm font-medium text-text-primary">
@@ -100,7 +124,7 @@ export default function LoginPage() {
                                         id="password"
                                         name="password"
                                         type="password"
-                                        autoComplete="current-password"
+                                        autoComplete="new-password"
                                         required
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
@@ -108,26 +132,9 @@ export default function LoginPage() {
                                         placeholder="••••••••"
                                     />
                                 </div>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center">
-                                    <input
-                                        id="remember-me"
-                                        name="remember-me"
-                                        type="checkbox"
-                                        className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                                    />
-                                    <label htmlFor="remember-me" className="ml-2 block text-sm text-text-secondary">
-                                        Remember me
-                                    </label>
-                                </div>
-
-                                <div className="text-sm">
-                                    <a href="#" className="font-medium text-primary hover:text-teal-800">
-                                        Forgot your password?
-                                    </a>
-                                </div>
+                                <p className="mt-2 text-xs text-text-tertiary">
+                                    Must be at least 8 characters long.
+                                </p>
                             </div>
 
                             <div>
@@ -140,7 +147,7 @@ export default function LoginPage() {
                                         <Loader2 className="animate-spin h-5 w-5" />
                                     ) : (
                                         <>
-                                            Sign in
+                                            Create Account
                                             <ArrowRight className="ml-2 h-4 w-4" />
                                         </>
                                     )}
@@ -190,6 +197,20 @@ export default function LoginPage() {
                                     <span className="sr-only">Sign in with GitHub</span>
                                 </button>
                             </div>
+                        </div>
+
+                        <div className="mt-6">
+                            <p className="text-center text-xs text-text-tertiary">
+                                By creating an account, you agree to our{" "}
+                                <a href="#" className="font-medium text-primary hover:text-teal-800">
+                                    Terms of Service
+                                </a>{" "}
+                                and{" "}
+                                <a href="#" className="font-medium text-primary hover:text-teal-800">
+                                    Privacy Policy
+                                </a>
+                                .
+                            </p>
                         </div>
                     </div>
                 </div>

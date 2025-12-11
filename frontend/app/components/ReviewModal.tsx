@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { X, Star, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { api } from "../lib/api";
+import { api } from "@/app/utils/api";
 import { toast } from "sonner";
 
 interface ReviewModalProps {

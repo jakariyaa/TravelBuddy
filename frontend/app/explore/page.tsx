@@ -1,20 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api } from "../lib/api";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import TravelPlanCard from "../components/TravelPlanCard";
-import { Loader2, Search, Filter, Calendar, Type, Globe, Compass } from "lucide-react";
+import { api } from "@/app/utils/api";
+import { useSession } from "@/app/utils/auth-client";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
+import TravelPlanCard from "@/app/components/TravelPlanCard";
+import { Loader2, Search, Filter, Calendar, Type, Globe, Compass, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ExplorePage() {
+    const { data: session } = useSession();
+
+    // Main List State
     const [plans, setPlans] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [error, setError] = useState("");
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+
+    // Recommended List State
+    const [recommendedPlans, setRecommendedPlans] = useState<any[]>([]);
+    const [loadingRecommended, setLoadingRecommended] = useState(false);
 
     // Search Filters
     const [destination, setDestination] = useState("");
@@ -23,6 +31,41 @@ export default function ExplorePage() {
     const [endDate, setEndDate] = useState("");
     const [interests, setInterests] = useState("");
     const [showFilters, setShowFilters] = useState(false);
+
+    // Fetch Recommended Plans
+    useEffect(() => {
+        const fetchRecommended = async () => {
+            if (session?.user) {
+                try {
+                    setLoadingRecommended(true);
+                    // Get latest profile to ensure we have interests
+                    const profile = await api.users.getProfile();
+
+                    if (profile && profile.travelInterests && profile.travelInterests.length > 0) {
+                        const params = new URLSearchParams();
+                        params.append('interests', profile.travelInterests.join(','));
+                        params.append('limit', '3'); // Top 3 recommendations
+
+                        // We use the search endpoint which supports interest matching
+                        const query = params.toString();
+                        const data = await api.travelPlans.search(query);
+                        // Filter out plans created by the user themselves if desired, 
+                        // but search endpoint might natively return them.
+                        // Ideally recommendations shouldn't be your own plans. 
+                        // Client-side filter for now:
+                        const filtered = data.filter((p: any) => p.userId !== session.user.id);
+                        setRecommendedPlans(filtered);
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch recommendations", e);
+                } finally {
+                    setLoadingRecommended(false);
+                }
+            }
+        };
+
+        fetchRecommended();
+    }, [session]);
 
     const fetchPlans = async (reset = false) => {
         if (reset) {
@@ -184,6 +227,24 @@ export default function ExplorePage() {
                 </div>
 
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+
+                    {/* Recommended Section (Logged-in only) */}
+                    {session?.user && recommendedPlans.length > 0 && (
+                        <div className="mb-16 border-b border-gray-200 dark:border-gray-800 pb-12">
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-6">
+                                <Sparkles className="text-amber-500" size={24} />
+                                Recommended for You
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {recommendedPlans.map((plan) => (
+                                    <motion.div key={plan.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                                        <TravelPlanCard plan={plan} />
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Filters & Controls */}
                     <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">

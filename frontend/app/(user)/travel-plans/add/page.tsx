@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { api } from "../../lib/api";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
+import { api } from "@/app/utils/api";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
 import { Loader2, Upload, Calendar, MapPin, DollarSign, Type, Users } from "lucide-react";
 
 import { toast } from "sonner";

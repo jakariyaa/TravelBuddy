@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { api } from "../lib/api";
+import { api } from "@/app/utils/api";
 import { MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";

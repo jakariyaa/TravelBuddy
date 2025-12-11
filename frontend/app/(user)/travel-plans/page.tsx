@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { api } from "../lib/api";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import TravelPlanCard from "../components/TravelPlanCard";
+import { api } from "@/app/utils/api";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
+import TravelPlanCard from "@/app/components/TravelPlanCard";
 import { Loader2, Plus, Search, Filter } from "lucide-react";
-import { useSession } from "../lib/auth-client";
+import { useSession } from "@/app/utils/auth-client";
 
 export default function TravelPlansPage() {
     const [plans, setPlans] = useState<any[]>([]);

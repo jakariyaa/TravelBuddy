@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { X, Loader2, User, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { api } from "../lib/api";
+import { api } from "@/app/utils/api";
 import { toast } from "sonner";
 
 interface AdminEditUserModalProps {
