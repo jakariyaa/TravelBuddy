@@ -74,6 +74,8 @@ model TravelPlan {
   reviews     Review[]
   status      PlanStatus @default(UPCOMING)
   joinRequests JoinRequest[]
+
+  @@index([userId])
 }
 
 enum PlanStatus {
@@ -113,6 +115,7 @@ model JoinRequest {
   travelPlan   TravelPlan    @relation(fields: [travelPlanId], references: [id], onDelete: Cascade)
 
   @@unique([userId, travelPlanId])
+  @@index([travelPlanId])
 }
 
 enum RequestStatus {

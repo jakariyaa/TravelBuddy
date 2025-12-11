@@ -102,6 +102,7 @@ export const api = {
             body: JSON.stringify(data),
         }),
         getPlanRequests: (planId: string) => fetchWithAuth(`/join-requests/plan/${planId}`),
+        getRequestsForUserPlans: () => fetchWithAuth("/join-requests/my-received-requests"),
         respond: (requestId: string, status: string) => fetchWithAuth(`/join-requests/${requestId}`, {
             method: "PUT",
             body: JSON.stringify({ status }),

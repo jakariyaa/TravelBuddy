@@ -14,6 +14,7 @@ export default function DashboardPage() {
     const { data: session, isPending } = useSession();
     const router = useRouter();
     const [userProfile, setUserProfile] = useState<any>(null);
+    const [dashboardData, setDashboardData] = useState<any>(null);
     const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
     useEffect(() => {
@@ -24,8 +25,25 @@ export default function DashboardPage() {
             // But let's fetch profile to be sure and get latest data
             const fetchProfile = async () => {
                 try {
-                    const profile = await api.users.getProfile();
+                    // Fetch profile and potential user dashboard data in parallel
+                    // We optimistically fetch user dashboard data. If user is ADMIN, we just ignore it.
+                    // If fetching dashboard data fails (e.g. 403), we ignore it here and let UserDashboard handle or retry (or just have null)
+
+                    const [profile, dashDataResult] = await Promise.all([
+                        api.users.getProfile(),
+                        Promise.all([
+                            api.travelPlans.getMyPlans(),
+                            api.joinRequests.getRequestsForUserPlans(),
+                            api.joinRequests.getMyRequests()
+                        ]).then(([plans, requests, mySentRequests]) => ({ plans, requests, mySentRequests }))
+                            .catch(err => {
+                                console.warn("Optimistic fetch failed", err);
+                                return null;
+                            })
+                    ]);
+
                     setUserProfile(profile);
+                    setDashboardData(dashDataResult);
                 } catch (error) {
                     console.error("Failed to fetch profile", error);
                 } finally {
@@ -58,7 +76,7 @@ export default function DashboardPage() {
                 {userProfile.role === 'ADMIN' ? (
                     <AdminDashboard />
                 ) : (
-                    <UserDashboard user={userProfile} />
+                    <UserDashboard user={userProfile} initialData={dashboardData} />
                 )}
             </main>
             <Footer />

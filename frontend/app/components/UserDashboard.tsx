@@ -7,7 +7,7 @@ import { Calendar, MapPin, Users, ArrowRight, Clock, CheckCircle, XCircle } from
 import { toast } from "sonner";
 import MatchedTravelers from "./MatchedTravelers";
 
-export default function UserDashboard({ user }: { user: any }) {
+export default function UserDashboard({ user, initialData }: { user: any, initialData?: any }) {
     const [upcomingPlans, setUpcomingPlans] = useState<any[]>([]);
     const [joinRequests, setJoinRequests] = useState<any[]>([]);
     const [myRequests, setMyRequests] = useState<any[]>([]);
@@ -16,21 +16,29 @@ export default function UserDashboard({ user }: { user: any }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch my plans
-                const plans = await api.travelPlans.getMyPlans();
+                let plans, allRequests, mySentRequests;
+
+                if (initialData) {
+                    plans = initialData.plans;
+                    allRequests = initialData.requests;
+                    mySentRequests = initialData.mySentRequests;
+                } else {
+                    // Fetch all data in parallel
+                    [plans, allRequests, mySentRequests] = await Promise.all([
+                        api.travelPlans.getMyPlans(),
+                        api.joinRequests.getRequestsForUserPlans(),
+                        api.joinRequests.getMyRequests()
+                    ]);
+                }
+
+                // Filter upcoming plans
                 const upcoming = plans.filter((p: any) => p.status === 'UPCOMING');
                 setUpcomingPlans(upcoming);
 
-                // Fetch requests for my plans (this is a bit tricky as we need to iterate plans or have a dedicated endpoint)
-                // Assuming we want to show requests I need to approve.
-                // We can iterate upcoming plans and fetch requests for each.
-                const requestsPromises = upcoming.map((p: any) => api.joinRequests.getPlanRequests(p.id));
-                const requestsResponses = await Promise.all(requestsPromises);
-                const allRequests = requestsResponses.flat().filter((r: any) => r.status === 'PENDING');
-                setJoinRequests(allRequests);
+                // Filter pending requests matching upcoming plans (logic moved to backend efficiently, but ensuring status here)
+                const pendingRequests = allRequests.filter((r: any) => r.status === 'PENDING');
+                setJoinRequests(pendingRequests);
 
-                // Fetch my sent requests
-                const mySentRequests = await api.joinRequests.getMyRequests();
                 setMyRequests(mySentRequests);
 
             } catch (error) {
@@ -42,7 +50,7 @@ export default function UserDashboard({ user }: { user: any }) {
         };
 
         fetchData();
-    }, []);
+    }, [initialData]);
 
     const handleRequestAction = async (requestId: string, status: 'APPROVED' | 'REJECTED') => {
         try {

@@ -46,6 +46,9 @@
   --color-text-tertiary: var(--text-tertiary);
   --color-success: var(--success);
   --color-error: var(--error);
+  
+  /* Fonts */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 body {

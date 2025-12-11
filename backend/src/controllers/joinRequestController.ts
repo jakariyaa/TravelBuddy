@@ -303,3 +303,48 @@ export const deleteRequest = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+export const getRequestsForUserPlans = async (req: Request, res: Response) => {
+    try {
+        // @ts-ignore
+        const userId = req.user?.id;
+
+        if (!userId) {
+            res.status(401).json({ message: 'Unauthorized' });
+            return;
+        }
+
+        // Fetch all requests for plans where the user is the host (userId matches)
+        const requests = await prisma.joinRequest.findMany({
+            where: {
+                travelPlan: {
+                    userId: userId
+                }
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                        bio: true
+                    }
+                },
+                travelPlan: {
+                    select: {
+                        id: true,
+                        destination: true,
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' },
+            // Optional: Limit if needed, but "all pending" is usually the requirement
+            // take: 50 
+        });
+
+        res.json(requests);
+    } catch (error) {
+        console.error('GetRequestsForUserPlans error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
