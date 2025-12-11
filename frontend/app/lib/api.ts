@@ -1,6 +1,6 @@
 import { authClient } from "./auth-client";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
     const session = await authClient.getSession();
