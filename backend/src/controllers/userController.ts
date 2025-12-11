@@ -333,7 +333,11 @@ export const getMatchedUsers = async (req: Request, res: Response) => {
 
         const currentUser = await prisma.user.findUnique({
             where: { id: userId },
-            select: { travelInterests: true }
+            select: {
+                travelInterests: true,
+                visitedCountries: true,
+                currentLocation: true
+            }
         });
 
         if (!currentUser || !currentUser.travelInterests || currentUser.travelInterests.length === 0) {
@@ -341,34 +345,68 @@ export const getMatchedUsers = async (req: Request, res: Response) => {
             return;
         }
 
-        // Find users who have at least one common interest
-        // Prisma doesn't support "count of matching array elements" easily in one query without raw SQL or filtering in JS.
-        // For efficiency in a larger app, we'd use raw SQL or a dedicated search service.
-        // For MVP, we'll fetch users with hasSome interests and sort by match count in JS.
-
+        // find potential matches
+        // We still filter by having AT LEAST ONE shared interest to be relevant, 
+        // effectively excluding 0% interest match unless we want to allow location-only matches.
+        // Given '60% for interests', interest is the primary factor. 
+        // Let's keep the 'hasSome' filter for performance/relevance.
         const matches = await prisma.user.findMany({
             where: {
                 id: { not: userId },
-                travelInterests: {
-                    hasSome: currentUser.travelInterests
-                }
+                travelInterests: { hasSome: currentUser.travelInterests }
             },
             select: {
                 id: true,
                 name: true,
                 image: true,
                 bio: true,
-                travelInterests: true,
                 currentLocation: true,
-                isVerified: true
+                travelInterests: true,
+                visitedCountries: true,
+                isVerified: true,
+                _count: {
+                    select: { travelPlans: true }
+                }
             },
             take: 50
         });
 
+        // Helper to extract country from location string (e.g., "Paris, France" -> "France")
+        const getCountry = (loc: string | null) => {
+            if (!loc) return '';
+            const parts = loc.split(',');
+            return parts[parts.length - 1]?.trim().toLowerCase() || '';
+        };
+
+        const myCountry = getCountry(currentUser.currentLocation);
+
         // score matches
         const scoredMatches = matches.map(user => {
-            const shared = user.travelInterests.filter(i => currentUser.travelInterests.includes(i));
-            return { ...user, score: shared.length, sharedInterests: shared };
+            // 1. Interest Score from 60% (7 matches max)
+            const sharedInterests = user.travelInterests.filter(i => currentUser.travelInterests.includes(i));
+            const interestCount = Math.min(sharedInterests.length, 7);
+            const interestScore = (interestCount / 7) * 60;
+
+            // 2. Location Score from 20% (Same country)
+            const theirCountry = getCountry(user.currentLocation);
+            const isSameCountry = myCountry && theirCountry && myCountry === theirCountry;
+            const locationScore = isSameCountry ? 20 : 0;
+
+            // 3. Visited Countries Score from 20% (3 matches max)
+            const sharedVisited = user.visitedCountries.filter(c => currentUser.visitedCountries.includes(c));
+            const visitedCount = Math.min(sharedVisited.length, 3);
+            const visitedScore = (visitedCount / 3) * 20;
+
+            const totalScore = Math.round(interestScore + locationScore + visitedScore);
+
+            return {
+                ...user,
+                score: totalScore, // 0-100
+                sharedInterests: sharedInterests,
+                // map keys to frontend expected format if needed
+                trips: user._count.travelPlans,
+                location: user.currentLocation // frontend uses 'location' or 'currentLocation'
+            };
         });
 
         // sort by score desc

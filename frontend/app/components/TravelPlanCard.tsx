@@ -38,7 +38,7 @@ export default function TravelPlanCard({ plan }: TravelPlanCardProps) {
                         </span>
                     </div>
 
-                    <h3 className="text-lg font-bold text-text-primary dark:text-white mb-2 group-hover:text-primary transition-colors">
+                    <h3 className="text-lg font-bold text-text-primary dark:text-white mb-2 group-hover:text-primary transition-colors max-w-[300px] truncate">
                         {plan.destination}
                     </h3>
 

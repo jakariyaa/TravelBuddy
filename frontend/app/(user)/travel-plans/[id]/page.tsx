@@ -238,99 +238,7 @@ export default function TravelPlanDetailsPage() {
                         </div>
                     </div>
 
-                    {/* Host Actions / Join Button / Review Actions */}
-                    <div className="mt-8 pt-8 px-8 border-t border-gray-100 dark:border-gray-700">
-                        {isOwner ? (
-                            <div className="space-y-6">
-                                {plan.status !== 'COMPLETED' ? (
-                                    <button
-                                        onClick={handleCompleteTrip}
-                                        disabled={isCompleting}
-                                        className="w-full py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20 flex items-center justify-center gap-2"
-                                    >
-                                        {isCompleting ? <Loader2 className="animate-spin" /> : <CheckCircle size={20} />}
-                                        Mark Trip as Completed
-                                    </button>
-                                ) : (
-                                    <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
-                                        <h3 className="font-bold text-text-primary dark:text-white mb-4">Trip Participants</h3>
-                                        {participants.length > 0 ? (
-                                            <div className="space-y-4">
-                                                {participants.map((participant) => (
-                                                    <div key={participant.id} className="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
-                                                        <div className="flex items-center gap-3">
-                                                            <img
-                                                                src={participant.image || "https://i.pravatar.cc/150?img=68"}
-                                                                alt={participant.name}
-                                                                className="w-10 h-10 rounded-full object-cover"
-                                                            />
-                                                            <span className="font-medium text-text-primary dark:text-white">{participant.name}</span>
-                                                        </div>
-                                                        <button
-                                                            onClick={() => openReviewModal(participant.id, participant.name)}
-                                                            className="px-4 py-2 text-sm font-medium text-primary bg-teal-50 dark:bg-teal-900/30 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors"
-                                                        >
-                                                            Review
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <p className="text-text-secondary dark:text-gray-400 text-sm">No participants joined this trip.</p>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {plan.status === 'COMPLETED' ? (
-                                    <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 text-center">
-                                        <h3 className="font-bold text-text-primary dark:text-white mb-2">Trip Completed</h3>
-                                        <p className="text-text-secondary dark:text-gray-400 mb-4">How was your experience with the host?</p>
-                                        <button
-                                            onClick={() => openReviewModal(plan.user.id, plan.user.name)}
-                                            className="px-6 py-2 bg-primary text-white rounded-full font-bold hover:bg-teal-800 transition-colors shadow-lg shadow-teal-900/20 flex items-center gap-2 mx-auto"
-                                        >
-                                            <Star size={18} />
-                                            Review Host
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <button
-                                        onClick={handleJoinRequest}
-                                        disabled={isJoinRequesting || !session}
-                                        className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-teal-800 transition-colors shadow-lg shadow-teal-900/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                    >
-                                        {isJoinRequesting && <Loader2 className="animate-spin h-5 w-5" />}
-                                        Request to Join Trip
-                                    </button>
-                                )}
-                                {existingRequest && existingRequest.status === 'PENDING' && (
-                                    <button
-                                        onClick={handleCancelRequest}
-                                        disabled={isJoinRequesting}
-                                        className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-colors border border-red-100 flex items-center justify-center gap-2 mt-3"
-                                    >
-                                        {isJoinRequesting ? <Loader2 className="animate-spin h-5 w-5" /> : <Trash2 size={18} />}
-                                        Cancel Request
-                                    </button>
-                                )}
-                                {existingRequest && existingRequest.status === 'APPROVED' && (
-                                    <div className="w-full py-3 bg-green-50 text-green-700 rounded-xl font-bold border border-green-100 flex items-center justify-center gap-2 mt-3">
-                                        <CheckCircle size={20} />
-                                        Request Approved
-                                    </div>
-                                )}
-                                {existingRequest && existingRequest.status === 'REJECTED' && (
-                                    <div className="w-full py-3 bg-gray-50 text-gray-500 rounded-xl font-medium border border-gray-100 flex items-center justify-center gap-2 mt-3">
-                                        Request Rejected
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8 max-w-7xl mx-auto">
                         <div className="md:col-span-2 space-y-8">
                             <div>
                                 <h2 className="text-2xl font-bold text-text-primary dark:text-white mb-4">About the Trip</h2>
@@ -353,7 +261,38 @@ export default function TravelPlanDetailsPage() {
                                 </div>
                             )}
 
-                            {/* Additional Images Gallery could go here */}
+                            {/* Trip Participants (Owner View) */}
+                            {isOwner && plan.status === 'COMPLETED' && (
+                                <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
+                                    <h3 className="font-bold text-text-primary dark:text-white mb-4">Trip Participants</h3>
+                                    {participants.length > 0 ? (
+                                        <div className="space-y-4">
+                                            {participants.map((participant) => (
+                                                <div key={participant.id} className="flex items-center justify-between bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                                                    <div className="flex items-center gap-3">
+                                                        <img
+                                                            src={participant.image || "https://i.pravatar.cc/150?img=68"}
+                                                            alt={participant.name}
+                                                            className="w-10 h-10 rounded-full object-cover"
+                                                        />
+                                                        <span className="font-medium text-text-primary dark:text-white">{participant.name}</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => openReviewModal(participant.id, participant.name)}
+                                                        className="px-4 py-2 text-sm font-medium text-primary bg-teal-50 dark:bg-teal-900/30 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors"
+                                                    >
+                                                        Review
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-text-secondary dark:text-gray-400 text-sm">No participants joined this trip.</p>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Additional Images Gallery */}
                             {plan.images && plan.images.length > 1 && (
                                 <div>
                                     <h3 className="text-xl font-bold text-text-primary dark:text-white mb-4">Gallery</h3>
@@ -384,6 +323,70 @@ export default function TravelPlanDetailsPage() {
                                         <p className="text-sm text-text-secondary dark:text-gray-300 line-clamp-1">{plan.user?.bio || "Travel enthusiast"}</p>
                                     </div>
                                 </Link>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="space-y-4">
+                                {isOwner ? (
+                                    <>
+                                        {plan.status !== 'COMPLETED' && (
+                                            <button
+                                                onClick={handleCompleteTrip}
+                                                disabled={isCompleting}
+                                                className="w-full py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20 flex items-center justify-center gap-2"
+                                            >
+                                                {isCompleting ? <Loader2 className="animate-spin" /> : <CheckCircle size={20} />}
+                                                Mark Trip as Completed
+                                            </button>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        {plan.status === 'COMPLETED' ? (
+                                            <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 text-center">
+                                                <h3 className="font-bold text-text-primary dark:text-white mb-2">Trip Completed</h3>
+                                                <p className="text-text-secondary dark:text-gray-400 mb-4">How was your experience with the host?</p>
+                                                <button
+                                                    onClick={() => openReviewModal(plan.user.id, plan.user.name)}
+                                                    className="w-full px-6 py-2 bg-primary text-white rounded-full font-bold hover:bg-teal-800 transition-colors shadow-lg shadow-teal-900/20 flex items-center justify-center gap-2"
+                                                >
+                                                    <Star size={18} />
+                                                    Review Host
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={handleJoinRequest}
+                                                disabled={isJoinRequesting || !session}
+                                                className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-teal-800 transition-colors shadow-lg shadow-teal-900/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            >
+                                                {isJoinRequesting && <Loader2 className="animate-spin h-5 w-5" />}
+                                                Request to Join Trip
+                                            </button>
+                                        )}
+                                        {existingRequest && existingRequest.status === 'PENDING' && (
+                                            <button
+                                                onClick={handleCancelRequest}
+                                                disabled={isJoinRequesting}
+                                                className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-colors border border-red-100 flex items-center justify-center gap-2"
+                                            >
+                                                {isJoinRequesting ? <Loader2 className="animate-spin h-5 w-5" /> : <Trash2 size={18} />}
+                                                Cancel Request
+                                            </button>
+                                        )}
+                                        {existingRequest && existingRequest.status === 'APPROVED' && (
+                                            <div className="w-full py-3 bg-green-50 text-green-700 rounded-xl font-bold border border-green-100 flex items-center justify-center gap-2">
+                                                <CheckCircle size={20} />
+                                                Request Approved
+                                            </div>
+                                        )}
+                                        {existingRequest && existingRequest.status === 'REJECTED' && (
+                                            <div className="w-full py-3 bg-gray-50 text-gray-500 rounded-xl font-medium border border-gray-100 flex items-center justify-center gap-2">
+                                                Request Rejected
+                                            </div>
+                                        )}
+                                    </>
+                                )}
                             </div>
 
                             {/* Trip Details Summary */}

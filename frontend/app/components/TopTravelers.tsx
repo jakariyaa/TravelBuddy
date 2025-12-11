@@ -91,56 +91,90 @@ export default function TopTravelers() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {displayTravelers.map((traveler) => (
-                        <div key={traveler.id} className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-6 text-center hover:shadow-lg transition-shadow duration-300 border border-gray-100 dark:border-gray-700 flex flex-col h-full">
-                            <div className="relative inline-block mb-4 mx-auto">
-                                <img
-                                    src={traveler.image || `https://i.pravatar.cc/150?u=${traveler.id}`}
-                                    alt={traveler.name}
-                                    className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-md"
-                                />
-                                {traveler.rating && (
-                                    <div className="absolute bottom-0 right-0 bg-yellow-400 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-                                        <Star size={10} className="fill-current" />
-                                        {traveler.rating}
-                                    </div>
-                                )}
-                                {isPersonalized && traveler.score && (
-                                    <div className="absolute bottom-0 right-0 bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-                                        <span className="text-[10px]">Match</span>
-                                        {traveler.score}%
-                                    </div>
-                                )}
+                        <div key={traveler.id} className="group bg-white dark:bg-gray-900 rounded-2xl p-5 hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-800 flex flex-col h-full relative">
+                            {/* Header: Photo & Match Indicator */}
+                            <div className="flex flex-col items-center mb-3 relative">
+                                <div className="relative">
+                                    <img
+                                        src={traveler.image || `https://i.pravatar.cc/150?u=${traveler.id}`}
+                                        alt={traveler.name}
+                                        className="w-20 h-20 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                    {/* Match Badge for Personalized View */}
+                                    {isPersonalized && traveler.score && (
+                                        <div className="absolute -right-6 top-0 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-[6px] font-bold px-1 py-0 rounded-full shadow-sm flex items-center gap-0.5">
+                                            {traveler.score}%
+                                        </div>
+                                    )}
+                                    {/* Rating for Default View */}
+                                    {!isPersonalized && traveler.rating && (
+                                        <div className="absolute -right-1 bottom-0 bg-yellow-400 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm border border-white dark:border-gray-800">
+                                            <Star size={8} className="fill-current" />
+                                            {traveler.rating}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            <h3 className="text-xl font-bold text-text-primary dark:text-white mb-1 flex items-center justify-center gap-1">
-                                {traveler.name}
-                                {traveler.isVerified && <BadgeCheck size={18} className="text-blue-500 fill-blue-500/10" />}
-                            </h3>
+                            {/* Body: Name, Location, Interests */}
+                            <div className="text-center flex-grow flex flex-col items-center">
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight flex items-center justify-center gap-1 mb-1">
+                                    {traveler.name}
+                                    {traveler.isVerified && <BadgeCheck size={16} className="text-blue-500 fill-blue-500/10" />}
+                                </h3>
 
-                            <div className="flex items-center justify-center gap-1 text-text-secondary dark:text-gray-400 text-sm mb-3">
-                                <MapPin size={14} />
-                                {traveler.location || traveler.currentLocation || "Location Unknown"}
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-1">
+                                    {traveler.location || traveler.currentLocation || "Location Unknown"}
+                                </div>
+
+                                {/* Interest Chips or Bio */}
+                                <div className="w-full mb-4">
+                                    {isPersonalized && traveler.sharedInterests ? (
+                                        <div className="flex flex-wrap justify-center gap-2">
+                                            {traveler.sharedInterests.slice(0, 3).map((interest: string, idx: number) => (
+                                                <span
+                                                    key={idx}
+                                                    className={`
+                                                        px-2.5 py-1 rounded-full text-[11px] font-medium 
+                                                        ${['nature', 'hiking', 'outdoors'].some(k => interest.toLowerCase().includes(k))
+                                                            ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300'
+                                                            : ['beach', 'sea', 'ocean'].some(k => interest.toLowerCase().includes(k))
+                                                                ? 'bg-cyan-50 text-cyan-700 dark:bg-cyan-900/20 dark:text-cyan-300'
+                                                                : 'bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-300'
+                                                        }
+                                                    `}
+                                                >
+                                                    {interest}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 px-2">
+                                            "{traveler.bio || "Ready to explore the world!"}"
+                                        </p>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* Bio or Interests */}
-                            <div className="text-text-secondary dark:text-gray-400 text-sm mb-6 line-clamp-2 flex-grow">
-                                {isPersonalized && traveler.sharedInterests ? (
-                                    <span>
-                                        Shares interests in <strong className="text-primary">{traveler.sharedInterests.slice(0, 3).join(", ")}</strong>
-                                    </span>
-                                ) : (
-                                    `"${traveler.bio || "Ready to explore the world!"}"`
-                                )}
-                            </div>
+                            {/* Footer: Action */}
+                            <div className="pt-3 mt-1 border-t border-gray-100 dark:border-gray-800 w-full flex items-center justify-between">
+                                {/* Hide Trips if 0 or irrelevant in personalized view unless user wants it. 
+                                    User said "Hide '0 Trips' unless meaningful". 
+                                    Let's show it only if > 0.
+                                */}
+                                <div className="text-xs font-medium text-gray-400">
+                                    {traveler.trips > 0 && (
+                                        <span>{traveler.trips} Trips</span>
+                                    )}
+                                </div>
 
-                            <div className="flex items-center justify-between text-sm border-t border-gray-200 dark:border-gray-700 pt-4 mt-auto">
-                                <span className="font-semibold text-text-primary dark:text-white">
-                                    {traveler.trips || 0} <span className="font-normal text-text-secondary dark:text-gray-400">Trips</span>
-                                </span>
-                                <Link href={`/profile/${traveler.id}`} className="text-primary hover:text-teal-700 font-medium flex items-center gap-1 transition-colors">
-                                    <UserPlus size={16} />
+                                <Link
+                                    href={`/profile/${traveler.id}`}
+                                    className="text-sm font-semibold text-primary hover:text-teal-700 flex items-center gap-1.5 transition-colors ml-auto"
+                                >
+                                    <UserPlus size={14} />
                                     Connect
                                 </Link>
                             </div>
