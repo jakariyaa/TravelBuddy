@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from "sonner";
-
 import { ThemeProvider } from "./components/ThemeProvider";
+import StoreProvider from "./StoreProvider";
 
 export default function RootLayout({
   children,
@@ -30,8 +30,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster position="top-center" richColors />
+          <StoreProvider>
+            {children}
+            <Toaster position="top-center" richColors />
+          </StoreProvider>
         </ThemeProvider>
       </body>
     </html>

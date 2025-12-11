@@ -271,11 +271,7 @@ export const deletePlan = catchAsync(async (req: Request, res: Response, next: N
 });
 
 export const searchPlans = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const { destination, startDate, endDate, travelType, interests, page = '1', limit = '10' } = req.query;
-
-    const pageNum = parseInt(String(page));
-    const limitNum = parseInt(String(limit));
-    const skip = (pageNum - 1) * limitNum;
+    const { destination, startDate, endDate, travelType, interests } = req.query;
 
     const where: any = {};
 
@@ -324,9 +320,10 @@ export const searchPlans = catchAsync(async (req: Request, res: Response, next: 
                 },
             },
         },
-        orderBy: { startDate: 'asc' },
-        skip,
-        take: limitNum,
+        orderBy: [
+            { startDate: 'asc' },
+            { id: 'desc' }
+        ]
     });
 
     res.json(plans);

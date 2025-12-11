@@ -15,10 +15,7 @@ export default function ExplorePage() {
     // Main List State
     const [plans, setPlans] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [error, setError] = useState("");
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
 
     // Recommended List State
     const [recommendedPlans, setRecommendedPlans] = useState<any[]>([]);
@@ -44,7 +41,9 @@ export default function ExplorePage() {
                     if (profile && profile.travelInterests && profile.travelInterests.length > 0) {
                         const params = new URLSearchParams();
                         params.append('interests', profile.travelInterests.join(','));
-                        params.append('limit', '3'); // Top 3 recommendations
+                        // keep limit for recommendations as we don't want to show ALL recommendations 
+                        // (conceptually different from main list)
+                        params.append('limit', '3');
 
                         // We use the search endpoint which supports interest matching
                         const query = params.toString();
@@ -67,14 +66,8 @@ export default function ExplorePage() {
         fetchRecommended();
     }, [session]);
 
-    const fetchPlans = async (reset = false) => {
-        if (reset) {
-            setIsLoading(true);
-            setPage(1);
-            setHasMore(true);
-        } else {
-            setIsFetchingMore(true);
-        }
+    const fetchPlans = async () => {
+        setIsLoading(true);
 
         try {
             // Build query string
@@ -85,72 +78,33 @@ export default function ExplorePage() {
             if (endDate) params.append("endDate", endDate);
             if (interests) params.append("interests", interests);
 
-            // Pagination
-            const currentPage = reset ? 1 : page;
-            params.append("page", currentPage.toString());
-            params.append("limit", "9"); // Load 9 per page (3x3 grid)
-
             const queryString = params.toString();
+
             // api.travelPlans.search handles query string appending generally
             // If queryString is empty, search endpoint will return all with defaults
             const data = await api.travelPlans.search(queryString);
 
-            if (reset) {
-                setPlans(data);
-            } else {
-                setPlans(prev => [...prev, ...data]);
-            }
-
-            // If we got fewer items than limit, we reached the end
-            if (data.length < 9) {
-                setHasMore(false);
-            } else {
-                setPage(currentPage + 1);
-            }
+            setPlans(data);
 
         } catch (err) {
             setError("Failed to load travel plans");
         } finally {
             setIsLoading(false);
-            setIsFetchingMore(false);
         }
     };
 
     useEffect(() => {
         // Initial load
-        fetchPlans(true);
+        fetchPlans();
     }, []);
 
     // Debounced search
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            fetchPlans(true); // Reset on filter change
+            fetchPlans(); // Reset on filter change
         }, 500);
         return () => clearTimeout(timeoutId);
     }, [destination, travelType, startDate, endDate, interests]);
-
-    // Intersection Observer for Infinite Scroll
-    useEffect(() => {
-        if (!hasMore || isLoading || isFetchingMore) return;
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting) {
-                    fetchPlans(false);
-                }
-            },
-            { threshold: 0.5 } // Trigger when 50% visible (or closer to bottom)
-        );
-
-        const sentinel = document.getElementById("scroll-sentinel");
-        if (sentinel) {
-            observer.observe(sentinel);
-        }
-
-        return () => {
-            if (sentinel) observer.unobserve(sentinel);
-        };
-    }, [hasMore, isLoading, isFetchingMore, plans]); // Dependencies are crucial here
 
     // Animation Variants
     const containerVariants = {
@@ -216,7 +170,7 @@ export default function ExplorePage() {
                                     />
                                     <button
                                         className="bg-primary hover:bg-teal-700 text-white p-3 rounded-full transition-colors flex-shrink-0"
-                                        onClick={() => fetchPlans(true)}
+                                        onClick={() => fetchPlans()}
                                     >
                                         <Search size={24} />
                                     </button>
@@ -359,7 +313,7 @@ export default function ExplorePage() {
                     </AnimatePresence>
 
                     {/* Results Grid */}
-                    {isLoading && !isFetchingMore ? (
+                    {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-32">
                             <Loader2 className="animate-spin text-primary mb-4" size={48} />
                             <p className="text-gray-500 font-medium">Finding amazing trips...</p>
@@ -372,7 +326,7 @@ export default function ExplorePage() {
                             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Oops! Something went wrong.</h3>
                             <p className="text-gray-500 mb-6">{error}</p>
                             <button
-                                onClick={() => fetchPlans(true)}
+                                onClick={() => fetchPlans()}
                                 className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
                             >
                                 Try Again
@@ -418,21 +372,12 @@ export default function ExplorePage() {
                                     </motion.div>
                                 ))}
                             </motion.div>
-
-                            {/* Sentinel and Loading Spinner for Infinite Scroll */}
-                            <div id="scroll-sentinel" className="h-20 flex items-center justify-center mt-8">
-                                {isFetchingMore && (
-                                    <Loader2 className="animate-spin text-primary" size={32} />
-                                )}
-                                {!hasMore && plans.length > 0 && (
-                                    <p className="text-gray-400 text-sm">You've reached the end of the list.</p>
-                                )}
-                            </div>
+                            <div className="h-8"></div>
                         </>
                     )}
                 </div>
-            </main>
+            </main >
             <Footer />
-        </div>
+        </div >
     );
 }
