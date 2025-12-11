@@ -85,7 +85,7 @@ export const api = {
             body: JSON.stringify(data),
         }),
         getAll: () => fetchWithAuth("/reviews"),
-        getUserReviews: (userId: string) => fetchWithAuth(`/reviews/user/${userId}`),
+        getUserReviews: (userId: string, page: number = 1, limit: number = 10) => fetchWithAuth(`/reviews/user/${userId}?page=${page}&limit=${limit}`),
         update: (id: string, data: any) => fetchWithAuth(`/reviews/${id}`, {
             method: "PUT",
             body: JSON.stringify(data),

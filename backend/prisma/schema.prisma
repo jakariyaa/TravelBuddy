@@ -96,6 +96,8 @@ model Review {
   reviewer     User       @relation("GivenReviews", fields: [reviewerId], references: [id], onDelete: Cascade)
   reviewee     User       @relation("ReceivedReviews", fields: [revieweeId], references: [id], onDelete: Cascade)
   travelPlan   TravelPlan? @relation(fields: [travelPlanId], references: [id], onDelete: Cascade)
+
+  @@index([revieweeId])
 }
 
 model JoinRequest {

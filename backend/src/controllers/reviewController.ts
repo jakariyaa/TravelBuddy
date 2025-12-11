@@ -99,6 +99,10 @@ export const getUserReviews = async (req: Request, res: Response) => {
             return;
         }
 
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const skip = (page - 1) * limit;
+
         const reviews = await prisma.review.findMany({
             where: { revieweeId: userId },
             include: {
@@ -116,6 +120,8 @@ export const getUserReviews = async (req: Request, res: Response) => {
                     }
                 }
             },
+            take: limit,
+            skip: skip,
             orderBy: { createdAt: 'desc' }
         });
 
@@ -131,12 +137,19 @@ export const getUserReviews = async (req: Request, res: Response) => {
             stats: {
                 averageRating: aggregate._avg?.rating || 0,
                 totalReviews: aggregate._count?.rating || 0
+            },
+            pagination: {
+                total: aggregate._count?.rating || 0,
+                pages: Math.ceil((aggregate._count?.rating || 0) / limit),
+                page,
+                limit
             }
         });
     } catch (error) {
         console.error('GetUserReviews error:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
+
 };
 
 export const updateReview = async (req: Request, res: Response) => {

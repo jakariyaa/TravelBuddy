@@ -33,13 +33,16 @@ export default function ProfilePage() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const userData = await api.users.getById(params.id as string);
-                setUser(userData);
+                const [userData, reviewsData] = await Promise.all([
+                    api.users.getById(params.id as string),
+                    api.reviews.getUserReviews(params.id as string) // Default to page 1, limit 10
+                ]);
 
-                const reviewsData = await api.reviews.getUserReviews(params.id as string);
+                setUser(userData);
                 setReviews(reviewsData.reviews);
                 setReviewStats(reviewsData.stats);
             } catch (err) {
+                console.error("Error fetching profile:", err);
                 setError("Failed to load profile");
             } finally {
                 setIsLoading(false);
