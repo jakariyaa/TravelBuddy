@@ -343,17 +343,23 @@ export default function TravelPlanDetailsPage() {
                                 ) : (
                                     <>
                                         {plan.status === 'COMPLETED' ? (
-                                            <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 text-center">
-                                                <h3 className="font-bold text-text-primary dark:text-white mb-2">Trip Completed</h3>
-                                                <p className="text-text-secondary dark:text-gray-400 mb-4">How was your experience with the host?</p>
-                                                <button
-                                                    onClick={() => openReviewModal(plan.user.id, plan.user.name)}
-                                                    className="w-full px-6 py-2 bg-primary text-white rounded-full font-bold hover:bg-teal-800 transition-colors shadow-lg shadow-teal-900/20 flex items-center justify-center gap-2"
-                                                >
-                                                    <Star size={18} />
-                                                    Review Host
-                                                </button>
-                                            </div>
+                                            existingRequest?.status === 'APPROVED' ? (
+                                                <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 text-center">
+                                                    <h3 className="font-bold text-text-primary dark:text-white mb-2">Trip Completed</h3>
+                                                    <p className="text-text-secondary dark:text-gray-400 mb-4">How was your experience with the host?</p>
+                                                    <button
+                                                        onClick={() => openReviewModal(plan.user.id, plan.user.name)}
+                                                        className="w-full px-6 py-2 bg-primary text-white rounded-full font-bold hover:bg-teal-800 transition-colors shadow-lg shadow-teal-900/20 flex items-center justify-center gap-2"
+                                                    >
+                                                        <Star size={18} />
+                                                        Review Host
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="w-full py-3 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-xl font-medium border border-gray-200 dark:border-gray-600 flex items-center justify-center gap-2">
+                                                    Trip Completed
+                                                </div>
+                                            )
                                         ) : (
                                             <button
                                                 onClick={handleJoinRequest}

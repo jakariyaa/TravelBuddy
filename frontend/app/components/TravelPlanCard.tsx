@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, MapPin, User, DollarSign, BadgeCheck } from "lucide-react";
+import { Calendar, MapPin, User, DollarSign, BadgeCheck, CheckCircle } from "lucide-react";
 
 interface TravelPlanCardProps {
     plan: any;
@@ -18,11 +18,17 @@ export default function TravelPlanCard({ plan }: TravelPlanCardProps) {
                     <img
                         src={plan.images?.[0] || "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"}
                         alt={plan.destination}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${plan.status === 'COMPLETED' ? 'grayscale' : ''}`}
                     />
                     <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-primary shadow-sm">
                         {plan.travelType}
                     </div>
+                    {plan.status === 'COMPLETED' && (
+                        <div className="absolute bottom-4 left-4 bg-gray-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                            <CheckCircle size={12} />
+                            Completed
+                        </div>
+                    )}
                 </div>
 
                 <div className="p-5">

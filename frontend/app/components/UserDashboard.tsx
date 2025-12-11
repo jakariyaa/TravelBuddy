@@ -6,6 +6,7 @@ import { api } from "@/app/utils/api";
 import { Calendar, MapPin, Users, ArrowRight, Clock, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import MatchedTravelers from "./MatchedTravelers";
+import { Skeleton } from "./Skeleton";
 
 export default function UserDashboard({ user, initialData }: { user: any, initialData?: any }) {
     const [upcomingPlans, setUpcomingPlans] = useState<any[]>([]);
@@ -64,10 +65,38 @@ export default function UserDashboard({ user, initialData }: { user: any, initia
     };
 
     if (isLoading) {
-        return <div className="animate-pulse space-y-4">
-            <div className="h-48 bg-gray-100 dark:bg-gray-800 rounded-2xl"></div>
-            <div className="h-48 bg-gray-100 dark:bg-gray-800 rounded-2xl"></div>
-        </div>;
+        return (
+            <div className="space-y-8">
+                <Skeleton className="h-32 w-full rounded-3xl" />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <Skeleton className="h-6 w-6 rounded-full" />
+                            <Skeleton className="h-8 w-48" />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[...Array(4)].map((_, i) => (
+                                <Skeleton key={i} className="h-32 w-full" />
+                            ))}
+                        </div>
+                    </div>
+                    <div className="space-y-8">
+                        <div className="space-y-4">
+                            <div className="flex justify-between">
+                                <Skeleton className="h-8 w-40" />
+                                <Skeleton className="h-6 w-24" />
+                            </div>
+                            <Skeleton className="h-28 w-full" />
+                            <Skeleton className="h-28 w-full" />
+                        </div>
+                        <div className="space-y-4">
+                            <Skeleton className="h-8 w-48" />
+                            <Skeleton className="h-24 w-full" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (

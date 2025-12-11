@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { X, Camera, Loader2 } from "lucide-react";
+import { X, Camera, Loader2, Lock } from "lucide-react";
 import { api } from "@/app/utils/api";
+import { authClient } from "@/app/utils/auth-client";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { toast } from "sonner";
@@ -24,7 +25,56 @@ export default function EditProfileModal({ isOpen, onClose, user, onUpdate }: Ed
     });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+
+    // Password Change State
+    const [showChangePassword, setShowChangePassword] = useState(false);
+    const [passwordForm, setPasswordForm] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmNewPassword: ""
+    });
+    const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handlePasswordChange = async () => {
+        if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmNewPassword) {
+            toast.error("Please fill in all password fields");
+            return;
+        }
+
+        if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
+            toast.error("New passwords do not match");
+            return;
+        }
+
+        if (passwordForm.newPassword.length < 8) {
+            toast.error("New password must be at least 8 characters");
+            return;
+        }
+
+        setIsPasswordLoading(true);
+        try {
+            await authClient.changePassword({
+                newPassword: passwordForm.newPassword,
+                currentPassword: passwordForm.currentPassword,
+                revokeOtherSessions: true
+            }, {
+                onSuccess: () => {
+                    toast.success("Password updated successfully");
+                    setShowChangePassword(false);
+                    setPasswordForm({ currentPassword: "", newPassword: "", confirmNewPassword: "" });
+                },
+                onError: (ctx) => {
+                    toast.error(ctx.error.message || "Failed to change password");
+                }
+            });
+        } catch (err) {
+            toast.error("Something went wrong");
+        } finally {
+            setIsPasswordLoading(false);
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -179,6 +229,64 @@ export default function EditProfileModal({ isOpen, onClose, user, onUpdate }: Ed
                                     placeholder="Japan, France, Brazil"
                                 />
                             </div>
+
+                            {/* Change Password Toggle */}
+                            <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowChangePassword(!showChangePassword)}
+                                    className="text-primary hover:underline text-sm font-medium"
+                                >
+                                    {showChangePassword ? "Cancel Change Password" : "Change Password"}
+                                </button>
+                            </div>
+
+                            {showChangePassword && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="space-y-4 pt-2"
+                                >
+                                    <div>
+                                        <label className="block text-sm font-medium text-text-primary dark:text-white mb-1">Current Password</label>
+                                        <input
+                                            type="password"
+                                            value={passwordForm.currentPassword}
+                                            onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-text-primary dark:text-white mb-1">New Password</label>
+                                        <input
+                                            type="password"
+                                            value={passwordForm.newPassword}
+                                            onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-text-primary dark:text-white mb-1">Confirm New Password</label>
+                                        <input
+                                            type="password"
+                                            value={passwordForm.confirmNewPassword}
+                                            onChange={(e) => setPasswordForm({ ...passwordForm, confirmNewPassword: e.target.value })}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                                        />
+                                    </div>
+                                    <div className="flex justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={handlePasswordChange}
+                                            disabled={isPasswordLoading}
+                                            className="px-4 py-2 rounded-md bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-bold shadow-md disabled:opacity-50"
+                                        >
+                                            {isPasswordLoading ? <Loader2 className="animate-spin h-4 w-4" /> : "Update Password"}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
 
                             <div className="pt-4 flex justify-end gap-3">
                                 <button

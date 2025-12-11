@@ -103,8 +103,9 @@ export default function TopTravelers() {
                                         className="w-20 h-20 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm group-hover:scale-105 transition-transform duration-300"
                                     />
                                     {/* Match Badge for Personalized View */}
-                                    {isPersonalized && traveler.score && (
-                                        <div className="absolute -right-6 top-0 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-[6px] font-bold px-1 py-0 rounded-full shadow-sm flex items-center gap-0.5">
+                                    {/* Match Badge for Personalized View */}
+                                    {isPersonalized && traveler.score > 0 && (
+                                        <div className="absolute -bottom-2 -right-6 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-[8px] font-bold px-1 rounded-full shadow-sm flex items-center gap-0.5 z-10 whitespace-nowrap">
                                             {traveler.score}%
                                         </div>
                                     )}

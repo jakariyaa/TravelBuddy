@@ -7,6 +7,7 @@ import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import UserDashboard from "@/app/components/UserDashboard";
 import AdminDashboard from "@/app/components/AdminDashboard";
+import DashboardSkeleton from "@/app/components/DashboardSkeleton";
 import { Loader2 } from "lucide-react";
 import { api } from "@/app/utils/api";
 
@@ -58,9 +59,10 @@ export default function DashboardPage() {
         return (
             <div className="min-h-screen bg-background flex flex-col">
                 <Navbar />
-                <main className="flex-grow flex items-center justify-center">
-                    <Loader2 className="animate-spin text-primary" size={40} />
+                <main className="flex-grow container mt-16 mx-auto px-4 py-8 sm:px-6 lg:px-8">
+                    <DashboardSkeleton />
                 </main>
+                <Footer />
             </div>
         );
     }

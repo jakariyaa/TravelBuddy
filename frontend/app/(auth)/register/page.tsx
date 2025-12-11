@@ -14,6 +14,7 @@ export default function RegisterPage() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
@@ -23,15 +24,26 @@ export default function RegisterPage() {
         setIsLoading(true);
         setError("");
 
+        if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            setIsLoading(false);
+            return;
+        }
+
+        if (password.length < 8) {
+            setError("Password must be at least 8 characters");
+            setIsLoading(false);
+            return;
+        }
+
         await signUp.email({
             email,
             password,
             name,
         }, {
             onSuccess: () => {
-                toast.success("Account created successfully");
-                router.push("/");
-                router.refresh();
+                toast.success("Account created. Please verify your email.");
+                router.push(`/verify-email?email=${encodeURIComponent(email)}`);
             },
             onError: (ctx) => {
                 setError(ctx.error.message);
@@ -135,6 +147,28 @@ export default function RegisterPage() {
                                 <p className="mt-2 text-xs text-text-tertiary">
                                     Must be at least 8 characters long.
                                 </p>
+                            </div>
+
+                            <div>
+                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-text-primary">
+                                    Confirm Password
+                                </label>
+                                <div className="mt-1 relative rounded-md shadow-sm">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Lock className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                    <input
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        type="password"
+                                        autoComplete="new-password"
+                                        required
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent sm:text-sm bg-gray-50 dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800 transition-all dark:text-white"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
                             </div>
 
                             <div>

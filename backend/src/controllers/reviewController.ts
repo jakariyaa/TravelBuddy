@@ -36,12 +36,12 @@ export const createReview = catchAsync(async (req: Request, res: Response, next:
         }
 
         // Verify participation
-        const isOwner = plan.userId === reviewerId || plan.userId === revieweeId;
+        const isHost = plan.userId === reviewerId;
         const isParticipant = plan.joinRequests.some(req =>
-            req.status === 'APPROVED' && (req.userId === reviewerId || req.userId === revieweeId)
+            req.userId === reviewerId && req.status === 'APPROVED'
         );
 
-        if (!isOwner && !isParticipant) {
+        if (!isHost && !isParticipant) {
             return next(new AppError('Must be a participant to review', 403));
         }
 

@@ -99,7 +99,10 @@ export const getAllPlans = catchAsync(async (req: Request, res: Response, next: 
                 },
             },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: [
+            { status: 'asc' },
+            { createdAt: 'desc' }
+        ],
     });
 
     res.json(plans);
@@ -321,6 +324,7 @@ export const searchPlans = catchAsync(async (req: Request, res: Response, next: 
             },
         },
         orderBy: [
+            { status: 'asc' }, // UPCOMING(1) < ONGOING(2) < COMPLETED(3)
             { startDate: 'asc' },
             { id: 'desc' }
         ]

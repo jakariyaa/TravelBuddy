@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
+import { emailOTP } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma.js";
+import { sendEmail } from "../utils/email.js";
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
@@ -33,5 +35,60 @@ export const auth = betterAuth({
             enabled: true,
             trustedProviders: ["google", "github", "email-password"],
         }
-    }
+    },
+    plugins: [
+        emailOTP({
+            async sendVerificationOTP({ email, otp, type }) {
+                try {
+                    let subject = "Your Verification Code - Travel Buddy";
+                    let htmlContent = `
+                        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                            <h2 style="color: #0f766e;">Verify Your Email</h2>
+                            <p>Thank you for signing up with Travel Buddy. Please use the following code to verify your email address:</p>
+                            <div style="background-color: #f0fdfa; border: 1px solid #ccfbf1; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                                <span style="font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #0f766e;">${otp}</span>
+                            </div>
+                            <p>This code will expire shortly.</p>
+                            <p>If you didn't request this code, you can safely ignore this email.</p>
+                        </div>
+                    `;
+
+                    if (type === "forget-password") {
+                        const user = await prisma.user.findUnique({
+                            where: { email },
+                        });
+
+                        if (!user) {
+                            return; // Silent fail or you can throw error if preferred, but silent is safer against enumeration
+                        }
+
+                        subject = "Reset Your Password - Travel Buddy";
+                        htmlContent = `
+                            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                                <h2 style="color: #0f766e;">Reset Your Password</h2>
+                                <p>We received a request to reset your password. Use the code below to complete the process:</p>
+                                <div style="background-color: #f0fdfa; border: 1px solid #ccfbf1; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                                    <span style="font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #0f766e;">${otp}</span>
+                                </div>
+                                <p>This code will expire shortly.</p>
+                                <p>If you didn't request a password reset, your account is safe and you can ignore this email.</p>
+                            </div>
+                        `;
+                    }
+
+                    await sendEmail({
+                        to: email,
+                        subject,
+                        text: `Your code is: ${otp}`,
+                        html: htmlContent
+                    });
+                } catch (error) {
+                    console.error("Failed to send OTP email:", error);
+                    // We don't throw here to avoid crashing the auth flow, 
+                    // generally better-auth might handle strictly, but for now we log.
+                }
+            },
+            sendVerificationOnSignUp: true,
+        })
+    ]
 });

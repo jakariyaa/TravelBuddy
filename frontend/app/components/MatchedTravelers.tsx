@@ -6,6 +6,7 @@ import { api } from "@/app/utils/api";
 import { MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { Skeleton } from "./Skeleton";
 
 export default function MatchedTravelers() {
     const [matches, setMatches] = useState<any[]>([]);
@@ -28,7 +29,19 @@ export default function MatchedTravelers() {
     }, []);
 
     if (isLoading) {
-        return <div className="h-40 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />;
+        return (
+            <div className="space-y-4 animate-pulse">
+                <div className="flex items-center gap-2">
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                    <Skeleton className="h-6 w-48" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[...Array(4)].map((_, i) => (
+                        <Skeleton key={i} className="h-24 w-full rounded-2xl" />
+                    ))}
+                </div>
+            </div>
+        );
     }
 
     if (matches.length === 0) {
@@ -63,7 +76,7 @@ export default function MatchedTravelers() {
                                             {user.name}
                                         </h3>
                                         <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                            {user.score} Shared
+                                            {user.score}% Match
                                         </span>
                                     </div>
                                     {user.currentLocation && (

@@ -15,6 +15,16 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
 
         // @ts-ignore
         req.user = session.user;
+
+        // Strict Email Verification Check
+        // Social login users (google/github) are usually considered verified or have emailVerified=true by provider mapping.
+        // We ensure that if emailVerified is false, we block access.
+        // @ts-ignore
+        if (!session.user.emailVerified) {
+            res.status(403).json({ message: 'Email verification required. Please verify your email.' });
+            return;
+        }
+
         next();
     } catch (error) {
         console.error('Auth error:', error);

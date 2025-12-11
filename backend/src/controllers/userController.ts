@@ -290,21 +290,27 @@ export const getMatchedUsers = catchAsync(async (req: Request, res: Response, ne
         }
     });
 
-    if (!currentUser || !currentUser.travelInterests || currentUser.travelInterests.length === 0) {
-        res.json([]);
-        return;
+    if (!currentUser) {
+        return next(new AppError('User not found', 404));
     }
 
-    // find potential matches
-    // We still filter by having AT LEAST ONE shared interest to be relevant, 
-    // effectively excluding 0% interest match unless we want to allow location-only matches.
-    // Given '60% for interests', interest is the primary factor. 
-    // Let's keep the 'hasSome' filter for performance/relevance.
-    const matches = await prisma.user.findMany({
-        where: {
-            id: { not: userId },
-            travelInterests: { hasSome: currentUser.travelInterests }
-        },
+    // If no interests, we fallback to random Recommendation (fetch recent/random users)
+    const hasInterests = currentUser.travelInterests && currentUser.travelInterests.length > 0;
+
+    const whereClause: any = {
+        id: { not: userId }
+    };
+
+    if (hasInterests) {
+        whereClause.travelInterests = { hasSome: currentUser.travelInterests };
+    }
+
+    // If we have interests, we look for matches. If not, we just get some users to recommend.
+    // fetching more if random to allow shuffling
+    const limit = hasInterests ? 50 : 100;
+
+    let matches = await prisma.user.findMany({
+        where: whereClause,
         select: {
             id: true,
             name: true,
@@ -318,8 +324,13 @@ export const getMatchedUsers = catchAsync(async (req: Request, res: Response, ne
                 select: { travelPlans: true }
             }
         },
-        take: 50
+        take: limit
     });
+
+    // If no interests were used to filter, shuffle the results to give "random" matches
+    if (!hasInterests) {
+        matches = matches.sort(() => 0.5 - Math.random());
+    }
 
     // Helper to extract country from location string (e.g., "Paris, France" -> "France")
     const getCountry = (loc: string | null) => {

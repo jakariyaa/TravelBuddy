@@ -52,8 +52,15 @@ export default function ExplorePage() {
                         // but search endpoint might natively return them.
                         // Ideally recommendations shouldn't be your own plans. 
                         // Client-side filter for now:
-                        const filtered = data.filter((p: any) => p.userId !== session.user.id);
+                        const filtered = data.filter((p: any) => p.userId !== session.user.id && p.status !== 'COMPLETED');
                         setRecommendedPlans(filtered);
+                    } else {
+                        // Fallback: Fetch any plans (recent), exclude own, shuffle
+                        const data = await api.travelPlans.search('');
+                        const filtered = data.filter((p: any) => p.userId !== session.user.id && p.status !== 'COMPLETED');
+                        // Shuffle to give "random" recommendations
+                        const shuffled = filtered.sort(() => 0.5 - Math.random());
+                        setRecommendedPlans(shuffled.slice(0, 3));
                     }
                 } catch (e) {
                     console.error("Failed to fetch recommendations", e);
@@ -126,16 +133,22 @@ export default function ExplorePage() {
         }
     };
 
+    // Check for active filters
+    const hasActiveFilters = Boolean(destination || travelType || startDate || endDate || interests);
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans">
             <Navbar />
 
             <main className="flex-grow pt-16 pb-12">
                 {/* Hero Section */}
-                <div className="relative overflow-hidden bg-white dark:bg-gray-900 pb-16 pt-8 mb-12">
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 opacity-70"></div>
-                    <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                    <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
+                <div className="relative bg-white dark:bg-gray-900 pb-16 pt-8 mb-12">
+                    {/* Background Elements - Clipped */}
+                    <div className="absolute inset-0 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 opacity-70"></div>
+                        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
+                    </div>
 
                     <div className="container mx-auto px-4 relative z-10 max-w-7xl">
                         <motion.div
@@ -166,8 +179,21 @@ export default function ExplorePage() {
                                         placeholder="Where do you want to go?"
                                         value={destination}
                                         onChange={(e) => setDestination(e.target.value)}
-                                        className="w-full bg-transparent border-none focus:ring-0 text-lg py-3 px-4 text-gray-900 dark:text-white placeholder-gray-400"
+                                        className="w-full bg-transparent border-none focus:ring-0 text-lg py-2 px-4 text-gray-900 dark:text-white placeholder-gray-400"
                                     />
+
+                                    {/* Filter Toggle Button inside Search Bar */}
+                                    <button
+                                        onClick={() => setShowFilters(!showFilters)}
+                                        className={`mr-2 p-2 rounded-full transition-colors ${showFilters
+                                            ? 'bg-primary/10 text-primary'
+                                            : 'text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700'
+                                            }`}
+                                        title="Filters"
+                                    >
+                                        <Filter size={20} />
+                                    </button>
+
                                     <button
                                         className="bg-primary hover:bg-teal-700 text-white p-3 rounded-full transition-colors flex-shrink-0"
                                         onClick={() => fetchPlans()}
@@ -175,6 +201,95 @@ export default function ExplorePage() {
                                         <Search size={24} />
                                     </button>
                                 </div>
+
+                                {/* Filter Popover */}
+                                <AnimatePresence>
+                                    {showFilters && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="absolute top-full left-0 right-0 mt-4 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 text-left"
+                                        >
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                        <Type size={16} className="text-primary" /> Travel Type
+                                                    </label>
+                                                    <select
+                                                        value={travelType}
+                                                        onChange={(e) => setTravelType(e.target.value)}
+                                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all cursor-pointer hover:bg-white"
+                                                    >
+                                                        <option value="">Any Type</option>
+                                                        <option value="Solo">Solo</option>
+                                                        <option value="Couple">Couple</option>
+                                                        <option value="Family">Family</option>
+                                                        <option value="Friends">Friends</option>
+                                                        <option value="Business">Business</option>
+                                                        <option value="Backpacking">Backpacking</option>
+                                                        <option value="Luxury">Luxury</option>
+                                                        <option value="Adventure">Adventure</option>
+                                                    </select>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                        <Globe size={16} className="text-primary" /> Interests
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="e.g. Hiking, Food..."
+                                                        value={interests}
+                                                        onChange={(e) => setInterests(e.target.value)}
+                                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all"
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                        <Calendar size={16} className="text-primary" /> Start Date
+                                                    </label>
+                                                    <input
+                                                        type="date"
+                                                        value={startDate}
+                                                        onChange={(e) => setStartDate(e.target.value)}
+                                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all"
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                        <Calendar size={16} className="text-primary" /> End Date
+                                                    </label>
+                                                    <input
+                                                        type="date"
+                                                        value={endDate}
+                                                        onChange={(e) => setEndDate(e.target.value)}
+                                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-6 flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700">
+                                                <button
+                                                    onClick={() => {
+                                                        setDestination("");
+                                                        setTravelType("");
+                                                        setInterests("");
+                                                        setStartDate("");
+                                                        setEndDate("");
+                                                        setShowFilters(false);
+                                                    }}
+                                                    className="text-sm text-gray-500 hover:text-red-500 font-medium px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                                                >
+                                                    Clear Filters
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
                         </motion.div>
                     </div>
@@ -182,135 +297,39 @@ export default function ExplorePage() {
 
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
 
-                    {/* Recommended Section (Logged-in only) */}
-                    {session?.user && recommendedPlans.length > 0 && (
-                        <div className="mb-16 border-b border-gray-200 dark:border-gray-800 pb-12">
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-6">
-                                <Sparkles className="text-amber-500" size={24} />
-                                Recommended for You
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {recommendedPlans.map((plan) => (
-                                    <motion.div key={plan.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                                        <TravelPlanCard plan={plan} />
-                                    </motion.div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    {/* Recommended Section (Logged-in only) - Hides on search */}
+                    <AnimatePresence>
+                        {session?.user && recommendedPlans.length > 0 && !hasActiveFilters && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="mb-16 border-b border-gray-200 dark:border-gray-800 pb-12 overflow-hidden"
+                            >
+                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-6">
+                                    <Sparkles className="text-amber-500" size={24} />
+                                    Recommended for You
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {recommendedPlans.map((plan) => (
+                                        <motion.div key={plan.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                                            <TravelPlanCard plan={plan} />
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     {/* Filters & Controls */}
                     <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                             <Compass className="text-primary" size={28} />
                             Explore Trips
-                            {/* Removed total count as it's harder to track with infinite scroll without extra API call */}
                         </h2>
-
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-200 border ${showFilters
-                                ? 'bg-primary/10 border-primary text-primary'
-                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-primary/50 hover:shadow-sm'
-                                }`}
-                        >
-                            <Filter size={18} />
-                            <span>Filters</span>
-                            {showFilters ? (
-                                <span className="bg-primary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ml-1">×</span>
-                            ) : (
-                                <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs w-5 h-5 flex items-center justify-center rounded-full ml-1">+</span>
-                            )}
-                        </button>
                     </div>
 
-                    <AnimatePresence>
-                        {showFilters && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="overflow-hidden mb-10"
-                            >
-                                <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-700">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                                <Type size={16} className="text-primary" /> Travel Type
-                                            </label>
-                                            <select
-                                                value={travelType}
-                                                onChange={(e) => setTravelType(e.target.value)}
-                                                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all cursor-pointer hover:bg-white"
-                                            >
-                                                <option value="">Any Type</option>
-                                                <option value="Solo">Solo</option>
-                                                <option value="Couple">Couple</option>
-                                                <option value="Family">Family</option>
-                                                <option value="Friends">Friends</option>
-                                                <option value="Business">Business</option>
-                                                <option value="Backpacking">Backpacking</option>
-                                                <option value="Luxury">Luxury</option>
-                                                <option value="Adventure">Adventure</option>
-                                            </select>
-                                        </div>
 
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                                <Globe size={16} className="text-primary" /> Interests
-                                            </label>
-                                            <input
-                                                type="text"
-                                                placeholder="e.g. Hiking, Food..."
-                                                value={interests}
-                                                onChange={(e) => setInterests(e.target.value)}
-                                                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all"
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                                <Calendar size={16} className="text-primary" /> Start Date
-                                            </label>
-                                            <input
-                                                type="date"
-                                                value={startDate}
-                                                onChange={(e) => setStartDate(e.target.value)}
-                                                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all"
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                                <Calendar size={16} className="text-primary" /> End Date
-                                            </label>
-                                            <input
-                                                type="date"
-                                                value={endDate}
-                                                onChange={(e) => setEndDate(e.target.value)}
-                                                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-6 flex justify-end">
-                                        <button
-                                            onClick={() => {
-                                                setDestination("");
-                                                setTravelType("");
-                                                setInterests("");
-                                                setStartDate("");
-                                                setEndDate("");
-                                            }}
-                                            className="text-sm text-gray-500 hover:text-red-500 font-medium px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors"
-                                        >
-                                            Clear All Filters
-                                        </button>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
 
                     {/* Results Grid */}
                     {isLoading ? (
