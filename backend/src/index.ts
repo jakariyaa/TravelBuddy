@@ -41,7 +41,7 @@ import { globalErrorHandler } from './middleware/errorMiddleware.js';
 app.use(globalErrorHandler);
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running at http://localhost:${PORT}`);
 });
 
 export default app;

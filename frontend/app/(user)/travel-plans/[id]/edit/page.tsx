@@ -7,6 +7,7 @@ import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import { Loader2, Upload, Calendar, MapPin, DollarSign, Type } from "lucide-react";
 import { toast } from "sonner";
+import { TravelPlan } from "@/app/types";
 
 export default function EditTravelPlanPage() {
     const router = useRouter();
@@ -29,7 +30,7 @@ export default function EditTravelPlanPage() {
     useEffect(() => {
         const fetchPlan = async () => {
             try {
-                const data = await api.travelPlans.getById(params.id as string);
+                const data = (await api.travelPlans.getById(params.id as string)) as TravelPlan;
                 setDestination(data.destination);
                 setStartDate(new Date(data.startDate).toISOString().split('T')[0]);
                 setEndDate(new Date(data.endDate).toISOString().split('T')[0]);
@@ -38,7 +39,7 @@ export default function EditTravelPlanPage() {
                 setDescription(data.description || "");
                 setInterests(data.interests ? data.interests.join(", ") : "");
                 setExistingImages(data.images || []);
-            } catch (err) {
+            } catch (err: unknown) {
                 setError("Failed to load travel plan details");
                 toast.error("Failed to load travel plan details");
             } finally {
@@ -93,9 +94,10 @@ export default function EditTravelPlanPage() {
             await api.travelPlans.update(params.id as string, formData);
             toast.success("Travel plan updated successfully");
             router.push(`/travel-plans/${params.id}`);
-        } catch (err: any) {
-            setError(err.message || "Failed to update travel plan");
-            toast.error(err.message || "Failed to update travel plan");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to update travel plan";
+            setError(message);
+            toast.error(message);
         } finally {
             setIsSaving(false);
         }

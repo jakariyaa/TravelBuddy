@@ -7,24 +7,25 @@ import { api } from "@/app/utils/api";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import EditProfileModal from "@/app/components/EditProfileModal";
-import { MapPin, Calendar, Globe, Edit2, User, Mail, Star, BadgeCheck, Briefcase } from "lucide-react";
+import { MapPin, Calendar, Globe, Edit2, User as UserIcon, Star, BadgeCheck } from "lucide-react";
 import TravelPlanCard from "@/app/components/TravelPlanCard";
 import ReviewList from "@/app/components/ReviewList";
 import ReviewModal from "@/app/components/ReviewModal";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { User, Review, ReviewStats } from "@/app/types";
 
 export default function ProfilePage() {
     const params = useParams();
     const router = useRouter();
     const { data: session } = useSession();
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [reviews, setReviews] = useState<any[]>([]);
-    const [reviewStats, setReviewStats] = useState({ averageRating: 0, totalReviews: 0 });
+    const [reviews, setReviews] = useState<Review[]>([]);
+    const [reviewStats, setReviewStats] = useState<ReviewStats>({ averageRating: 0, totalReviews: 0 });
     const [activeTab, setActiveTab] = useState<'plans' | 'reviews'>('plans');
-    const [editingReview, setEditingReview] = useState<any>(null);
+    const [editingReview, setEditingReview] = useState<Review | null>(null);
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [error, setError] = useState("");
 
@@ -54,7 +55,7 @@ export default function ProfilePage() {
         }
     }, [params.id]);
 
-    const handleEditReview = (review: any) => {
+    const handleEditReview = (review: Review) => {
         setEditingReview(review);
         setIsReviewModalOpen(true);
     };
@@ -68,8 +69,9 @@ export default function ProfilePage() {
             const reviewsData = await api.reviews.getUserReviews(params.id as string);
             setReviews(reviewsData.reviews);
             setReviewStats(reviewsData.stats);
-        } catch (err: any) {
-            toast.error(err.message || "Failed to delete review");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to delete review";
+            toast.error(message);
         }
     };
 
@@ -99,7 +101,7 @@ export default function ProfilePage() {
                 <main className="flex-grow flex items-center justify-center p-4">
                     <div className="text-center bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl max-w-md w-full border border-gray-100 dark:border-gray-700">
                         <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <User size={32} className="text-gray-400" />
+                            <UserIcon size={32} className="text-gray-400" />
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">User not found</h2>
                         <p className="text-gray-500 dark:text-gray-400">The user you are looking for does not exist or may have been removed.</p>
@@ -204,7 +206,7 @@ export default function ProfilePage() {
                             <div className="space-y-8">
                                 <div className="relative bg-gray-50 dark:bg-gray-800/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-800/50">
                                     <p className="text-gray-600 dark:text-gray-300 max-w-4xl text-lg leading-relaxed italic">
-                                        "{user.bio || "No bio yet."}"
+                                        &quot;{user.bio || "No bio yet."}&quot;
                                     </p>
                                 </div>
 
@@ -239,13 +241,13 @@ export default function ProfilePage() {
                             <div className="bg-white dark:bg-gray-900 p-7 rounded-[2rem] shadow-lg shadow-gray-200/50 dark:shadow-black/20 border border-gray-100 dark:border-gray-800">
                                 <h3 className="font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3 text-lg">
                                     <div className="p-2.5 bg-teal-100 dark:bg-teal-900/30 rounded-xl text-teal-600 dark:text-teal-400">
-                                        <User size={22} />
+                                        <UserIcon size={22} />
                                     </div>
                                     Travel Interests
                                 </h3>
                                 <div className="flex flex-wrap gap-2.5">
-                                    {user.travelInterests?.length > 0 ? (
-                                        user.travelInterests.map((interest: string, index: number) => (
+                                    {(user.travelInterests?.length ?? 0) > 0 ? (
+                                        user.travelInterests?.map((interest: string, index: number) => (
                                             <span
                                                 key={index}
                                                 className="px-4 py-2 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl border border-gray-100 dark:border-gray-700"
@@ -268,8 +270,8 @@ export default function ProfilePage() {
                                     Visited Countries
                                 </h3>
                                 <div className="flex flex-wrap gap-2.5">
-                                    {user.visitedCountries?.length > 0 ? (
-                                        user.visitedCountries.map((country: string, index: number) => (
+                                    {(user.visitedCountries?.length ?? 0) > 0 ? (
+                                        user.visitedCountries?.map((country: string, index: number) => (
                                             <span
                                                 key={index}
                                                 className="px-4 py-2 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl border border-gray-100 dark:border-gray-700"
@@ -319,7 +321,7 @@ export default function ProfilePage() {
                                     {activeTab === 'plans' ? (
                                         user.travelPlans && user.travelPlans.length > 0 ? (
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                                                {user.travelPlans.map((plan: any) => (
+                                                {user.travelPlans.map((plan) => (
                                                     <TravelPlanCard key={plan.id} plan={{ ...plan, user: user }} />
                                                 ))}
                                             </div>

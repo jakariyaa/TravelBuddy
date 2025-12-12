@@ -172,7 +172,7 @@ export default function TopTravelers() {
                                 </div>
 
                                 <Link
-                                    href={`/profile/${traveler.id}`}
+                                    href={isPersonalized ? `/profile/${traveler.id}` : `/login`}
                                     className="text-sm font-semibold text-primary hover:text-teal-700 flex items-center gap-1.5 transition-colors ml-auto"
                                 >
                                     <UserPlus size={14} />

@@ -9,8 +9,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder'
     apiVersion: '2025-11-17.clover',
 });
 
-// Price IDs - In a real app, these should be in env or DB
-// For this demo, we'll map "monthly" and "yearly" to specific IDs or create ad-hoc prices
 const PLANS = {
     monthly: {
         name: 'Travel Buddy Premium (Monthly)',
@@ -42,7 +40,6 @@ export const createCheckoutSession = catchAsync(async (req: Request, res: Respon
 
     let customerId = user.stripeCustomerId;
 
-    // If user doesn't have a stripe customer ID, create one
     if (!customerId) {
         const customerParams: Stripe.CustomerCreateParams = {
             metadata: {
@@ -101,24 +98,17 @@ export const handleWebhook = async (req: Request, res: Response) => {
 
     try {
         if (!endpointSecret || !sig) {
-            // If no secret is configured (dev mode without strip cli), just log
-            console.warn("Webhook received but no secret configured. Skipping verification.");
-            // For safety in this specific dev environment we might proceed or return.
-            // But for standard implementation, we should return/fail.
-            // Given the context7 failure, let's assume standard behavior but lenient for dev
             event = req.body;
         } else {
             // @ts-ignore
             const rawBody = req.rawBody;
             if (!rawBody) {
-                console.error("No rawBody found on request. Make sure express.json({ verify }) is configured.");
                 res.status(400).send("Webhook Error: No raw body");
                 return;
             }
             event = stripe.webhooks.constructEvent(rawBody, sig, endpointSecret);
         }
     } catch (err: any) {
-        console.error(`Webhook Error: ${err.message}`);
         res.status(400).send(`Webhook Error: ${err.message}`);
         return;
     }
@@ -137,8 +127,8 @@ export const handleWebhook = async (req: Request, res: Response) => {
                             isVerified: true
                         }
                     });
-                    console.log(`User ${userId} subscription activated.`);
                 }
+
                 break;
 
             case 'customer.subscription.updated':
@@ -147,7 +137,6 @@ export const handleWebhook = async (req: Request, res: Response) => {
                 const customerId = subscription.customer as string;
                 const status = subscription.status; // active, past_due, canceled, etc.
 
-                // Map Stripe status to our Enum
                 let dbStatus: 'ACTIVE' | 'INACTIVE' | 'PAST_DUE' | 'CANCELED' = 'INACTIVE';
 
                 if (status === 'active' || status === 'trialing') dbStatus = 'ACTIVE';
@@ -164,12 +153,10 @@ export const handleWebhook = async (req: Request, res: Response) => {
                 break;
 
             default:
-                console.log(`Unhandled event type ${event.type}`);
         }
 
         res.json({ received: true });
     } catch (err) {
-        console.error("Webhook processing failed", err);
         res.status(500).json({ message: "Webhook processing failed" });
     }
 };

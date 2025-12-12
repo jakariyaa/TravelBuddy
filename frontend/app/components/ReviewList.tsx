@@ -1,22 +1,7 @@
 "use client";
 
 import { Star, Edit2, Trash2 } from "lucide-react";
-
-interface Review {
-    id: string;
-    rating: number;
-    comment: string;
-    createdAt: string;
-    reviewer: {
-        id: string;
-        name: string;
-        image: string | null;
-    };
-    travelPlan?: {
-        id: string;
-        destination: string;
-    };
-}
+import { Review } from "@/app/types";
 
 interface ReviewListProps {
     reviews: Review[];
@@ -44,13 +29,13 @@ export default function ReviewList({ reviews, currentUserId, onEdit, onDelete }:
                     <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
                             <img
-                                src={review.reviewer.image || "https://i.pravatar.cc/150?img=68"}
-                                alt={review.reviewer.name}
+                                src={review.reviewer?.image || "https://i.pravatar.cc/150?img=68"}
+                                alt={review.reviewer?.name || "Anonymous"}
                                 className="w-10 h-10 rounded-full object-cover border border-gray-100 dark:border-gray-700"
                             />
                             <div>
                                 <h4 className="font-bold text-text-primary dark:text-white text-sm">
-                                    {review.reviewer.name}
+                                    {review.reviewer?.name || "Anonymous"}
                                 </h4>
                                 <p className="text-xs text-text-secondary dark:text-gray-400">
                                     {new Date(review.createdAt).toLocaleDateString()}
@@ -79,7 +64,7 @@ export default function ReviewList({ reviews, currentUserId, onEdit, onDelete }:
                         {review.comment}
                     </p>
 
-                    {currentUserId === review.reviewer.id && (
+                    {currentUserId === review.reviewer?.id && (
                         <div className="flex justify-end gap-2 pt-4 border-t border-gray-50 dark:border-gray-700">
                             <button
                                 onClick={() => onEdit?.(review)}

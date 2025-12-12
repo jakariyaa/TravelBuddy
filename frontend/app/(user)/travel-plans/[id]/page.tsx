@@ -7,23 +7,24 @@ import { api } from "@/app/utils/api";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import { useSession } from "@/app/utils/auth-client";
-import { Loader2, Calendar, MapPin, DollarSign, Users, ArrowLeft, Trash2, Edit2, CheckCircle, Star, BadgeCheck } from "lucide-react";
+import { Loader2, Calendar, DollarSign, ArrowLeft, Trash2, Edit2, CheckCircle, Star, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 import ReviewModal from "@/app/components/ReviewModal";
+import { TravelPlan, User, JoinRequest } from "@/app/types";
 
 export default function TravelPlanDetailsPage() {
     const params = useParams();
     const router = useRouter();
     const { data: session } = useSession();
-    const [plan, setPlan] = useState<any>(null);
+    const [plan, setPlan] = useState<TravelPlan | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isJoinRequesting, setIsJoinRequesting] = useState(false);
-    const [participants, setParticipants] = useState<any[]>([]);
-    const [existingRequest, setExistingRequest] = useState<any>(null); // Track existing request
-    const [reviews, setReviews] = useState<any[]>([]); // Not directly used in the provided snippet, but added as per instruction
+    const [participants, setParticipants] = useState<User[]>([]);
+    const [existingRequest, setExistingRequest] = useState<JoinRequest | null>(null); // Track existing request
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [selectedReviewee, setSelectedReviewee] = useState<{ id: string; name: string } | null>(null);
     const [isCompleting, setIsCompleting] = useState(false);
+
     const [error, setError] = useState("");
 
     const isOwner = session?.user?.id === plan?.userId;
@@ -45,8 +46,8 @@ export default function TravelPlanDetailsPage() {
 
                     if (session?.user?.id === planData.userId) {
                         const requests = await api.joinRequests.getPlanRequests(planData.id);
-                        const approved = requests.filter((r: any) => r.status === 'APPROVED').map((r: any) => r.user);
-                        setParticipants(approved);
+                        const approved = requests.filter((r: JoinRequest) => r.status === 'APPROVED').map((r: JoinRequest) => r.user!);
+                        setParticipants(approved as User[]);
                     }
 
                     // Fetch reviews for this plan to check if we already reviewed someone
@@ -55,7 +56,7 @@ export default function TravelPlanDetailsPage() {
                     // Better UX: Fetch reviews by me? No endpoint.
                     // Let's just handle the "already reviewed" error gracefully or check locally if we have the data.
                 }
-            } catch (err) {
+            } catch (err: unknown) {
                 setError("Failed to load travel plan details");
             } finally {
                 setIsLoading(false);
@@ -72,8 +73,8 @@ export default function TravelPlanDetailsPage() {
             if (session?.user?.id && plan && !isOwner) {
                 try {
                     const myRequests = await api.joinRequests.getMyRequests();
-                    const request = myRequests.find((r: any) => r.travelPlanId === plan.id);
-                    setExistingRequest(request);
+                    const request = myRequests.find((r: JoinRequest) => r.travelPlanId === plan.id);
+                    setExistingRequest(request || null);
                 } catch (error) {
                     console.error("Failed to fetch my requests", error);
                 }
@@ -86,10 +87,11 @@ export default function TravelPlanDetailsPage() {
     }, [session, plan, isOwner]);
 
     const handleDelete = async () => {
+        if (!plan) return;
         if (!confirm("Are you sure you want to delete this travel plan?")) return;
 
         try {
-            await api.travelPlans.delete(plan.id);
+            await api.travelPlans.delete(plan!.id);
             toast.success("Travel plan deleted successfully");
             router.push("/travel-plans");
         } catch (err) {
@@ -98,20 +100,22 @@ export default function TravelPlanDetailsPage() {
     };
 
     const handleCompleteTrip = async () => {
+        if (!plan) return;
         setIsCompleting(true);
         try {
-            await api.travelPlans.complete(plan.id);
-            setPlan({ ...plan, status: 'COMPLETED' });
+            await api.travelPlans.complete(plan!.id);
+            setPlan({ ...plan!, status: 'COMPLETED' });
             toast.success("Trip marked as completed");
 
             // Refresh participants if host
             if (isOwner) {
-                const requests = await api.joinRequests.getPlanRequests(plan.id);
-                const approved = requests.filter((r: any) => r.status === 'APPROVED').map((r: any) => r.user);
-                setParticipants(approved);
+                const requests = await api.joinRequests.getPlanRequests(plan!.id);
+                const approved = requests.filter((r: JoinRequest) => r.status === 'APPROVED').map((r: JoinRequest) => r.user!);
+                setParticipants(approved as User[]);
             }
-        } catch (err: any) {
-            toast.error(err.message || "Failed to complete trip");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to complete trip";
+            toast.error(message);
         } finally {
             setIsCompleting(false);
         }
@@ -123,13 +127,15 @@ export default function TravelPlanDetailsPage() {
             router.push("/login"); // Or open login modal
             return;
         }
+        if (!plan) return;
         setIsJoinRequesting(true);
         try {
-            await api.joinRequests.create({ travelPlanId: plan.id });
+            const newRequest = await api.joinRequests.create({ travelPlanId: plan!.id });
+            setExistingRequest(newRequest);
             toast.success("Join request sent successfully!");
-            // Optionally update UI to show request sent status
-        } catch (err: any) {
-            toast.error(err.message || "Failed to send join request.");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to send join request.";
+            toast.error(message);
         } finally {
             setIsJoinRequesting(false);
         }
@@ -144,8 +150,9 @@ export default function TravelPlanDetailsPage() {
             await api.requests.delete(existingRequest.id);
             toast.success("Join request cancelled.");
             setExistingRequest(null);
-        } catch (err: any) {
-            toast.error(err.message || "Failed to cancel request.");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to cancel request.";
+            toast.error(message);
         } finally {
             setIsJoinRequesting(false);
         }
@@ -317,10 +324,10 @@ export default function TravelPlanDetailsPage() {
                                     />
                                     <div>
                                         <p className="font-bold text-text-primary dark:text-white group-hover:text-primary transition-colors flex items-center gap-1">
-                                            {plan.user?.name}
-                                            {plan.user?.isVerified && <BadgeCheck size={16} className="text-blue-500 fill-blue-500/10" />}
+                                            {plan?.user?.name}
+                                            {plan?.user?.isVerified && <BadgeCheck size={16} className="text-blue-500 fill-blue-500/10" />}
                                         </p>
-                                        <p className="text-sm text-text-secondary dark:text-gray-300 line-clamp-1">{plan.user?.bio || "Travel enthusiast"}</p>
+                                        <p className="text-sm text-text-secondary dark:text-gray-300 line-clamp-1">{plan?.user?.bio || "Travel enthusiast"}</p>
                                     </div>
                                 </Link>
                             </div>
@@ -348,7 +355,7 @@ export default function TravelPlanDetailsPage() {
                                                     <h3 className="font-bold text-text-primary dark:text-white mb-2">Trip Completed</h3>
                                                     <p className="text-text-secondary dark:text-gray-400 mb-4">How was your experience with the host?</p>
                                                     <button
-                                                        onClick={() => openReviewModal(plan.user.id, plan.user.name)}
+                                                        onClick={() => plan.user && openReviewModal(plan.user.id, plan.user.name)}
                                                         className="w-full px-6 py-2 bg-primary text-white rounded-full font-bold hover:bg-teal-800 transition-colors shadow-lg shadow-teal-900/20 flex items-center justify-center gap-2"
                                                     >
                                                         <Star size={18} />

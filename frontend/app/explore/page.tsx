@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { api } from "@/app/utils/api";
 import { useSession } from "@/app/utils/auth-client";
 import Navbar from "@/app/components/Navbar";
@@ -8,18 +8,18 @@ import Footer from "@/app/components/Footer";
 import TravelPlanCard from "@/app/components/TravelPlanCard";
 import { Loader2, Search, Filter, Calendar, Type, Globe, Compass, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { TravelPlan } from "@/app/types";
 
 export default function ExplorePage() {
     const { data: session } = useSession();
 
     // Main List State
-    const [plans, setPlans] = useState<any[]>([]);
+    const [plans, setPlans] = useState<TravelPlan[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
 
     // Recommended List State
-    const [recommendedPlans, setRecommendedPlans] = useState<any[]>([]);
-    const [loadingRecommended, setLoadingRecommended] = useState(false);
+    const [recommendedPlans, setRecommendedPlans] = useState<TravelPlan[]>([]);
 
     // Search Filters
     const [destination, setDestination] = useState("");
@@ -34,7 +34,7 @@ export default function ExplorePage() {
         const fetchRecommended = async () => {
             if (session?.user) {
                 try {
-                    setLoadingRecommended(true);
+
                     // Get latest profile to ensure we have interests
                     const profile = await api.users.getProfile();
 
@@ -52,20 +52,18 @@ export default function ExplorePage() {
                         // but search endpoint might natively return them.
                         // Ideally recommendations shouldn't be your own plans. 
                         // Client-side filter for now:
-                        const filtered = data.filter((p: any) => p.userId !== session.user.id && p.status !== 'COMPLETED');
+                        const filtered = (data as TravelPlan[]).filter((p) => p.userId !== session.user.id && p.status !== 'COMPLETED');
                         setRecommendedPlans(filtered);
                     } else {
                         // Fallback: Fetch any plans (recent), exclude own, shuffle
                         const data = await api.travelPlans.search('');
-                        const filtered = data.filter((p: any) => p.userId !== session.user.id && p.status !== 'COMPLETED');
+                        const filtered = (data as TravelPlan[]).filter((p) => p.userId !== session.user.id && p.status !== 'COMPLETED');
                         // Shuffle to give "random" recommendations
                         const shuffled = filtered.sort(() => 0.5 - Math.random());
                         setRecommendedPlans(shuffled.slice(0, 3));
                     }
                 } catch (e) {
                     console.error("Failed to fetch recommendations", e);
-                } finally {
-                    setLoadingRecommended(false);
                 }
             }
         };
@@ -73,7 +71,7 @@ export default function ExplorePage() {
         fetchRecommended();
     }, [session]);
 
-    const fetchPlans = async () => {
+    const fetchPlans = useCallback(async () => {
         setIsLoading(true);
 
         try {
@@ -91,19 +89,19 @@ export default function ExplorePage() {
             // If queryString is empty, search endpoint will return all with defaults
             const data = await api.travelPlans.search(queryString);
 
-            setPlans(data);
+            setPlans(data as TravelPlan[]);
 
         } catch (err) {
             setError("Failed to load travel plans");
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [destination, travelType, startDate, endDate, interests]); // Dependencies
 
     useEffect(() => {
         // Initial load
         fetchPlans();
-    }, []);
+    }, [fetchPlans]);
 
     // Debounced search
     useEffect(() => {
@@ -111,7 +109,7 @@ export default function ExplorePage() {
             fetchPlans(); // Reset on filter change
         }, 500);
         return () => clearTimeout(timeoutId);
-    }, [destination, travelType, startDate, endDate, interests]);
+    }, [fetchPlans]);
 
     // Animation Variants
     const containerVariants = {
@@ -362,7 +360,7 @@ export default function ExplorePage() {
                             </div>
                             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">No trips found</h3>
                             <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">
-                                We couldn't find any travel plans matching your current filters. Try adjusting your search or explore all available trips.
+                                We couldn&apos;t find any travel plans matching your current filters. Try adjusting your search or explore all available trips.
                             </p>
                             <button
                                 onClick={() => {

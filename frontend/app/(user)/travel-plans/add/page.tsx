@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/app/utils/api";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
-import { Loader2, Upload, Calendar, MapPin, DollarSign, Type, Users } from "lucide-react";
+import { Loader2, Upload, Calendar, MapPin, DollarSign, Users } from "lucide-react";
 
 import { toast } from "sonner";
 
@@ -52,8 +52,9 @@ export default function AddTravelPlanPage() {
             await api.travelPlans.create(formData);
             toast.success("Travel plan created successfully!");
             router.push("/travel-plans");
-        } catch (err: any) {
-            toast.error(err.message || "Failed to create travel plan");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to create travel plan";
+            toast.error(message);
         } finally {
             setIsLoading(false);
         }
