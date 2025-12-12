@@ -153,5 +153,9 @@ export const api = {
             method: "POST",
             body: JSON.stringify({ plan }),
         }),
+        verifySession: (sessionId: string) => fetchWithAuth("/payments/verify-session", {
+            method: "POST",
+            body: JSON.stringify({ sessionId }),
+        }),
     },
 };

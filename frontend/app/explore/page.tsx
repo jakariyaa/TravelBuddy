@@ -138,12 +138,12 @@ export default function ExplorePage() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col font-sans">
             <Navbar />
 
-            <main className="flex-grow pt-16 pb-12">
+            <main className="grow pt-16 pb-12">
                 {/* Hero Section */}
                 <div className="relative bg-white dark:bg-gray-900 pb-16 pt-8 mb-12">
                     {/* Background Elements - Clipped */}
                     <div className="absolute inset-0 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 opacity-70"></div>
+                        <div className="absolute inset-0 bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 opacity-70"></div>
                         <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
                     </div>
@@ -160,7 +160,7 @@ export default function ExplorePage() {
                             </span>
                             <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight leading-tight">
                                 Find Your Perfect <br className="hidden md:block" />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">Travel Companion</span>
+                                <span className="text-transparent bg-clip-text bg-linear-to-br from-primary to-purple-600">Travel Companion</span>
                             </h1>
                             <p className="text-xl text-gray-600 dark:text-gray-300 mb-10 leading-relaxed">
                                 Join thousands of travelers sharing adventures. Connect, plan, and explore destinations with people who match your vibe.
@@ -176,8 +176,11 @@ export default function ExplorePage() {
                                         type="text"
                                         placeholder="Where do you want to go?"
                                         value={destination}
-                                        onChange={(e) => setDestination(e.target.value)}
-                                        className="w-full bg-transparent border-none focus:ring-0 text-lg py-2 px-4 text-gray-900 dark:text-white placeholder-gray-400"
+                                        onChange={(e) => { 
+                                            e.preventDefault();
+                                            return setDestination(e.target.value) 
+                                        }}
+                                        className="w-full bg-transparent border-none text-lg py-2 px-4 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:outline-none ring-0 focus:ring-0 appearance-none shadow-none"
                                     />
 
                                     {/* Filter Toggle Button inside Search Bar */}
@@ -193,7 +196,7 @@ export default function ExplorePage() {
                                     </button>
 
                                     <button
-                                        className="bg-primary hover:bg-teal-700 text-white p-3 rounded-full transition-colors flex-shrink-0"
+                                        className="bg-primary hover:bg-teal-700 text-white p-3 rounded-full transition-colors shrink-0"
                                         onClick={() => fetchPlans()}
                                     >
                                         <Search size={24} />
@@ -241,7 +244,7 @@ export default function ExplorePage() {
                                                         placeholder="e.g. Hiking, Food..."
                                                         value={interests}
                                                         onChange={(e) => setInterests(e.target.value)}
-                                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all"
+                                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all outline-none focus:outline-none appearance-none shadow-none"
                                                     />
                                                 </div>
 
@@ -253,7 +256,7 @@ export default function ExplorePage() {
                                                         type="date"
                                                         value={startDate}
                                                         onChange={(e) => setStartDate(e.target.value)}
-                                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all"
+                                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all outline-none focus:outline-none appearance-none shadow-none"
                                                     />
                                                 </div>
 
@@ -265,7 +268,7 @@ export default function ExplorePage() {
                                                         type="date"
                                                         value={endDate}
                                                         onChange={(e) => setEndDate(e.target.value)}
-                                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all"
+                                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50 dark:bg-gray-900 dark:text-white transition-all outline-none focus:outline-none appearance-none shadow-none"
                                                     />
                                                 </div>
                                             </div>

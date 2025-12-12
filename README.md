@@ -5,7 +5,7 @@
 ![React](https://img.shields.io/badge/React-19-blue)
 ![Redux](https://img.shields.io/badge/Redux-Toolkit-purple)
 ![Prisma](https://img.shields.io/badge/Prisma-ORM-green)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
 
 **Travel Buddy** is a comprehensive full-stack web application designed to banish the isolation of solo travel. It connects adventurous souls, facilitates collaborative trip planning, and provides a secure platform to find like-minded companions.
 
@@ -13,6 +13,12 @@
 
 -   **Frontend Application**: [https://travelbuddy.jakariya.eu.org/](https://travelbuddy.jakariya.eu.org/)
 -   **Backend API**: [https://travelbuddy-server.jakariya.eu.org/](https://travelbuddy-server.jakariya.eu.org/)
+
+Credentials for testing:
+```
+Email: demo1@mail.com
+Password: demo1@mail.com
+```
 
 ---
 
@@ -104,7 +110,7 @@ To run the full application locally, you will need to start both the Frontend an
 
 Clone the repository:
 ```bash
-git clone https://github.com/your-username/travel-buddy.git
+git clone <repository_url>
 cd travel-buddy
 ```
 

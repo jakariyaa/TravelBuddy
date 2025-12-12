@@ -90,6 +90,51 @@ export const createCheckoutSession = catchAsync(async (req: Request, res: Respon
     res.json({ url: session.url });
 });
 
+export const verifyCheckoutSession = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-ignore
+    const userId = req.user?.id;
+    const { sessionId } = req.body;
+
+    if (!sessionId) {
+        return next(new AppError('Session ID required', 400));
+    }
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (session.payment_status === 'paid') {
+        const metadataUserId = session.metadata?.userId;
+
+        // SECURITY CHECK: Verify the session belongs to the requesting user
+        // This prevents "Session Replay" attacks where a user verifies using someone else's session
+        if (metadataUserId && metadataUserId === userId) {
+
+            // IDEMPOTENCY CHECK: Check if already processed to avoid unnecessary DB writes
+            // This handles race conditions between the Webhook and this Client-side verification
+            const currentUser = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { isVerified: true, subscriptionStatus: true }
+            });
+
+            if (currentUser?.isVerified && currentUser?.subscriptionStatus === 'ACTIVE') {
+                return res.json({ status: 'success', verified: true, message: 'Already verified' });
+            }
+
+            await prisma.user.update({
+                where: { id: userId },
+                data: {
+                    subscriptionStatus: 'ACTIVE',
+                    isVerified: true
+                }
+            });
+            res.json({ status: 'success', verified: true });
+        } else {
+            return next(new AppError('Unauthorized session. Session does not belong to user.', 403));
+        }
+    } else {
+        res.json({ status: 'pending', verified: false });
+    }
+});
+
 export const handleWebhook = async (req: Request, res: Response) => {
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
