@@ -8,6 +8,7 @@ import Footer from "@/app/components/Footer";
 import { Loader2, Upload, Calendar, MapPin, DollarSign, Users } from "lucide-react";
 
 import { toast } from "sonner";
+import { createTravelPlanSchema } from "@/app/schemas/travelPlanSchemas";
 
 export default function AddTravelPlanPage() {
     const router = useRouter();
@@ -16,7 +17,7 @@ export default function AddTravelPlanPage() {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [budget, setBudget] = useState("");
-    const [travelType, setTravelType] = useState("Solo");
+    const [travelType, setTravelType] = useState("SOLO");
     const [description, setDescription] = useState("");
     const [interests, setInterests] = useState("");
     const [images, setImages] = useState<File[]>([]);
@@ -34,6 +35,23 @@ export default function AddTravelPlanPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+
+        const validationResult = createTravelPlanSchema.safeParse({
+            destination,
+            startDate,
+            endDate,
+            budget,
+            travelType,
+            description,
+            interests
+        });
+
+        if (!validationResult.success) {
+            const firstError = validationResult.error.issues[0].message;
+            toast.error(firstError);
+            setIsLoading(false);
+            return;
+        }
 
         try {
             const formData = new FormData();
@@ -53,6 +71,7 @@ export default function AddTravelPlanPage() {
             toast.success("Travel plan created successfully!");
             router.push("/travel-plans");
         } catch (err: unknown) {
+            // Validation errors from backend might still happen (e.g. image size), handle them
             const message = err instanceof Error ? err.message : "Failed to create travel plan";
             toast.error(message);
         } finally {
@@ -138,10 +157,11 @@ export default function AddTravelPlanPage() {
                                         onChange={(e) => setTravelType(e.target.value)}
                                         className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none appearance-none"
                                     >
-                                        <option value="Solo">Solo</option>
-                                        <option value="Couple">Couple</option>
-                                        <option value="Family">Family</option>
-                                        <option value="Friends">Friends</option>
+                                        <option value="SOLO">Solo</option>
+                                        <option value="FRIENDS">Friends</option>
+                                        <option value="COUPLE">Couple</option>
+                                        <option value="FAMILY">Family</option>
+                                        <option value="GROUP">Group</option>
                                     </select>
                                 </div>
                             </div>
@@ -229,9 +249,9 @@ export default function AddTravelPlanPage() {
                         </div>
                     </form>
                 </div>
-            </main>
+            </main >
 
             <Footer />
-        </div>
+        </div >
     );
 }

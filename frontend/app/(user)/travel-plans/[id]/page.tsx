@@ -103,18 +103,23 @@ export default function TravelPlanDetailsPage() {
         if (!plan) return;
         setIsCompleting(true);
         try {
-            await api.travelPlans.complete(plan!.id);
-            setPlan({ ...plan!, status: 'COMPLETED' });
-            toast.success("Trip marked as completed");
+            const updatedPlan = await api.travelPlans.complete(plan!.id);
+            setPlan({ ...plan, ...updatedPlan });
 
-            // Refresh participants if host
-            if (isOwner) {
-                const requests = await api.joinRequests.getPlanRequests(plan!.id);
-                const approved = requests.filter((r: JoinRequest) => r.status === 'APPROVED').map((r: JoinRequest) => r.user!);
-                setParticipants(approved as User[]);
+            if (updatedPlan.status === 'COMPLETED') {
+                toast.success("Trip marked as completed");
+
+                // Refresh participants if host
+                if (isOwner) {
+                    const requests = await api.joinRequests.getPlanRequests(plan!.id);
+                    const approved = requests.filter((r: JoinRequest) => r.status === 'APPROVED').map((r: JoinRequest) => r.user!);
+                    setParticipants(approved as User[]);
+                }
+            } else {
+                toast.success("Trip marked as incomplete");
             }
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : "Failed to complete trip";
+            const message = err instanceof Error ? err.message : "Failed to update trip status";
             toast.error(message);
         } finally {
             setIsCompleting(false);
@@ -336,16 +341,19 @@ export default function TravelPlanDetailsPage() {
                             <div className="space-y-4">
                                 {isOwner ? (
                                     <>
-                                        {plan.status !== 'COMPLETED' && (
+                                        <>
                                             <button
                                                 onClick={handleCompleteTrip}
                                                 disabled={isCompleting}
-                                                className="w-full py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors shadow-lg shadow-green-900/20 flex items-center justify-center gap-2"
+                                                className={`w-full py-3 text-white rounded-xl font-bold transition-colors shadow-lg flex items-center justify-center gap-2 ${plan.status === 'COMPLETED'
+                                                        ? 'bg-gray-500 hover:bg-gray-600 shadow-gray-900/20'
+                                                        : 'bg-green-600 hover:bg-green-700 shadow-green-900/20'
+                                                    }`}
                                             >
                                                 {isCompleting ? <Loader2 className="animate-spin" /> : <CheckCircle size={20} />}
-                                                Mark Trip as Completed
+                                                {plan.status === 'COMPLETED' ? 'Mark as Incomplete' : 'Mark Trip as Completed'}
                                             </button>
-                                        )}
+                                        </>
                                     </>
                                 ) : (
                                     <>

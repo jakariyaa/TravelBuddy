@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Loader2, Sparkles } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import { api } from "@/app/utils/api";
@@ -9,6 +9,8 @@ import { useSession } from "@/app/utils/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+
+import { createCheckoutSessionSchema } from "@/app/schemas/paymentSchemas";
 
 export default function PricingPage() {
     const { data: session } = useSession();
@@ -19,6 +21,13 @@ export default function PricingPage() {
     const handleSubscribe = async (plan: 'monthly' | 'yearly') => {
         if (!session) {
             router.push("/login?redirect=/pricing");
+            return;
+        }
+
+        // Zod Validation
+        const result = createCheckoutSessionSchema.safeParse({ plan });
+        if (!result.success) {
+            toast.error(result.error.issues[0].message);
             return;
         }
 

@@ -411,9 +411,20 @@ export const markPlanAsCompleted = catchAsync(async (req: Request, res: Response
         return next(new AppError('Forbidden', 403));
     }
 
-    const updatedPlan = await prisma.travelPlan.update({
-        where: { id: id as string },
-        data: { status: 'COMPLETED' }
+    let newStatus = 'COMPLETED';
+    if (plan.status === 'COMPLETED') {
+        const now = new Date();
+        const start = new Date(plan.startDate);
+        if (now < start) {
+            newStatus = 'UPCOMING';
+        } else {
+            newStatus = 'ONGOING';
+        }
+    }
+
+    const updatedPlan = await prisma.travelPlan.update({ // @ts-ignore
+        where: { id: id as string }, // @ts-ignore
+        data: { status: newStatus }
     });
 
     res.json(updatedPlan);
