@@ -69,3 +69,8 @@ export interface UserReviewData {
     reviews: Review[];
     stats: ReviewStats;
 }
+
+export interface MatchedUser extends User {
+    matchPercentage: number;
+    sharedInterests: string[];
+}

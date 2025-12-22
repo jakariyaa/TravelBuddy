@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Navbar from "@/app/components/Navbar";
 import { api } from "@/app/utils/api";
-import { Search, MapPin, Filter, User } from "lucide-react";
+import { Search, MapPin, Filter, User as LucideUser } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
+import { User } from "@/app/types";
 
 export default function FindBuddyPage() {
-    const [users, setUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
@@ -16,7 +18,7 @@ export default function FindBuddyPage() {
 
     const commonInterests = ["Hiking", "Food", "Photography", "History", "Beach", "Nightlife", "Nature", "Art"];
 
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
         setIsLoading(true);
         try {
             const data = await api.users.search(searchQuery, selectedInterests);
@@ -26,7 +28,7 @@ export default function FindBuddyPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [searchQuery, selectedInterests]);
 
     useEffect(() => {
         // Debounce search
@@ -34,7 +36,7 @@ export default function FindBuddyPage() {
             fetchUsers();
         }, 500);
         return () => clearTimeout(timer);
-    }, [searchQuery, selectedInterests]);
+    }, [fetchUsers]);
 
     const toggleInterest = (interest: string) => {
         setSelectedInterests(prev =>
@@ -87,8 +89,8 @@ export default function FindBuddyPage() {
                                         key={interest}
                                         onClick={() => toggleInterest(interest)}
                                         className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedInterests.includes(interest)
-                                                ? 'bg-primary text-white shadow-md shadow-primary/20'
-                                                : 'bg-white dark:bg-gray-700 text-text-secondary dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-primary/50'
+                                            ? 'bg-primary text-white shadow-md shadow-primary/20'
+                                            : 'bg-white dark:bg-gray-700 text-text-secondary dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-primary/50'
                                             }`}
                                     >
                                         {interest}
@@ -118,10 +120,13 @@ export default function FindBuddyPage() {
                                 >
                                     <div className="relative h-32 bg-gradient-to-r from-primary/10 to-teal-500/10 dark:from-gray-700 dark:to-gray-600">
                                         <div className="absolute -bottom-10 left-6">
-                                            <img
+                                            <Image
                                                 src={user.image || "https://i.pravatar.cc/150?img=68"}
                                                 alt={user.name}
-                                                className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-md"
+                                                width={96}
+                                                height={96}
+                                                className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-md shrink-0"
+                                                unoptimized
                                             />
                                         </div>
                                     </div>
@@ -147,13 +152,13 @@ export default function FindBuddyPage() {
                                         </p>
 
                                         <div className="flex flex-wrap gap-1.5">
-                                            {user.travelInterests?.slice(0, 3).map((interest: string, i: number) => (
+                                            {(user.travelInterests || []).slice(0, 3).map((interest: string, i: number) => (
                                                 <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">
                                                     {interest}
                                                 </span>
                                             ))}
-                                            {user.travelInterests?.length > 3 && (
-                                                <span className="text-xs px-2 py-1 text-gray-400">+{user.travelInterests.length - 3} more</span>
+                                            {(user.travelInterests?.length || 0) > 3 && (
+                                                <span className="text-xs px-2 py-1 text-gray-400">+{(user.travelInterests?.length || 0) - 3} more</span>
                                             )}
                                         </div>
                                     </div>
@@ -164,7 +169,7 @@ export default function FindBuddyPage() {
                 ) : (
                     <div className="text-center py-20">
                         <div className="bg-gray-100 dark:bg-gray-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <User size={32} className="text-gray-400" />
+                            <LucideUser size={32} className="text-gray-400" />
                         </div>
                         <h3 className="text-xl font-bold text-text-primary dark:text-white mb-2">No travelers found</h3>
                         <p className="text-text-secondary dark:text-gray-400">Try adjusting your search or filters to find more people.</p>

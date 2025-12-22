@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { api } from "@/app/utils/api";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
@@ -11,6 +12,41 @@ import { Loader2, Calendar, DollarSign, ArrowLeft, Trash2, Edit2, CheckCircle, S
 import { toast } from "sonner";
 import ReviewModal from "@/app/components/ReviewModal";
 import { TravelPlan, User, JoinRequest } from "@/app/types";
+import { Skeleton } from "@/app/components/ui/skeleton";
+
+function TravelPlanDetailsSkeleton() {
+    return (
+        <div className="min-h-screen bg-background flex flex-col">
+            <Navbar />
+            <div className="flex-grow container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+                <div className="mb-6">
+                    <Skeleton className="h-6 w-32" />
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div className="h-64 md:h-96 relative">
+                        <Skeleton className="w-full h-full" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8 max-w-7xl mx-auto">
+                        <div className="md:col-span-2 space-y-8">
+                            <div>
+                                <Skeleton className="h-8 w-48 mb-4" />
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-3/4" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="space-y-6">
+                            <Skeleton className="h-48 w-full rounded-2xl" />
+                            <Skeleton className="h-12 w-full rounded-xl" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default function TravelPlanDetailsPage() {
     const params = useParams();
@@ -56,8 +92,8 @@ export default function TravelPlanDetailsPage() {
                     // Better UX: Fetch reviews by me? No endpoint.
                     // Let's just handle the "already reviewed" error gracefully or check locally if we have the data.
                 }
-            } catch (err: unknown) {
-                setError("Failed to load travel plan details");
+            } catch {
+                toast.error("Failed to fetch plan details");
             } finally {
                 setIsLoading(false);
             }
@@ -94,7 +130,7 @@ export default function TravelPlanDetailsPage() {
             await api.travelPlans.delete(plan!.id);
             toast.success("Travel plan deleted successfully");
             router.push("/travel-plans");
-        } catch (err) {
+        } catch {
             toast.error("Failed to delete plan");
         }
     };
@@ -169,14 +205,7 @@ export default function TravelPlanDetailsPage() {
     };
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-background flex flex-col">
-                <Navbar />
-                <main className="flex-grow flex items-center justify-center">
-                    <Loader2 className="animate-spin text-primary" size={40} />
-                </main>
-            </div>
-        );
+        return <TravelPlanDetailsSkeleton />;
     }
 
     if (error || !plan) {
@@ -208,10 +237,13 @@ export default function TravelPlanDetailsPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
                     {/* Hero Image */}
                     <div className="h-64 md:h-96 relative">
-                        <img
+                        <Image
                             src={plan.images?.[0] || "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"}
                             alt={plan.destination}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
+                            priority
+                            unoptimized
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
                             <div className="p-8 w-full">
@@ -282,10 +314,13 @@ export default function TravelPlanDetailsPage() {
                                             {participants.map((participant) => (
                                                 <div key={participant.id} className="flex items-center justify-between bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
                                                     <div className="flex items-center gap-3">
-                                                        <img
+                                                        <Image
                                                             src={participant.image || "https://i.pravatar.cc/150?img=68"}
                                                             alt={participant.name}
-                                                            className="w-10 h-10 rounded-full object-cover"
+                                                            width={40}
+                                                            height={40}
+                                                            className="rounded-full object-cover"
+                                                            unoptimized
                                                         />
                                                         <span className="font-medium text-text-primary dark:text-white">{participant.name}</span>
                                                     </div>
@@ -310,7 +345,9 @@ export default function TravelPlanDetailsPage() {
                                     <h3 className="text-xl font-bold text-text-primary dark:text-white mb-4">Gallery</h3>
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                         {plan.images.slice(1).map((img: string, idx: number) => (
-                                            <img key={idx} src={img} alt={`Gallery ${idx}`} className="rounded-xl h-32 w-full object-cover" />
+                                            <div key={idx} className="relative h-32 w-full">
+                                                <Image src={img} alt={`Gallery ${idx}`} fill className="rounded-xl object-cover" unoptimized />
+                                            </div>
                                         ))}
                                     </div>
                                 </div>
@@ -322,10 +359,13 @@ export default function TravelPlanDetailsPage() {
                             <div className="bg-gray-50 dark:bg-gray-700 rounded-2xl p-6 border border-gray-100 dark:border-gray-600">
                                 <h3 className="font-bold text-text-primary dark:text-white mb-4">Meet the Host</h3>
                                 <Link href={`/profile/${plan.user?.id}`} className="flex items-center gap-4 group">
-                                    <img
+                                    <Image
                                         src={plan.user?.image || "https://i.pravatar.cc/150?img=68"}
-                                        alt={plan.user?.name}
-                                        className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm group-hover:border-primary transition-colors"
+                                        alt={plan.user?.name || "Host"}
+                                        width={64}
+                                        height={64}
+                                        className="rounded-full object-cover border-2 border-white shadow-sm group-hover:border-primary transition-colors"
+                                        unoptimized
                                     />
                                     <div>
                                         <p className="font-bold text-text-primary dark:text-white group-hover:text-primary transition-colors flex items-center gap-1">
@@ -346,8 +386,8 @@ export default function TravelPlanDetailsPage() {
                                                 onClick={handleCompleteTrip}
                                                 disabled={isCompleting}
                                                 className={`w-full py-3 text-white rounded-xl font-bold transition-colors shadow-lg flex items-center justify-center gap-2 ${plan.status === 'COMPLETED'
-                                                        ? 'bg-gray-500 hover:bg-gray-600 shadow-gray-900/20'
-                                                        : 'bg-green-600 hover:bg-green-700 shadow-green-900/20'
+                                                    ? 'bg-gray-500 hover:bg-gray-600 shadow-gray-900/20'
+                                                    : 'bg-green-600 hover:bg-green-700 shadow-green-900/20'
                                                     }`}
                                             >
                                                 {isCompleting ? <Loader2 className="animate-spin" /> : <CheckCircle size={20} />}

@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { authClient } from "./auth-client";
-import { User, Review } from "@/app/types";
+import { User, Review, TravelPlan, JoinRequest, MatchedUser, UserReviewData } from "@/app/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -8,7 +8,7 @@ type RequestOptions = RequestInit & {
     headers?: Record<string, string>;
 };
 
-async function fetchWithAuth(url: string, options: RequestOptions = {}) {
+async function fetchWithAuth<T = unknown>(url: string, options: RequestOptions = {}): Promise<T> {
     await authClient.getSession();
 
     const headers = {
@@ -32,7 +32,7 @@ async function fetchWithAuth(url: string, options: RequestOptions = {}) {
             try {
                 const errorData = JSON.parse(rawText);
                 errorMessage = errorData.message || errorMessage;
-            } catch (_e) {
+            } catch {
                 if (rawText.length < 100) errorMessage = rawText;
                 else errorMessage = "An error occurred (Non-JSON response)";
             }
@@ -51,7 +51,7 @@ async function fetchWithAuth(url: string, options: RequestOptions = {}) {
     }
 }
 
-async function uploadWithAuth(url: string, formData: FormData, method: string = "POST") {
+async function uploadWithAuth<T = unknown>(url: string, formData: FormData, method: string = "POST"): Promise<T> {
     await authClient.getSession();
 
     try {
@@ -83,20 +83,20 @@ export { fetchWithAuth, uploadWithAuth };
 
 export const api = {
     users: {
-        getAll: () => fetchWithAuth("/users"),
-        getProfile: () => fetchWithAuth("/users/profile"),
-        getById: (id: string) => fetchWithAuth(`/users/${id}`),
-        updateProfile: (data: Partial<User>) => fetchWithAuth("/users/profile", {
+        getAll: () => fetchWithAuth<User[]>("/users"),
+        getProfile: () => fetchWithAuth<User>("/users/profile"),
+        getById: (id: string) => fetchWithAuth<User>(`/users/${id}`),
+        updateProfile: (data: Partial<User>) => fetchWithAuth<User>("/users/profile", {
             method: "PUT",
             body: JSON.stringify(data),
         }),
         uploadImage: (file: File) => {
             const formData = new FormData();
             formData.append("image", file);
-            return uploadWithAuth("/users/profile/image", formData);
+            return uploadWithAuth<{ imageUrl: string }>("/users/profile/image", formData);
         },
-        delete: (id: string) => fetchWithAuth(`/users/${id}`, { method: "DELETE" }),
-        update: (id: string, data: Partial<User>) => fetchWithAuth(`/users/${id}`, {
+        delete: (id: string) => fetchWithAuth<void>(`/users/${id}`, { method: "DELETE" }),
+        update: (id: string, data: Partial<User>) => fetchWithAuth<User>(`/users/${id}`, {
             method: "PUT",
             body: JSON.stringify(data),
         }),
@@ -104,56 +104,56 @@ export const api = {
             const params = new URLSearchParams();
             if (query) params.append('query', query);
             if (interests && interests.length > 0) params.append('interests', interests.join(','));
-            return fetchWithAuth(`/users/search?${params.toString()}`);
+            return fetchWithAuth<User[]>(`/users/search?${params.toString()}`);
         },
-        getMatches: () => fetchWithAuth('/users/matches'),
+        getMatches: () => fetchWithAuth<MatchedUser[]>('/users/matches'),
     },
     travelPlans: {
-        getAll: () => fetchWithAuth("/travel-plans"),
-        getMyPlans: () => fetchWithAuth("/travel-plans/my-plans"),
-        getById: (id: string) => fetchWithAuth(`/travel-plans/${id}`),
-        create: (data: FormData) => uploadWithAuth("/travel-plans", data),
-        update: (id: string, data: FormData) => uploadWithAuth(`/travel-plans/${id}`, data, "PUT"),
-        delete: (id: string) => fetchWithAuth(`/travel-plans/${id}`, { method: "DELETE" }),
-        search: (query: string) => fetchWithAuth(`/travel-plans/search?${query}`),
-        complete: (id: string) => fetchWithAuth(`/travel-plans/${id}/complete`, { method: "PATCH" }),
+        getAll: () => fetchWithAuth<TravelPlan[]>("/travel-plans"),
+        getMyPlans: () => fetchWithAuth<TravelPlan[]>("/travel-plans/my-plans"),
+        getById: (id: string) => fetchWithAuth<TravelPlan>(`/travel-plans/${id}`),
+        create: (data: FormData) => uploadWithAuth<TravelPlan>("/travel-plans", data),
+        update: (id: string, data: FormData) => uploadWithAuth<TravelPlan>(`/travel-plans/${id}`, data, "PUT"),
+        delete: (id: string) => fetchWithAuth<void>(`/travel-plans/${id}`, { method: "DELETE" }),
+        search: (query: string) => fetchWithAuth<TravelPlan[]>(`/travel-plans/search?${query}`),
+        complete: (id: string) => fetchWithAuth<TravelPlan>(`/travel-plans/${id}/complete`, { method: "PATCH" }),
     },
     reviews: {
-        create: (data: Partial<Review>) => fetchWithAuth("/reviews", {
+        create: (data: Partial<Review>) => fetchWithAuth<Review>("/reviews", {
             method: "POST",
             body: JSON.stringify(data),
         }),
-        getAll: () => fetchWithAuth("/reviews"),
-        getUserReviews: (userId: string, page: number = 1, limit: number = 10) => fetchWithAuth(`/reviews/user/${userId}?page=${page}&limit=${limit}`),
-        update: (id: string, data: Partial<Review>) => fetchWithAuth(`/reviews/${id}`, {
+        getAll: () => fetchWithAuth<Review[]>("/reviews"),
+        getUserReviews: (userId: string, page: number = 1, limit: number = 10) => fetchWithAuth<UserReviewData>(`/reviews/user/${userId}?page=${page}&limit=${limit}`),
+        update: (id: string, data: Partial<Review>) => fetchWithAuth<Review>(`/reviews/${id}`, {
             method: "PUT",
             body: JSON.stringify(data),
         }),
-        delete: (id: string) => fetchWithAuth(`/reviews/${id}`, { method: "DELETE" }),
+        delete: (id: string) => fetchWithAuth<void>(`/reviews/${id}`, { method: "DELETE" }),
     },
     requests: {
-        getAll: () => fetchWithAuth("/join-requests"),
-        delete: (id: string) => fetchWithAuth(`/join-requests/${id}`, { method: "DELETE" }),
+        getAll: () => fetchWithAuth<JoinRequest[]>("/join-requests"),
+        delete: (id: string) => fetchWithAuth<void>(`/join-requests/${id}`, { method: "DELETE" }),
     },
     joinRequests: {
-        create: (data: { travelPlanId: string }) => fetchWithAuth("/join-requests", {
+        create: (data: { travelPlanId: string }) => fetchWithAuth<JoinRequest>("/join-requests", {
             method: "POST",
             body: JSON.stringify(data),
         }),
-        getPlanRequests: (planId: string) => fetchWithAuth(`/join-requests/plan/${planId}`),
-        getRequestsForUserPlans: () => fetchWithAuth("/join-requests/my-received-requests"),
-        respond: (requestId: string, status: string) => fetchWithAuth(`/join-requests/${requestId}`, {
+        getPlanRequests: (planId: string) => fetchWithAuth<JoinRequest[]>(`/join-requests/plan/${planId}`),
+        getRequestsForUserPlans: () => fetchWithAuth<JoinRequest[]>("/join-requests/my-received-requests"),
+        respond: (requestId: string, status: string) => fetchWithAuth<JoinRequest>(`/join-requests/${requestId}`, {
             method: "PUT",
             body: JSON.stringify({ status }),
         }),
-        getMyRequests: () => fetchWithAuth("/join-requests/my-requests"),
+        getMyRequests: () => fetchWithAuth<JoinRequest[]>("/join-requests/my-requests"),
     },
     payments: {
-        createCheckoutSession: (plan: 'monthly' | 'yearly') => fetchWithAuth("/payments/create-checkout-session", {
+        createCheckoutSession: (plan: 'monthly' | 'yearly') => fetchWithAuth<{ url: string }>("/payments/create-checkout-session", {
             method: "POST",
             body: JSON.stringify({ plan }),
         }),
-        verifySession: (sessionId: string) => fetchWithAuth("/payments/verify-session", {
+        verifySession: (sessionId: string) => fetchWithAuth<{ status: string; verified: boolean }>("/payments/verify-session", {
             method: "POST",
             body: JSON.stringify({ sessionId }),
         }),

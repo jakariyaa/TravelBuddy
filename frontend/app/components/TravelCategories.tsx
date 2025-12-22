@@ -44,8 +44,8 @@ const categories = [
 
 export default function TravelCategories() {
     return (
-        <section className="py-24 bg-gray-50 dark:bg-gray-900">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-20 bg-gray-50 dark:bg-gray-900">
+            <div className="max-w-7xl mx-auto px-6 lg:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                     <h2 className="text-3xl font-bold text-text-primary dark:text-white sm:text-4xl">Browse by Category</h2>
                     <p className="mt-4 text-lg text-text-secondary dark:text-gray-400">

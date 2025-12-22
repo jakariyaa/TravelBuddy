@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { api } from "@/app/utils/api";
 import { MapPin, Sparkles } from "lucide-react";
-import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { Skeleton } from "./Skeleton";
+import { Skeleton } from "./ui/skeleton";
+import { MatchedUser } from "@/app/types";
 
 export default function MatchedTravelers() {
-    const [matches, setMatches] = useState<any[]>([]);
+    const [matches, setMatches] = useState<MatchedUser[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -64,10 +65,13 @@ export default function MatchedTravelers() {
                         >
                             <div className="flex items-center gap-4">
                                 <div className="relative">
-                                    <img
+                                    <Image
                                         src={user.image || "https://i.pravatar.cc/150?img=68"}
                                         alt={user.name}
-                                        className="w-16 h-16 rounded-full object-cover border-2 border-white dark:border-gray-700"
+                                        width={64}
+                                        height={64}
+                                        className="w-16 h-16 rounded-full object-cover border-2 border-white dark:border-gray-700 shrink-0"
+                                        unoptimized
                                     />
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -76,7 +80,7 @@ export default function MatchedTravelers() {
                                             {user.name}
                                         </h3>
                                         <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                            {user.score}% Match
+                                            {user.matchPercentage}% Match
                                         </span>
                                     </div>
                                     {user.currentLocation && (

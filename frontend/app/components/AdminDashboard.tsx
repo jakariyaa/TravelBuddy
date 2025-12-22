@@ -9,14 +9,15 @@ import {
     MapPin as LuMapPin,
     Calendar,
     Activity as LuActivity,
-    TrendingUp,
     Users as LuUsers,
     FileText,
     MessageSquare as LuMessageSquare,
     Edit
 } from "lucide-react";
+import { User, TravelPlan, Review, JoinRequest } from "@/app/types";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import AdminEditUserModal from "./AdminEditUserModal";
 import ReviewModal from "./ReviewModal";
@@ -88,10 +89,10 @@ const ConfirmationModal = ({
 
 export default function AdminDashboard() {
     const router = useRouter();
-    const [users, setUsers] = useState<any[]>([]);
-    const [plans, setPlans] = useState<any[]>([]);
-    const [reviews, setReviews] = useState<any[]>([]);
-    const [requests, setRequests] = useState<any[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [plans, setPlans] = useState<TravelPlan[]>([]);
+    const [reviews, setReviews] = useState<Review[]>([]);
+    const [requests, setRequests] = useState<JoinRequest[]>([]);
     const [activeTab, setActiveTab] = useState<'users' | 'plans' | 'reviews' | 'requests'>('users');
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -111,7 +112,7 @@ export default function AdminDashboard() {
 
     const [editUserModal, setEditUserModal] = useState<{
         isOpen: boolean;
-        user: any | null;
+        user: User | null;
     }>({
         isOpen: false,
         user: null
@@ -119,7 +120,7 @@ export default function AdminDashboard() {
 
     const [reviewModal, setReviewModal] = useState<{
         isOpen: boolean;
-        review: any | null;
+        review: Review | null;
     }>({
         isOpen: false,
         review: null
@@ -178,7 +179,7 @@ export default function AdminDashboard() {
                     toast.success("Request deleted successfully");
                     break;
             }
-        } catch (error) {
+        } catch {
             toast.error(`Failed to delete ${deleteModal.type}`);
         } finally {
             setDeleteModal({ isOpen: false, type: null, id: null, isLoading: false });
@@ -194,7 +195,7 @@ export default function AdminDashboard() {
         });
     };
 
-    const handleEditUser = (user: any) => {
+    const handleEditUser = (user: User) => {
         setEditUserModal({ isOpen: true, user });
     };
 
@@ -202,7 +203,7 @@ export default function AdminDashboard() {
         router.push(`/travel-plans/${planId}/edit`);
     };
 
-    const handleEditReview = (review: any) => {
+    const handleEditReview = (review: Review) => {
         setReviewModal({ isOpen: true, review });
     };
 
@@ -316,7 +317,7 @@ export default function AdminDashboard() {
                         return (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id as any)}
+                                onClick={() => setActiveTab(tab.id as 'users' | 'plans' | 'reviews' | 'requests')}
                                 className={`relative px-6 py-3 rounded-xl font-medium text-sm transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === tab.id
                                     ? "text-primary bg-primary/5"
                                     : "text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
@@ -391,10 +392,13 @@ export default function AdminDashboard() {
                                             <tr key={user.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <img
+                                                        <Image
                                                             src={user.image || "https://i.pravatar.cc/150?img=68"}
                                                             alt={user.name}
-                                                            className="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm"
+                                                            width={40}
+                                                            height={40}
+                                                            className="rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm"
+                                                            unoptimized
                                                         />
                                                         <div>
                                                             <div className="font-semibold text-text-primary dark:text-white">{user.name}</div>
@@ -442,10 +446,13 @@ export default function AdminDashboard() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <img
+                                                        <Image
                                                             src={plan.user?.image || "https://i.pravatar.cc/150?img=68"}
-                                                            alt={plan.user?.name}
-                                                            className="w-8 h-8 rounded-full object-cover border border-white dark:border-gray-800 shadow-sm"
+                                                            alt={plan.user?.name || "Host"}
+                                                            width={32}
+                                                            height={32}
+                                                            className="rounded-full object-cover border border-white dark:border-gray-800 shadow-sm"
+                                                            unoptimized
                                                         />
                                                         <span className="text-text-secondary dark:text-gray-300 text-sm">{plan.user?.name}</span>
                                                     </div>
@@ -487,20 +494,26 @@ export default function AdminDashboard() {
                                             <tr key={review.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <img
+                                                        <Image
                                                             src={review.reviewer?.image || "https://i.pravatar.cc/150?img=68"}
-                                                            alt={review.reviewer?.name}
-                                                            className="w-8 h-8 rounded-full object-cover border border-white dark:border-gray-800 shadow-sm"
+                                                            alt={review.reviewer?.name || "Reviewer"}
+                                                            width={32}
+                                                            height={32}
+                                                            className="rounded-full object-cover border border-white dark:border-gray-800 shadow-sm"
+                                                            unoptimized
                                                         />
                                                         <span className="font-medium text-text-primary dark:text-white">{review.reviewer?.name}</span>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <img
+                                                        <Image
                                                             src={review.reviewee?.image || "https://i.pravatar.cc/150?img=68"}
-                                                            alt={review.reviewee?.name}
-                                                            className="w-8 h-8 rounded-full object-cover border border-white dark:border-gray-800 shadow-sm"
+                                                            alt={review.reviewee?.name || "Reviewee"}
+                                                            width={32}
+                                                            height={32}
+                                                            className="rounded-full object-cover border border-white dark:border-gray-800 shadow-sm"
+                                                            unoptimized
                                                         />
                                                         <span className="text-text-secondary dark:text-gray-300">{review.reviewee?.name}</span>
                                                     </div>
@@ -538,10 +551,13 @@ export default function AdminDashboard() {
                                             <tr key={request.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <img
+                                                        <Image
                                                             src={request.user?.image || "https://i.pravatar.cc/150?img=68"}
-                                                            alt={request.user?.name}
-                                                            className="w-8 h-8 rounded-full object-cover border border-white dark:border-gray-800 shadow-sm"
+                                                            alt={request.user?.name || "User"}
+                                                            width={32}
+                                                            height={32}
+                                                            className="rounded-full object-cover border border-white dark:border-gray-800 shadow-sm"
+                                                            unoptimized
                                                         />
                                                         <span className="font-medium text-text-primary dark:text-white">{request.user?.name}</span>
                                                     </div>
@@ -642,8 +658,8 @@ export default function AdminDashboard() {
                 <ReviewModal
                     isOpen={reviewModal.isOpen}
                     onClose={() => setReviewModal({ isOpen: false, review: null })}
-                    revieweeId={reviewModal.review.reviewee?.id}
-                    revieweeName={reviewModal.review.reviewee?.name}
+                    revieweeId={reviewModal.review?.reviewee?.id || ''}
+                    revieweeName={reviewModal.review?.reviewee?.name || 'Unknown'}
                     initialData={reviewModal.review} // Needs to match structure, will check
                     onReviewSubmitted={onReviewUpdated}
                 />

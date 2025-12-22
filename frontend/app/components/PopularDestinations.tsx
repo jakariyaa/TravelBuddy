@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPin, Star, ArrowRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 const destinations = [
@@ -44,8 +45,8 @@ const destinations = [
 
 export default function PopularDestinations() {
     return (
-        <section className="py-24 bg-gray-50 dark:bg-gray-900">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-20 bg-gray-50 dark:bg-gray-900">
+            <div className="max-w-7xl mx-auto px-6 lg:px-8">
                 <div className="flex justify-between items-end mb-12">
                     <div>
                         <h2 className="text-3xl font-bold text-text-primary dark:text-white sm:text-4xl">Popular Destinations</h2>
@@ -60,10 +61,12 @@ export default function PopularDestinations() {
                     {destinations.map((destination) => (
                         <div key={destination.id} className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
                             <div className="relative h-64 overflow-hidden">
-                                <img
+                                <Image
                                     src={destination.image}
                                     alt={destination.name}
-                                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                    fill
+                                    className="object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                    unoptimized
                                 />
                                 <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 text-sm font-medium shadow-sm">
                                     <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />

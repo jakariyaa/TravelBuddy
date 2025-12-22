@@ -1,15 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, User, Shield } from "lucide-react";
+import { X, Loader2, User as LucideUser, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/app/utils/api";
+import { User } from "@/app/types";
 import { toast } from "sonner";
 
 interface AdminEditUserModalProps {
     isOpen: boolean;
     onClose: () => void;
-    user: any;
+    user: User | null;
     onUserUpdated: () => void;
 }
 
@@ -36,6 +37,7 @@ export default function AdminEditUserModal({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user) return;
         setIsSubmitting(true);
 
         try {
@@ -48,8 +50,8 @@ export default function AdminEditUserModal({
             toast.success("User updated successfully");
             onUserUpdated();
             onClose();
-        } catch (error: any) {
-            toast.error(error.message || "Failed to update user");
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Failed to update user");
         } finally {
             setIsSubmitting(false);
         }
@@ -68,7 +70,7 @@ export default function AdminEditUserModal({
                 >
                     <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
                         <h2 className="text-xl font-bold text-text-primary dark:text-white flex items-center gap-2">
-                            <User size={20} className="text-primary" /> Edit User
+                            <LucideUser size={20} className="text-primary" /> Edit User
                         </h2>
                         <button onClick={onClose} className="text-text-secondary dark:text-gray-400 hover:text-text-primary dark:hover:text-white transition-colors">
                             <X size={24} />

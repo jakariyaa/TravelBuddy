@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { useSession } from "@/app/utils/auth-client";
 import { api } from "@/app/utils/api";
 import Navbar from "@/app/components/Navbar";
@@ -154,11 +155,13 @@ export default function ProfilePage() {
                             <div className="relative flex flex-col md:flex-row justify-between items-center md:items-end -mt-12 mb-8 gap-6">
                                 <div className="relative">
                                     <div className="relative inline-block">
-                                        <div className="w-40 h-40 rounded-[2rem] border-[6px] border-white dark:border-gray-900 shadow-2xl overflow-hidden bg-white dark:bg-gray-800">
-                                            <img
+                                        <div className="relative w-40 h-40 rounded-3xl border-[6px] border-white dark:border-gray-900 shadow-2xl overflow-hidden bg-white dark:bg-gray-800">
+                                            <Image
                                                 src={user.image || "https://i.pravatar.cc/150?img=68"}
                                                 alt={user.name}
-                                                className="w-full h-full object-cover"
+                                                fill
+                                                className="object-cover"
+                                                unoptimized
                                             />
                                         </div>
                                     </div>

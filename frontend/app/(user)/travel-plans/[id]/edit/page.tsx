@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
 import { api } from "@/app/utils/api";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
@@ -39,9 +40,8 @@ export default function EditTravelPlanPage() {
                 setDescription(data.description || "");
                 setInterests(data.interests ? data.interests.join(", ") : "");
                 setExistingImages(data.images || []);
-            } catch (err: unknown) {
-                setError("Failed to load travel plan details");
-                toast.error("Failed to load travel plan details");
+            } catch {
+                toast.error("Failed to load travel plan");
             } finally {
                 setIsLoading(false);
             }
@@ -248,7 +248,9 @@ export default function EditTravelPlanPage() {
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                         {existingImages.map((img, idx) => (
                                             <div key={`existing-${idx}`} className="relative group">
-                                                <img src={img} alt={`Existing ${idx}`} className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-600" />
+                                                <div className="relative w-full h-24">
+                                                    <Image src={img} alt={`Existing ${idx}`} fill className="object-cover rounded-lg border border-gray-200 dark:border-gray-600" unoptimized />
+                                                </div>
                                                 <button
                                                     type="button"
                                                     onClick={() => removeExistingImage(img)}
@@ -284,11 +286,15 @@ export default function EditTravelPlanPage() {
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                         {images.map((file, idx) => (
                                             <div key={`new-${idx}`} className="relative group">
-                                                <img
-                                                    src={URL.createObjectURL(file)}
-                                                    alt={`Preview ${idx}`}
-                                                    className="w-full h-24 object-cover rounded-lg"
-                                                />
+                                                <div className="relative w-full h-24">
+                                                    <Image
+                                                        src={URL.createObjectURL(file)}
+                                                        alt={`Preview ${idx}`}
+                                                        fill
+                                                        className="object-cover rounded-lg"
+                                                        unoptimized
+                                                    />
+                                                </div>
                                                 <button
                                                     type="button"
                                                     onClick={() => removeNewImage(idx)}

@@ -66,8 +66,8 @@ export default function ReviewModal({
                 setRating(0);
                 setComment("");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to submit review");
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Failed to submit review");
         } finally {
             setIsSubmitting(false);
         }

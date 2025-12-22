@@ -1,4 +1,4 @@
-import { Skeleton } from "./Skeleton";
+import { Skeleton } from "./ui/skeleton";
 
 export default function DashboardSkeleton() {
     return (

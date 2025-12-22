@@ -1,6 +1,7 @@
 "use client";
 
 import { Star } from "lucide-react";
+import Image from "next/image";
 
 const testimonials = [
     {
@@ -28,8 +29,8 @@ const testimonials = [
 
 export default function Testimonials() {
     return (
-        <section className="py-24 bg-gray-50 dark:bg-gray-900 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-20 bg-gray-50 dark:bg-gray-900 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-6 lg:px-8">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl font-bold text-text-primary sm:text-4xl">
                         Travelers Love Us
@@ -51,17 +52,20 @@ export default function Testimonials() {
                                 ))}
                             </div>
                             <p className="text-text-secondary mb-8 leading-relaxed">
-                                "{testimonial.content}"
+                                &quot;{testimonial.content}&quot;
                             </p>
                             <div className="flex items-center gap-4">
-                                <img
+                                <Image
                                     src={testimonial.image}
                                     alt={testimonial.author}
-                                    className="w-12 h-12 rounded-full object-cover"
+                                    width={48}
+                                    height={48}
+                                    className="rounded-full object-cover"
+                                    unoptimized
                                 />
                                 <div>
                                     <h4 className="font-bold text-text-primary">{testimonial.author}</h4>
-                                    <p className="text-xs text-text-secondary">{testimonial.location}</p>
+                                    <p className="text-gray-600 dark:text-gray-300 mb-6 italic">&quot;{testimonial.content}&quot;</p>
                                 </div>
                             </div>
                         </div>

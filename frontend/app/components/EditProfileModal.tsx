@@ -1,18 +1,19 @@
-"use client";
+import Image from "next/image";
 
 import { useState, useRef } from "react";
-import { X, Camera, Loader2, Lock } from "lucide-react";
+import { X, Camera, Loader2 } from "lucide-react";
 import { api } from "@/app/utils/api";
 import { authClient } from "@/app/utils/auth-client";
 import { motion, AnimatePresence } from "framer-motion";
+import { User } from "@/app/types";
 
 import { toast } from "sonner";
 
 interface EditProfileModalProps {
     isOpen: boolean;
     onClose: () => void;
-    user: any;
-    onUpdate: (updatedUser: any) => void;
+    user: User | null;
+    onUpdate: (updatedUser: User) => void;
 }
 
 export default function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfileModalProps) {
@@ -69,7 +70,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onUpdate }: Ed
                     toast.error(ctx.error.message || "Failed to change password");
                 }
             });
-        } catch (err) {
+        } catch {
             toast.error("Something went wrong");
         } finally {
             setIsPasswordLoading(false);
@@ -86,12 +87,15 @@ export default function EditProfileModal({ isOpen, onClose, user, onUpdate }: Ed
 
         setIsLoading(true);
         try {
-            const updatedUser = await api.users.uploadImage(file);
-            onUpdate(updatedUser);
+            const { imageUrl } = await api.users.uploadImage(file);
+            if (user) {
+                onUpdate({ ...user, image: imageUrl });
+            }
             toast.success("Profile image updated");
-        } catch (err: any) {
-            setError(err.message);
-            toast.error(err.message || "Failed to upload image");
+        } catch {
+            const message = "Failed to upload image";
+            setError(message);
+            toast.error(message);
         } finally {
             setIsLoading(false);
         }
@@ -112,9 +116,10 @@ export default function EditProfileModal({ isOpen, onClose, user, onUpdate }: Ed
             onUpdate(updatedUser);
             toast.success("Profile updated successfully");
             onClose();
-        } catch (err: any) {
-            setError(err.message);
-            toast.error(err.message || "Failed to update profile");
+        } catch {
+            const message = "Failed to update profile";
+            setError(message);
+            toast.error(message);
         } finally {
             setIsLoading(false);
         }
@@ -142,10 +147,13 @@ export default function EditProfileModal({ isOpen, onClose, user, onUpdate }: Ed
                         {/* Image Upload */}
                         <div className="flex flex-col items-center">
                             <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                                <img
+                                <Image
                                     src={user?.image || "https://i.pravatar.cc/150?img=68"}
                                     alt="Profile"
-                                    className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-md group-hover:opacity-75 transition-opacity"
+                                    width={96}
+                                    height={96}
+                                    className="rounded-2xl object-cover border-4 border-white dark:border-gray-700 shadow-md group-hover:opacity-75 transition-opacity"
+                                    unoptimized
                                 />
                                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Camera className="text-white drop-shadow-md" size={24} />

@@ -28,13 +28,13 @@ export default function ForgotPasswordPage() {
                     toast.success("Reset code sent to your email");
                     router.push(`/reset-password?email=${encodeURIComponent(email)}`);
                 },
-                onError: (ctx: any) => {
+                onError: (ctx: { error: { message: string } }) => {
                     toast.error(ctx.error.message || "Failed to send code");
                     setIsLoading(false);
                 }
             });
-        } catch (error) {
-            toast.error("Something went wrong");
+        } catch {
+            toast.error("Failed to send reset email");
             setIsLoading(false);
         }
     };
@@ -49,8 +49,8 @@ export default function ForgotPasswordPage() {
                             <Lock className="w-8 h-8 text-primary" />
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Forgot Password?</h2>
-                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                            Enter your email address and we'll send you a code to reset your password.
+                        <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                            Enter your email address and we&apos;ll send you a link to reset your password.
                         </p>
                     </div>
 

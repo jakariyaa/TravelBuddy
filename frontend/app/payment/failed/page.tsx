@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertCircle, RefreshCw, HelpCircle, XCircle } from "lucide-react";
+import { RefreshCw, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
@@ -34,8 +34,8 @@ export default function PaymentFailedPage() {
                     </div>
 
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Payment Failed</h1>
-                    <p className="text-gray-600 dark:text-gray-400 mb-10 text-lg leading-relaxed">
-                        We couldn't process your payment. Please check your card details or try a different payment method.
+                    <p className="text-gray-600 dark:text-gray-300 mb-8">
+                        We couldn&apos;t process your payment. Please try again or use a different payment method.
                     </p>
 
                     <div className="flex flex-col gap-4">

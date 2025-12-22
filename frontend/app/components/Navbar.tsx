@@ -1,16 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
-import { Menu, X, Compass, UserPlus, Map, User, LogOut, LayoutDashboard, Users, FileText, CreditCard, Plane } from "lucide-react";
+import { Menu, X, Compass, UserPlus, Map, LogOut, LayoutDashboard, CreditCard, Plane } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession, signOut } from "@/app/utils/auth-client";
 import { useRouter } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
+import { User } from "@/app/types";
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
-    const { data: session, isPending } = useSession();
+    const { data: session } = useSession();
     const router = useRouter();
 
     const handleLogout = async () => {
@@ -19,12 +21,12 @@ export default function Navbar() {
         router.refresh();
     };
 
-    const user = session?.user as any;
+    const user = session?.user as unknown as User | undefined;
     const isAdmin = user?.role === "ADMIN";
 
     return (
-        <nav className="fixed w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav className="fixed w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 transition-all duration-300">
+            <div className="max-w-7xl mx-auto px-6 lg:px-8">
                 <div className="flex justify-between h-16 items-center">
                     {/* Logo */}
                     <div className="flex-shrink-0 flex items-center">
@@ -108,10 +110,13 @@ export default function Navbar() {
                                         href={`/profile/${user.id}`}
                                         className="flex items-center gap-2 text-text-secondary dark:text-gray-300 hover:text-primary transition-colors"
                                     >
-                                        <img
+                                        <Image
                                             src={user.image || "https://i.pravatar.cc/150?img=68"}
                                             alt={user.name}
-                                            className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700"
+                                            width={32}
+                                            height={32}
+                                            className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700 shrink-0"
+                                            unoptimized
                                         />
                                         <span className="font-medium">{user.name}</span>
                                     </Link>
@@ -250,10 +255,13 @@ export default function Navbar() {
                                             className="flex items-center gap-3 px-3 py-2 rounded-md text-base font-medium text-text-secondary dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800"
                                             onClick={() => setIsOpen(false)}
                                         >
-                                            <img
+                                            <Image
                                                 src={user.image || "https://i.pravatar.cc/150?img=68"}
                                                 alt={user.name}
-                                                className="w-8 h-8 rounded-full object-cover"
+                                                width={32}
+                                                height={32}
+                                                className="w-8 h-8 rounded-full object-cover shrink-0"
+                                                unoptimized
                                             />
                                             Profile
                                         </Link>

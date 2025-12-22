@@ -2,16 +2,27 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { api } from "@/app/utils/api";
-import { Calendar, MapPin, Users, ArrowRight, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Calendar, Users, ArrowRight, CheckCircle, XCircle } from "lucide-react";
+import { User, TravelPlan, JoinRequest } from "@/app/types";
 import { toast } from "sonner";
 import MatchedTravelers from "./MatchedTravelers";
-import { Skeleton } from "./Skeleton";
+import { Skeleton } from "./ui/skeleton";
 
-export default function UserDashboard({ user, initialData }: { user: any, initialData?: any }) {
-    const [upcomingPlans, setUpcomingPlans] = useState<any[]>([]);
-    const [joinRequests, setJoinRequests] = useState<any[]>([]);
-    const [myRequests, setMyRequests] = useState<any[]>([]);
+interface UserDashboardProps {
+    user: User;
+    initialData?: {
+        plans: TravelPlan[];
+        requests: JoinRequest[];
+        mySentRequests: JoinRequest[];
+    };
+}
+
+export default function UserDashboard({ user, initialData }: UserDashboardProps) {
+    const [upcomingPlans, setUpcomingPlans] = useState<TravelPlan[]>([]);
+    const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
+    const [myRequests, setMyRequests] = useState<JoinRequest[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -33,11 +44,11 @@ export default function UserDashboard({ user, initialData }: { user: any, initia
                 }
 
                 // Filter upcoming plans
-                const upcoming = plans.filter((p: any) => p.status === 'UPCOMING');
+                const upcoming = plans.filter((p: TravelPlan) => p.status === 'ACTIVE');
                 setUpcomingPlans(upcoming);
 
                 // Filter pending requests matching upcoming plans (logic moved to backend efficiently, but ensuring status here)
-                const pendingRequests = allRequests.filter((r: any) => r.status === 'PENDING');
+                const pendingRequests = allRequests.filter((r: JoinRequest) => r.status === 'PENDING');
                 setJoinRequests(pendingRequests);
 
                 setMyRequests(mySentRequests);
@@ -59,7 +70,7 @@ export default function UserDashboard({ user, initialData }: { user: any, initia
             toast.success(`Request ${status.toLowerCase()}`);
             // Remove from list
             setJoinRequests(prev => prev.filter(r => r.id !== requestId));
-        } catch (error) {
+        } catch {
             toast.error("Failed to update request");
         }
     };
@@ -126,10 +137,13 @@ export default function UserDashboard({ user, initialData }: { user: any, initia
                             {upcomingPlans.map((plan) => (
                                 <Link key={plan.id} href={`/travel-plans/${plan.id}`} className="block group">
                                     <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all flex gap-4">
-                                        <img
+                                        <Image
                                             src={plan.images?.[0] || "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"}
                                             alt={plan.destination}
-                                            className="w-24 h-24 rounded-xl object-cover"
+                                            width={96}
+                                            height={96}
+                                            className="rounded-xl object-cover"
+                                            unoptimized
                                         />
                                         <div className="flex-1">
                                             <h3 className="font-bold text-text-primary dark:text-white group-hover:text-primary transition-colors">{plan.destination}</h3>
@@ -165,14 +179,17 @@ export default function UserDashboard({ user, initialData }: { user: any, initia
                                 <div key={request.id} className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
                                     <div className="flex items-center justify-between mb-3">
                                         <div className="flex items-center gap-3">
-                                            <img
-                                                src={request.user.image || "https://i.pravatar.cc/150?img=68"}
-                                                alt={request.user.name}
-                                                className="w-10 h-10 rounded-full object-cover"
+                                            <Image
+                                                src={request.user?.image || "https://i.pravatar.cc/150?img=68"}
+                                                alt={request.user?.name || "User"}
+                                                width={40}
+                                                height={40}
+                                                className="w-10 h-10 rounded-full object-cover shrink-0"
+                                                unoptimized
                                             />
                                             <div>
-                                                <p className="font-bold text-sm text-text-primary dark:text-white">{request.user.name}</p>
-                                                <p className="text-xs text-text-secondary dark:text-gray-400">wants to join {request.travelPlan.destination}</p>
+                                                <p className="font-bold text-sm text-text-primary dark:text-white">{request.user?.name || "Unknown User"}</p>
+                                                <p className="text-xs text-text-secondary dark:text-gray-400">wants to join {request.travelPlan?.destination}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -206,7 +223,7 @@ export default function UserDashboard({ user, initialData }: { user: any, initia
                             {myRequests.map((request) => (
                                 <div key={request.id} className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 flex items-center justify-between">
                                     <div>
-                                        <p className="font-bold text-sm text-text-primary dark:text-white">{request.travelPlan.destination}</p>
+                                        <p className="font-bold text-sm text-text-primary dark:text-white">{request.travelPlan?.destination || "Unknown Destination"}</p>
                                         <p className="text-xs text-text-secondary dark:text-gray-400">
                                             Status: <span className={`font-medium ${request.status === 'APPROVED' ? 'text-green-500' :
                                                 request.status === 'REJECTED' ? 'text-red-500' : 'text-yellow-500'
@@ -220,7 +237,7 @@ export default function UserDashboard({ user, initialData }: { user: any, initia
                             ))}
                         </div>
                     ) : (
-                        <p className="text-text-secondary dark:text-gray-400 text-sm">You haven't sent any requests.</p>
+                        <p className="text-text-secondary dark:text-gray-400 text-sm">You haven&apos;t sent any requests.</p>
                     )}
                 </div>
             </div>

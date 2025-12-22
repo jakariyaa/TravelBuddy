@@ -7,7 +7,6 @@ import { Loader2, Lock, ArrowRight, KeyRound, Mail } from "lucide-react";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import { toast } from "sonner";
-import Link from "next/link";
 
 function ResetPasswordContent() {
     const searchParams = useSearchParams();
@@ -45,13 +44,13 @@ function ResetPasswordContent() {
                     toast.success("Password reset successfully!");
                     router.push("/login");
                 },
-                onError: (ctx: any) => {
+                onError: (ctx: { error: { message: string } }) => {
                     toast.error(ctx.error.message || "Failed to reset password");
                     setIsLoading(false);
                 }
             });
-        } catch (error) {
-            toast.error("Something went wrong");
+        } catch {
+            toast.error("Failed to reset password");
             setIsLoading(false);
         }
     };

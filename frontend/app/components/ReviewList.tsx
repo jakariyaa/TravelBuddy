@@ -1,6 +1,7 @@
 "use client";
 
 import { Star, Edit2, Trash2 } from "lucide-react";
+import Image from "next/image";
 import { Review } from "@/app/types";
 
 interface ReviewListProps {
@@ -28,10 +29,13 @@ export default function ReviewList({ reviews, currentUserId, onEdit, onDelete }:
                 >
                     <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                            <img
+                            <Image
                                 src={review.reviewer?.image || "https://i.pravatar.cc/150?img=68"}
                                 alt={review.reviewer?.name || "Anonymous"}
-                                className="w-10 h-10 rounded-full object-cover border border-gray-100 dark:border-gray-700"
+                                width={40}
+                                height={40}
+                                className="w-10 h-10 rounded-full object-cover border border-gray-100 dark:border-gray-700 shrink-0"
+                                unoptimized
                             />
                             <div>
                                 <h4 className="font-bold text-text-primary dark:text-white text-sm">

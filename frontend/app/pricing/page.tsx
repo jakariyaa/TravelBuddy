@@ -10,24 +10,15 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
-import { createCheckoutSessionSchema } from "@/app/schemas/paymentSchemas";
-
 export default function PricingPage() {
     const { data: session } = useSession();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState<'monthly' | 'yearly' | null>(null);
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
-    const handleSubscribe = async (plan: 'monthly' | 'yearly') => {
+    const handleSubscribeClick = async (plan: 'monthly' | 'yearly') => {
         if (!session) {
             router.push("/login?redirect=/pricing");
-            return;
-        }
-
-        // Zod Validation
-        const result = createCheckoutSessionSchema.safeParse({ plan });
-        if (!result.success) {
-            toast.error(result.error.issues[0].message);
             return;
         }
 
@@ -38,11 +29,11 @@ export default function PricingPage() {
                 window.location.href = url;
             } else {
                 toast.error("Failed to start checkout");
+                setIsLoading(null);
             }
         } catch (error) {
             console.error("Checkout error:", error);
             toast.error("Failed to create checkout session");
-        } finally {
             setIsLoading(null);
         }
     };
@@ -149,7 +140,7 @@ export default function PricingPage() {
                                 ))}
                             </ul>
                             <button
-                                onClick={() => handleSubscribe(billingCycle)}
+                                onClick={() => handleSubscribeClick(billingCycle)}
                                 disabled={isLoading !== null}
                                 className="mt-auto w-full py-3 px-6 rounded-xl bg-gradient-to-r from-primary to-teal-600 text-white font-bold hover:shadow-lg hover:shadow-primary/25 transition-all flex items-center justify-center gap-2"
                             >

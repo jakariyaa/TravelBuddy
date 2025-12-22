@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { api } from "@/app/utils/api";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
@@ -16,6 +17,7 @@ export default function AddTravelPlanPage() {
     const [destination, setDestination] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [dateError, setDateError] = useState("");
     const [budget, setBudget] = useState("");
     const [travelType, setTravelType] = useState("SOLO");
     const [description, setDescription] = useState("");
@@ -51,6 +53,25 @@ export default function AddTravelPlanPage() {
             toast.error(firstError);
             setIsLoading(false);
             return;
+        }
+
+        if (new Date(startDate) > new Date(endDate)) {
+            toast.error("End date cannot be before start date");
+            setIsLoading(false);
+            return;
+        }
+
+        if (new Date(startDate) < new Date()) {
+            // Allow today, but not past. Actually `new Date()` is current time. `startDate` is YYYY-MM-DD.
+            // Let's create a date object for comparison that ignores time
+            const selectedStart = new Date(startDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (selectedStart < today) {
+                toast.error("Start date cannot be in the past");
+                setIsLoading(false);
+                return;
+            }
         }
 
         try {
@@ -112,8 +133,18 @@ export default function AddTravelPlanPage() {
                                         type="date"
                                         required
                                         value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                                        onChange={(e) => {
+                                            setStartDate(e.target.value);
+                                            if (endDate && new Date(e.target.value) > new Date(endDate)) {
+                                                setDateError("End date cannot be before start date");
+                                            } else if (new Date(e.target.value) < new Date(new Date().setHours(0, 0, 0, 0))) {
+                                                setDateError("Start date cannot be in the past");
+                                            } else {
+                                                setDateError("");
+                                            }
+                                        }}
+                                        min={new Date().toISOString().split('T')[0]}
+                                        className={`w-full pl-10 pr-4 py-2 rounded-xl border ${dateError && dateError.includes("Start") ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'} bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none`}
                                     />
                                 </div>
                             </div>
@@ -125,12 +156,21 @@ export default function AddTravelPlanPage() {
                                         type="date"
                                         required
                                         value={endDate}
-                                        onChange={(e) => setEndDate(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                                        onChange={(e) => {
+                                            setEndDate(e.target.value);
+                                            if (startDate && new Date(startDate) > new Date(e.target.value)) {
+                                                setDateError("End date cannot be before start date");
+                                            } else {
+                                                setDateError("");
+                                            }
+                                        }}
+                                        min={startDate}
+                                        className={`w-full pl-10 pr-4 py-2 rounded-xl border ${dateError && dateError.includes("End") ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'} bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none`}
                                     />
                                 </div>
                             </div>
                         </div>
+                        {dateError && <p className="text-red-500 text-sm mt-1 px-1">{dateError}</p>}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -212,11 +252,15 @@ export default function AddTravelPlanPage() {
                                 <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
                                     {images.map((file, idx) => (
                                         <div key={idx} className="relative group">
-                                            <img
-                                                src={URL.createObjectURL(file)}
-                                                alt={`Preview ${idx}`}
-                                                className="w-full h-24 object-cover rounded-lg"
-                                            />
+                                            <div className="relative w-full h-24">
+                                                <Image
+                                                    src={URL.createObjectURL(file)}
+                                                    alt={`Preview ${idx}`}
+                                                    fill
+                                                    className="object-cover rounded-lg"
+                                                    unoptimized
+                                                />
+                                            </div>
                                             <button
                                                 type="button"
                                                 onClick={() => removeImage(idx)}

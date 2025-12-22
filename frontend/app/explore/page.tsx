@@ -1,14 +1,52 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+
 import { api } from "@/app/utils/api";
 import { useSession } from "@/app/utils/auth-client";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import TravelPlanCard from "@/app/components/TravelPlanCard";
-import { Loader2, Search, Filter, Calendar, Type, Globe, Compass, Sparkles } from "lucide-react";
+import { Search, Filter, Calendar, Type, Globe, Compass, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TravelPlan } from "@/app/types";
+import { Skeleton } from "@/app/components/ui/skeleton";
+
+function TravelPlanSkeleton() {
+    return (
+        <div className="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm h-full flex flex-col">
+            <div className="relative h-64">
+                <Skeleton className="w-full h-full" />
+                <div className="absolute top-4 left-4">
+                    <Skeleton className="h-8 w-24 rounded-full" />
+                </div>
+            </div>
+            <div className="p-6 flex flex-col flex-grow space-y-4">
+                <div className="flex justify-between items-start">
+                    <Skeleton className="h-8 w-3/4 rounded-lg" />
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                </div>
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-full rounded" />
+                    <Skeleton className="h-4 w-5/6 rounded" />
+                </div>
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-5 w-24" />
+                </div>
+                <div className="pt-4 mt-auto flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <Skeleton className="w-10 h-10 rounded-full" />
+                        <div className="space-y-1">
+                            <Skeleton className="h-4 w-20" />
+                            <Skeleton className="h-3 w-16" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default function ExplorePage() {
     const { data: session } = useSession();
@@ -27,6 +65,7 @@ export default function ExplorePage() {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [interests, setInterests] = useState("");
+    const [sortBy, setSortBy] = useState("relevant"); // relevant, price_asc, price_desc, date_asc, date_desc
     const [showFilters, setShowFilters] = useState(false);
 
     // Fetch Recommended Plans
@@ -87,16 +126,36 @@ export default function ExplorePage() {
 
             // api.travelPlans.search handles query string appending generally
             // If queryString is empty, search endpoint will return all with defaults
-            const data = await api.travelPlans.search(queryString);
+            const data = await api.travelPlans.search(queryString) as TravelPlan[];
 
-            setPlans(data as TravelPlan[]);
+            // Validation: Start Date > End Date
+            if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+                setError("Start date cannot be after end date");
+                setIsLoading(false);
+                return;
+            } else {
+                setError(""); // Clear error if valid
+            }
 
-        } catch (err) {
+            // Client-side Sorting
+            if (sortBy === 'price_asc') {
+                data.sort((a, b) => a.budget - b.budget);
+            } else if (sortBy === 'price_desc') {
+                data.sort((a, b) => b.budget - a.budget);
+            } else if (sortBy === 'date_asc') {
+                data.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+            } else if (sortBy === 'date_desc') {
+                data.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+            }
+
+            setPlans(data);
+
+        } catch {
             setError("Failed to load travel plans");
         } finally {
             setIsLoading(false);
         }
-    }, [destination, travelType, startDate, endDate, interests]); // Dependencies
+    }, [destination, travelType, startDate, endDate, interests, sortBy]); // Dependencies
 
     useEffect(() => {
         // Initial load
@@ -176,9 +235,9 @@ export default function ExplorePage() {
                                         type="text"
                                         placeholder="Where do you want to go?"
                                         value={destination}
-                                        onChange={(e) => { 
+                                        onChange={(e) => {
                                             e.preventDefault();
-                                            return setDestination(e.target.value) 
+                                            return setDestination(e.target.value)
                                         }}
                                         className="w-full bg-transparent border-none text-lg py-2 px-4 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:outline-none ring-0 focus:ring-0 appearance-none shadow-none"
                                     />
@@ -273,6 +332,33 @@ export default function ExplorePage() {
                                                 </div>
                                             </div>
 
+                                            {/* Sort Options */}
+                                            <div className="mt-6 border-t border-gray-100 dark:border-gray-700 pt-6">
+                                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-3">
+                                                    Sort By
+                                                </label>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {[
+                                                        { label: 'Relevance', value: 'relevant' },
+                                                        { label: 'Price: Low to High', value: 'price_asc' },
+                                                        { label: 'Price: High to Low', value: 'price_desc' },
+                                                        { label: 'Date: Earliest', value: 'date_asc' },
+                                                        { label: 'Date: Latest', value: 'date_desc' },
+                                                    ].map((option) => (
+                                                        <button
+                                                            key={option.value}
+                                                            onClick={() => setSortBy(option.value)}
+                                                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors border ${sortBy === option.value
+                                                                ? 'bg-primary text-white border-primary'
+                                                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-primary'
+                                                                }`}
+                                                        >
+                                                            {option.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+
                                             <div className="mt-6 flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700">
                                                 <button
                                                     onClick={() => {
@@ -281,6 +367,7 @@ export default function ExplorePage() {
                                                         setInterests("");
                                                         setStartDate("");
                                                         setEndDate("");
+                                                        setSortBy("relevant");
                                                         setShowFilters(false);
                                                     }}
                                                     className="text-sm text-gray-500 hover:text-red-500 font-medium px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -334,9 +421,10 @@ export default function ExplorePage() {
 
                     {/* Results Grid */}
                     {isLoading ? (
-                        <div className="flex flex-col items-center justify-center py-32">
-                            <Loader2 className="animate-spin text-primary mb-4" size={48} />
-                            <p className="text-gray-500 font-medium">Finding amazing trips...</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {[...Array(6)].map((_, i) => (
+                                <TravelPlanSkeleton key={i} />
+                            ))}
                         </div>
                     ) : error ? (
                         <div className="text-center py-20">
@@ -372,6 +460,7 @@ export default function ExplorePage() {
                                     setStartDate("");
                                     setEndDate("");
                                     setInterests("");
+                                    setSortBy("relevant");
                                 }}
                                 className="px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-teal-700 transition-colors shadow-lg shadow-teal-500/20"
                             >

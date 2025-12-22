@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, AlertCircle, ArrowRight } from "lucide-react";
+import { AlertCircle, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
@@ -34,8 +34,8 @@ export default function PaymentCancelledPage() {
                     </div>
 
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Payment Cancelled</h1>
-                    <p className="text-gray-600 dark:text-gray-400 mb-10 text-lg leading-relaxed">
-                        No worries! Your payment process was cancelled and you haven't been charged.
+                    <p className="text-gray-600 dark:text-gray-300 mb-8">
+                        Your payment was cancelled and you haven&apos;t been charged.
                     </p>
 
                     <div className="flex flex-col gap-4">

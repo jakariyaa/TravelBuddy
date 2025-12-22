@@ -8,14 +8,18 @@ import Footer from "@/app/components/Footer";
 import UserDashboard from "@/app/components/UserDashboard";
 import AdminDashboard from "@/app/components/AdminDashboard";
 import DashboardSkeleton from "@/app/components/DashboardSkeleton";
-import { Loader2 } from "lucide-react";
 import { api } from "@/app/utils/api";
+import { User, TravelPlan, JoinRequest } from "@/app/types";
 
 export default function DashboardPage() {
     const { data: session, isPending } = useSession();
     const router = useRouter();
-    const [userProfile, setUserProfile] = useState<any>(null);
-    const [dashboardData, setDashboardData] = useState<any>(null);
+    const [userProfile, setUserProfile] = useState<User | null>(null);
+    const [dashboardData, setDashboardData] = useState<{
+        plans: TravelPlan[];
+        requests: JoinRequest[];
+        mySentRequests: JoinRequest[];
+    } | null>(null);
     const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
     useEffect(() => {
@@ -78,7 +82,7 @@ export default function DashboardPage() {
                 {userProfile.role === 'ADMIN' ? (
                     <AdminDashboard />
                 ) : (
-                    <UserDashboard user={userProfile} initialData={dashboardData} />
+                    <UserDashboard user={userProfile} initialData={dashboardData || undefined} />
                 )}
             </main>
             <Footer />

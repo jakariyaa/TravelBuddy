@@ -6,11 +6,12 @@ import { api } from "@/app/utils/api";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import TravelPlanCard from "@/app/components/TravelPlanCard";
-import { Loader2, Plus, Search, Filter } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
+import { TravelPlan } from "@/app/types";
 import { useSession } from "@/app/utils/auth-client";
 
 export default function TravelPlansPage() {
-    const [plans, setPlans] = useState<any[]>([]);
+    const [plans, setPlans] = useState<TravelPlan[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
     const { data: session } = useSession();
@@ -20,8 +21,8 @@ export default function TravelPlansPage() {
             try {
                 const data = await api.travelPlans.getMyPlans();
                 setPlans(data);
-            } catch (err) {
-                setError("Failed to load your travel plans");
+            } catch {
+                setError("Failed to load travel plans");
             } finally {
                 setIsLoading(false);
             }
@@ -78,7 +79,7 @@ export default function TravelPlansPage() {
                     <div className="text-center py-20 text-red-500">{error}</div>
                 ) : plans.length === 0 ? (
                     <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-3xl p-10 border border-gray-100 dark:border-gray-700 shadow-sm">
-                        <p className="text-text-secondary dark:text-gray-400 text-lg mb-4">You haven't created any travel plans yet.</p>
+                        <p className="text-gray-500 mb-6">You haven&apos;t joined any travel plans yet.</p>
                         <Link href="/travel-plans/add" className="text-primary font-bold hover:underline inline-block">
                             Start planning your first trip!
                         </Link>

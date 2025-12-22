@@ -1,40 +1,44 @@
+"use client";
+
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 
 export default function TermsPage() {
     return (
-        <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+        <div className="min-h-screen bg-white dark:bg-gray-950 flex flex-col font-sans">
             <Navbar />
-            <div className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-8 md:p-12 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-                    <h1 className="text-3xl font-bold text-text-primary dark:text-white mb-8">Terms of Service</h1>
+            <main className="grow pt-24 pb-16">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+                    <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-8">Terms of Service</h1>
 
-                    <div className="prose dark:prose-invert max-w-none text-text-secondary dark:text-gray-300">
-                        <p className="mb-4">Last updated: December 2025</p>
-
-                        <h2 className="text-xl font-bold text-text-primary dark:text-white mt-8 mb-4">1. Acceptance of Terms</h2>
-                        <p className="mb-4">
-                            By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement. In addition, when using these particular services, you shall be subject to any posted guidelines or rules applicable to such services.
+                    <div className="prose prose-lg dark:prose-invert">
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">
+                            Last updated: December 20, 2025
                         </p>
 
-                        <h2 className="text-xl font-bold text-text-primary dark:text-white mt-8 mb-4">2. User Conduct</h2>
-                        <p className="mb-4">
-                            You agree to use the site only for lawful purposes. You agree not to take any action that might compromise the security of the site, render the site inaccessible to others or otherwise cause damage to the site or the Content.
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">1. Acceptance of Terms</h2>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">
+                            By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement. In addition, when using this websites particular services, you shall be subject to any posted guidelines or rules applicable to such services.
                         </p>
 
-                        <h2 className="text-xl font-bold text-text-primary dark:text-white mt-8 mb-4">3. Intellectual Property</h2>
-                        <p className="mb-4">
-                            All content included on the Site, such as text, graphics, logos, images, as well as the compilation thereof, and any software used on the Site, is the property of TravelBuddy or its suppliers and protected by copyright and other laws that protect intellectual property and proprietary rights.
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">2. Description of Service</h2>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">
+                            TravelBuddy provides a platform for travelers to connect, share travel plans, and find companions for their trips. You understand and agree that the Service may include advertisements and that these advertisements are necessary for TravelBuddy to provide the Service.
                         </p>
 
-                        <h2 className="text-xl font-bold text-text-primary dark:text-white mt-8 mb-4">4. Termination</h2>
-                        <p className="mb-4">
-                            We may terminate your access to the Site, without cause or notice, which may result in the forfeiture and destruction of all information associated with you.
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">3. User Conduct</h2>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">
+                            You agree to not use the Service to:
                         </p>
+                        <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 mb-6 space-y-2">
+                            <li>Upload, post, email, transmit or otherwise make available any content that is unlawful, harmful, threatening, abusive, harassing, tortious, defamatory, vulgar, obscene, libelous, invasive of anothers privacy, hateful, or racially, ethnically or otherwise objectionable.</li>
+                            <li>Harm minors in any way.</li>
+                            <li>Impersonate any person or entity, including, but not limited to, a TravelBuddy official, forum leader, guide or host.</li>
+                        </ul>
                     </div>
                 </div>
-            </div>
+            </main>
             <Footer />
-        </main>
+        </div>
     );
 }

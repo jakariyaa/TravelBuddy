@@ -17,35 +17,34 @@ export default function Home() {
       {/* Hero has its own internal animations */}
       <Hero />
 
-      <div className="pb-20">
-        <SectionWrapper delay={0.1}>
-          <WhyChooseUs />
-        </SectionWrapper>
+      {/* Main Content Sections with Consistent Spacing */}
+      <SectionWrapper delay={0.1}>
+        <WhyChooseUs />
+      </SectionWrapper>
 
-        <SectionWrapper delay={0.1}>
-          <PopularDestinations />
-        </SectionWrapper>
+      <SectionWrapper delay={0.1}>
+        <PopularDestinations />
+      </SectionWrapper>
 
-        <SectionWrapper delay={0.1}>
-          <TravelCategories />
-        </SectionWrapper>
+      <SectionWrapper delay={0.1}>
+        <TravelCategories />
+      </SectionWrapper>
 
-        <SectionWrapper delay={0.1}>
-          <FeatureSection />
-        </SectionWrapper>
+      <SectionWrapper delay={0.1}>
+        <FeatureSection />
+      </SectionWrapper>
 
-        <SectionWrapper delay={0.1}>
-          <TopTravelers />
-        </SectionWrapper>
+      <SectionWrapper delay={0.1}>
+        <TopTravelers />
+      </SectionWrapper>
 
-        <SectionWrapper delay={0.1}>
-          <Testimonials />
-        </SectionWrapper>
+      <SectionWrapper delay={0.1}>
+        <Testimonials />
+      </SectionWrapper>
 
-        <SectionWrapper delay={0.1}>
-          <CTA />
-        </SectionWrapper>
-      </div>
+      <SectionWrapper delay={0.1}>
+        <CTA />
+      </SectionWrapper>
 
       <Footer />
     </main>

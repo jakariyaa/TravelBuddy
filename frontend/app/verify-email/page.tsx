@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { emailOtp, useSession } from "@/app/utils/auth-client";
 import { Loader2, Mail, ArrowRight, ShieldCheck } from "lucide-react";
 import Navbar from "@/app/components/Navbar";
@@ -11,11 +11,11 @@ import Link from "next/link";
 
 function VerifyEmailContent() {
     const searchParams = useSearchParams();
-    const router = useRouter();
+    // const router = useRouter(); // Unused
     const { data: session } = useSession(); // Use session as fallback
 
     // Get email from params OR session
-    const email = searchParams.get("email") || (session?.user as any)?.email || "";
+    const email = searchParams.get("email") || session?.user?.email || "";
 
     const [otp, setOtp] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -51,12 +51,12 @@ function VerifyEmailContent() {
                     // Refresh session to update emailVerified status
                     window.location.href = "/";
                 },
-                onError: (ctx: any) => {
+                onError: (ctx: { error: { message: string } }) => {
                     toast.error(ctx.error.message || "Invalid OTP");
                     setIsLoading(false);
                 }
             });
-        } catch (err) {
+        } catch {
             toast.error("Something went wrong");
             setIsLoading(false);
         }
@@ -75,12 +75,12 @@ function VerifyEmailContent() {
                     setTimer(60); // 60 seconds cooldown
                     setIsResending(false);
                 },
-                onError: (ctx: any) => {
+                onError: (ctx: { error: { message: string } }) => {
                     toast.error(ctx.error.message || "Failed to send code");
                     setIsResending(false);
                 }
             });
-        } catch (error) {
+        } catch {
             toast.error("Failed to resend code");
             setIsResending(false);
         }
