@@ -107,6 +107,8 @@ export const api = {
             return fetchWithAuth<User[]>(`/users/search?${params.toString()}`);
         },
         getMatches: () => fetchWithAuth<MatchedUser[]>('/users/matches'),
+        getTopTravelers: () => fetchWithAuth<any[]>("/users/top"),
+        getSystemStats: () => fetchWithAuth<{ totalUsers: number; newTripsCount: number; recentUsers: string[] }>("/users/stats"),
     },
     travelPlans: {
         getAll: () => fetchWithAuth<TravelPlan[]>("/travel-plans"),
@@ -117,6 +119,7 @@ export const api = {
         delete: (id: string) => fetchWithAuth<void>(`/travel-plans/${id}`, { method: "DELETE" }),
         search: (query: string) => fetchWithAuth<TravelPlan[]>(`/travel-plans/search?${query}`),
         complete: (id: string) => fetchWithAuth<TravelPlan>(`/travel-plans/${id}/complete`, { method: "PATCH" }),
+        getPopularDestinations: () => fetchWithAuth<any[]>("/travel-plans/popular"),
     },
     reviews: {
         create: (data: Partial<Review>) => fetchWithAuth<Review>("/reviews", {
@@ -124,6 +127,7 @@ export const api = {
             body: JSON.stringify(data),
         }),
         getAll: () => fetchWithAuth<Review[]>("/reviews"),
+        getFeatured: () => fetchWithAuth<Review[]>("/reviews/featured"),
         getUserReviews: (userId: string, page: number = 1, limit: number = 10) => fetchWithAuth<UserReviewData>(`/reviews/user/${userId}?page=${page}&limit=${limit}`),
         update: (id: string, data: Partial<Review>) => fetchWithAuth<Review>(`/reviews/${id}`, {
             method: "PUT",

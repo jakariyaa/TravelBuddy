@@ -29,24 +29,24 @@ The application follows a modern decoupled architecture:
 ```mermaid
 graph TD
     User[End User]
-    
-    subgraph Frontend [Frontend (Next.js 16)]
+
+    subgraph frontend["Frontend (Next.js 16)"]
         UI[React UI]
         Redux[Redux Store]
         RTK[RTK Query]
     end
-    
-    subgraph Backend [Backend (Express + Node.js)]
+
+    subgraph backend["Backend (Express + Node.js)"]
         API[REST API]
         Auth[Better Auth]
         Prisma[Prisma ORM]
     end
-    
-    subgraph Database [Data Layer]
+
+    subgraph database["Data Layer"]
         PG[(PostgreSQL)]
     end
-    
-    subgraph External [External Services]
+
+    subgraph external["External Services"]
         Email[Nodemailer / SMTP]
         Social[Google / GitHub OAuth]
     end
@@ -55,11 +55,11 @@ graph TD
     UI -->|Actions| Redux
     Redux -->|Async Thunks / Hooks| RTK
     RTK -->|Fetch API| API
-    
+
     API -->|Validation| Auth
     API -->|Query| Prisma
     Prisma -->|SQL| PG
-    
+
     Auth -->|OAuth| Social
     API -->|Send| Email
 ```

@@ -1,49 +1,63 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { MapPin, Star, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { api } from "@/app/utils/api";
+import { Skeleton } from "@/app/components/ui/skeleton";
 
-const destinations = [
-    {
-        id: 1,
-        name: "Bali, Indonesia",
-        image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        rating: 4.8,
-        reviews: 1240,
-        price: "$800",
-        description: "Tropical paradise with beautiful beaches and vibrant culture."
-    },
-    {
-        id: 2,
-        name: "Kyoto, Japan",
-        image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        rating: 4.9,
-        reviews: 850,
-        price: "$1200",
-        description: "Ancient temples, traditional tea houses, and stunning gardens."
-    },
-    {
-        id: 3,
-        name: "Santorini, Greece",
-        image: "https://cdn.sanity.io/images/nxpteyfv/goguides/9ca4581e7f31535984243dfa9c08c12c8a30ffeb-1600x1066.jpg",
-        rating: 4.7,
-        reviews: 980,
-        price: "$1500",
-        description: "Iconic white buildings with blue domes overlooking the sea."
-    },
-    {
-        id: 4,
-        name: "Machu Picchu, Peru",
-        image: "https://images.unsplash.com/photo-1587595431973-160d0d94add1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-        rating: 4.9,
-        reviews: 2100,
-        price: "$1100",
-        description: "Incan citadel set high in the Andes Mountains."
-    }
-];
+interface Destination {
+    id: string;
+    name: string;
+    image: string;
+    rating: number;
+    reviews: number;
+    price: string;
+    description: string;
+}
 
 export default function PopularDestinations() {
+    const [destinations, setDestinations] = useState<Destination[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDestinations = async () => {
+            try {
+                const data = await api.travelPlans.getPopularDestinations();
+                if (data && data.length > 0) {
+                    setDestinations(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch popular destinations", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchDestinations();
+    }, []);
+
+    if (isLoading) {
+        return (
+            <section className="py-20 bg-gray-50 dark:bg-gray-900">
+                <div className="max-w-7xl mx-auto px-6 lg:px-8">
+                    <div className="mb-12">
+                        <Skeleton className="h-10 w-64 mb-4" />
+                        <Skeleton className="h-6 w-96" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {[...Array(4)].map((_, i) => (
+                            <Skeleton key={i} className="h-96 w-full rounded-2xl" />
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    if (destinations.length === 0) return null;
+
     return (
         <section className="py-20 bg-gray-50 dark:bg-gray-900">
             <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -60,32 +74,34 @@ export default function PopularDestinations() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {destinations.map((destination) => (
                         <div key={destination.id} className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
-                            <div className="relative h-64 overflow-hidden">
-                                <Image
-                                    src={destination.image}
-                                    alt={destination.name}
-                                    fill
-                                    className="object-cover transform group-hover:scale-110 transition-transform duration-500"
-                                    unoptimized
-                                />
-                                <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 text-sm font-medium shadow-sm">
-                                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                                    <span className="text-text-primary dark:text-white">{destination.rating}</span>
-                                </div>
-                            </div>
-                            <div className="p-6">
-                                <div className="flex items-start justify-between mb-2">
-                                    <h3 className="text-xl font-bold text-text-primary dark:text-white group-hover:text-primary transition-colors">{destination.name}</h3>
-                                </div>
-                                <p className="text-text-secondary dark:text-gray-400 text-sm mb-4 line-clamp-2">{destination.description}</p>
-                                <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
-                                    <div className="flex items-center gap-1 text-text-secondary dark:text-gray-400 text-sm">
-                                        <MapPin size={16} />
-                                        <span>{destination.reviews} reviews</span>
+                            <Link href={`/explore?destination=${encodeURIComponent(destination.name)}`}>
+                                <div className="relative h-64 overflow-hidden">
+                                    <Image
+                                        src={destination.image}
+                                        alt={destination.name}
+                                        fill
+                                        className="object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                        unoptimized
+                                    />
+                                    <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 text-sm font-medium shadow-sm">
+                                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                        <span className="text-text-primary dark:text-white">{destination.rating}</span>
                                     </div>
-                                    <span className="text-primary font-bold">{destination.price}<span className="text-text-tertiary dark:text-gray-500 text-xs font-normal">/trip</span></span>
                                 </div>
-                            </div>
+                                <div className="p-6">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <h3 className="text-xl font-bold text-text-primary dark:text-white group-hover:text-primary transition-colors">{destination.name}</h3>
+                                    </div>
+                                    <p className="text-text-secondary dark:text-gray-400 text-sm mb-4 line-clamp-2">{destination.description}</p>
+                                    <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                                        <div className="flex items-center gap-1 text-text-secondary dark:text-gray-400 text-sm">
+                                            <MapPin size={16} />
+                                            <span>{destination.reviews} reviews</span>
+                                        </div>
+                                        <span className="text-primary font-bold">{destination.price}<span className="text-text-tertiary dark:text-gray-500 text-xs font-normal">/trip</span></span>
+                                    </div>
+                                </div>
+                            </Link>
                         </div>
                     ))}
                 </div>

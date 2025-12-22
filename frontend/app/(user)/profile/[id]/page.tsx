@@ -8,7 +8,7 @@ import { api } from "@/app/utils/api";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import EditProfileModal from "@/app/components/EditProfileModal";
-import { MapPin, Calendar, Globe, Edit2, User as UserIcon, Star, BadgeCheck } from "lucide-react";
+import { MapPin, Calendar, Globe, Edit2, User as UserIcon, Star, BadgeCheck, Phone, Facebook, Instagram, Link as LinkIcon } from "lucide-react";
 import TravelPlanCard from "@/app/components/TravelPlanCard";
 import ReviewList from "@/app/components/ReviewList";
 import ReviewModal from "@/app/components/ReviewModal";
@@ -287,6 +287,52 @@ export default function ProfilePage() {
                                     )}
                                 </div>
                             </div>
+
+                            {/* Contact & Social */}
+                            {(user.phoneNumber || user.facebookUrl || user.instagramUrl || user.websiteUrl) && (
+                                <div className="bg-white dark:bg-gray-900 p-7 rounded-[2rem] shadow-lg shadow-gray-200/50 dark:shadow-black/20 border border-gray-100 dark:border-gray-800">
+                                    <h3 className="font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3 text-lg">
+                                        <div className="p-2.5 bg-purple-100 dark:bg-purple-900/30 rounded-xl text-purple-600 dark:text-purple-400">
+                                            <LinkIcon size={22} />
+                                        </div>
+                                        Contact & Social
+                                    </h3>
+                                    <div className="space-y-4">
+                                        {user.phoneNumber && (
+                                            <div className="flex items-center gap-4 text-gray-700 dark:text-gray-300">
+                                                <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
+                                                    <Phone size={18} className="text-gray-500 dark:text-gray-400" />
+                                                </div>
+                                                <span className="font-medium text-sm">{user.phoneNumber}</span>
+                                            </div>
+                                        )}
+                                        {user.websiteUrl && (
+                                            <a href={user.websiteUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors group">
+                                                <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                                                    <Globe size={18} className="text-gray-500 dark:text-gray-400 group-hover:text-primary" />
+                                                </div>
+                                                <span className="font-medium text-sm truncate">{user.websiteUrl.replace(/^https?:\/\//, '')}</span>
+                                            </a>
+                                        )}
+                                        {user.facebookUrl && (
+                                            <a href={user.facebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 text-gray-700 dark:text-gray-300 hover:text-blue-600 transition-colors group">
+                                                <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:text-blue-600 transition-colors">
+                                                    <Facebook size={18} className="text-gray-500 dark:text-gray-400 group-hover:text-blue-600" />
+                                                </div>
+                                                <span className="font-medium text-sm">Facebook</span>
+                                            </a>
+                                        )}
+                                        {user.instagramUrl && (
+                                            <a href={user.instagramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 text-gray-700 dark:text-gray-300 hover:text-pink-600 transition-colors group">
+                                                <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 group-hover:bg-pink-50 dark:group-hover:bg-pink-900/20 group-hover:text-pink-600 transition-colors">
+                                                    <Instagram size={18} className="text-gray-500 dark:text-gray-400 group-hover:text-pink-600" />
+                                                </div>
+                                                <span className="font-medium text-sm">Instagram</span>
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
 
                         </motion.div>
 

@@ -13,6 +13,10 @@ export interface User {
     updatedAt: string;
     travelPlans?: TravelPlan[];
     reviews?: Review[];
+    phoneNumber?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    websiteUrl?: string;
 }
 
 export interface TravelPlan {
@@ -27,7 +31,7 @@ export interface TravelPlan {
     description: string;
     interests: string[];
     images: string[];
-    status?: 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+    status?: 'UPCOMING' | 'ONGOING' | 'COMPLETED' | 'CANCELLED';
     user?: User;
     createdAt?: string;
     updatedAt?: string;

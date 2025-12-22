@@ -8,6 +8,10 @@ export const updateProfileSchema = z.object({
         travelInterests: z.array(z.string()).optional(),
         visitedCountries: z.array(z.string()).optional(),
         currentLocation: z.string().optional(),
+        phoneNumber: z.string().optional(),
+        facebookUrl: z.string().url().optional().or(z.literal('')),
+        instagramUrl: z.string().url().optional().or(z.literal('')),
+        websiteUrl: z.string().url().optional().or(z.literal('')),
     }),
 });
 

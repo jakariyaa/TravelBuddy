@@ -229,3 +229,32 @@ export const deleteReview = catchAsync(async (req: Request, res: Response, next:
 
     res.json({ message: 'Review deleted' });
 });
+
+export const getFeaturedReviews = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const reviews = await prisma.review.findMany({
+        where: {
+            rating: 5, // Only 5-star reviews
+        },
+        take: 3,
+        orderBy: {
+            createdAt: 'desc',
+        },
+        include: {
+            reviewer: {
+                select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                    isVerified: true,
+                }
+            },
+            travelPlan: {
+                select: {
+                    destination: true
+                }
+            }
+        }
+    });
+
+    res.json(reviews);
+});

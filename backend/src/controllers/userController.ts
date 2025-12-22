@@ -23,6 +23,10 @@ export const getProfile = catchAsync(async (req: Request, res: Response, next: N
             travelInterests: true,
             visitedCountries: true,
             currentLocation: true,
+            phoneNumber: true,
+            facebookUrl: true,
+            instagramUrl: true,
+            websiteUrl: true,
             createdAt: true,
             role: true,
             isVerified: true,
@@ -39,7 +43,7 @@ export const getProfile = catchAsync(async (req: Request, res: Response, next: N
 export const updateProfile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
     const userId = req.user?.id;
-    const { name, bio, image, travelInterests, visitedCountries, currentLocation } = req.body;
+    const { name, bio, image, travelInterests, visitedCountries, currentLocation, phoneNumber, facebookUrl, instagramUrl, websiteUrl } = req.body;
 
     if (!userId) {
         return next(new AppError('Unauthorized', 401));
@@ -54,6 +58,10 @@ export const updateProfile = catchAsync(async (req: Request, res: Response, next
             travelInterests,
             visitedCountries,
             currentLocation,
+            phoneNumber,
+            facebookUrl,
+            instagramUrl,
+            websiteUrl,
         },
         select: {
             id: true,
@@ -64,6 +72,10 @@ export const updateProfile = catchAsync(async (req: Request, res: Response, next
             travelInterests: true,
             visitedCountries: true,
             currentLocation: true,
+            phoneNumber: true,
+            facebookUrl: true,
+            instagramUrl: true,
+            websiteUrl: true,
             createdAt: true,
             role: true,
             isVerified: true,
@@ -90,6 +102,10 @@ export const getUserById = catchAsync(async (req: Request, res: Response, next: 
             travelInterests: true,
             visitedCountries: true,
             currentLocation: true,
+            phoneNumber: true,
+            facebookUrl: true,
+            instagramUrl: true,
+            websiteUrl: true,
             createdAt: true,
             isVerified: true,
             travelPlans: {
@@ -170,6 +186,10 @@ export const uploadProfileImage = catchAsync(async (req: Request, res: Response,
             travelInterests: true,
             visitedCountries: true,
             currentLocation: true,
+            phoneNumber: true,
+            facebookUrl: true,
+            instagramUrl: true,
+            websiteUrl: true,
             createdAt: true,
             role: true,
             isVerified: true,
@@ -264,7 +284,12 @@ export const searchUsers = catchAsync(async (req: Request, res: Response, next: 
             image: true,
             bio: true,
             travelInterests: true,
+            visitedCountries: true,
             currentLocation: true,
+            phoneNumber: true,
+            facebookUrl: true,
+            instagramUrl: true,
+            websiteUrl: true,
             isVerified: true
         },
         take: 100
@@ -316,9 +341,13 @@ export const getMatchedUsers = catchAsync(async (req: Request, res: Response, ne
             name: true,
             image: true,
             bio: true,
-            currentLocation: true,
-            travelInterests: true,
             visitedCountries: true,
+            currentLocation: true,
+            phoneNumber: true,
+            facebookUrl: true,
+            instagramUrl: true,
+            websiteUrl: true,
+            travelInterests: true,
             isVerified: true,
             _count: {
                 select: { travelPlans: true }
@@ -362,7 +391,7 @@ export const getMatchedUsers = catchAsync(async (req: Request, res: Response, ne
 
         return {
             ...user,
-            score: totalScore, // 0-100
+            matchPercentage: totalScore, // 0-100
             sharedInterests: sharedInterests,
             // map keys to frontend expected format if needed
             trips: user._count.travelPlans,
@@ -371,7 +400,78 @@ export const getMatchedUsers = catchAsync(async (req: Request, res: Response, ne
     });
 
     // sort by score desc
-    scoredMatches.sort((a, b) => b.score - a.score);
+    scoredMatches.sort((a, b) => b.matchPercentage - a.matchPercentage);
 
     res.json(scoredMatches.slice(0, 10)); // return top 10
+});
+
+export const getTopTravelers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const topTravelers = await prisma.user.findMany({
+        take: 4,
+        orderBy: {
+            travelPlans: {
+                _count: 'desc'
+            }
+        },
+        select: {
+            id: true,
+            name: true,
+            image: true,
+            bio: true,
+            currentLocation: true,
+            isVerified: true,
+            _count: {
+                select: {
+                    travelPlans: true
+                }
+            }
+        }
+    });
+
+    // Format for frontend
+    const formattedTravelers = topTravelers.map(user => ({
+        id: user.id,
+        name: user.name,
+        image: user.image,
+        location: user.currentLocation || "Location Unknown",
+        trips: user._count.travelPlans,
+        isVerified: user.isVerified,
+        bio: user.bio,
+        rating: 5.0 // Default high rating for top travelers
+    }));
+
+    res.json(formattedTravelers);
+});
+
+export const getSystemStats = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const totalUsers = await prisma.user.count();
+
+    // Count trips created in the last 7 days
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    const newTripsCount = await prisma.travelPlan.count({
+        where: {
+            createdAt: {
+                gte: oneWeekAgo
+            }
+        }
+    });
+
+    // Get 5 random users for the avatar stack (or recent ones)
+    // Using random for variety if possible, or just recent
+    const recentUsers = await prisma.user.findMany({
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+        select: {
+            image: true,
+            id: true
+        }
+    });
+
+    res.json({
+        totalUsers,
+        newTripsCount,
+        recentUsers: recentUsers.map(u => u.image).filter(Boolean)
+    });
 });

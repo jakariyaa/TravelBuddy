@@ -5,7 +5,9 @@ import {
     getUserReviews,
     updateReview,
     deleteReview,
-    getAllReviews
+
+    getAllReviews,
+    getFeaturedReviews
 } from '../controllers/reviewController.js';
 import { validate } from '../middleware/validate.js';
 import { createReviewSchema, updateReviewSchema } from '../schemas/reviewSchemas.js';
@@ -13,6 +15,7 @@ import { createReviewSchema, updateReviewSchema } from '../schemas/reviewSchemas
 const router = express.Router();
 
 router.post('/', authenticateUser, validate(createReviewSchema), createReview);
+router.get('/featured', getFeaturedReviews);
 router.get('/', authenticateUser, getAllReviews);
 router.get('/user/:userId', getUserReviews);
 router.put('/:id', authenticateUser, validate(updateReviewSchema), updateReview);

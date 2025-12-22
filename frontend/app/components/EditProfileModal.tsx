@@ -23,6 +23,10 @@ export default function EditProfileModal({ isOpen, onClose, user, onUpdate }: Ed
         currentLocation: user?.currentLocation || "",
         travelInterests: user?.travelInterests?.join(", ") || "",
         visitedCountries: user?.visitedCountries?.join(", ") || "",
+        phoneNumber: user?.phoneNumber || "",
+        facebookUrl: user?.facebookUrl || "",
+        instagramUrl: user?.instagramUrl || "",
+        websiteUrl: user?.websiteUrl || "",
     });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
@@ -236,6 +240,56 @@ export default function EditProfileModal({ isOpen, onClose, user, onUpdate }: Ed
                                     className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all dark:placeholder-gray-400"
                                     placeholder="Japan, France, Brazil"
                                 />
+                            </div>
+
+                            <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+                                <h3 className="text-sm font-bold text-text-primary dark:text-white mb-3">Contact Links</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-text-secondary dark:text-gray-400 mb-1">Phone / WhatsApp</label>
+                                        <input
+                                            type="text"
+                                            name="phoneNumber"
+                                            value={formData.phoneNumber}
+                                            onChange={handleChange}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
+                                            placeholder="+1 234 567 8900"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-text-secondary dark:text-gray-400 mb-1">Website URL</label>
+                                        <input
+                                            type="url"
+                                            name="websiteUrl"
+                                            value={formData.websiteUrl}
+                                            onChange={handleChange}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
+                                            placeholder="https://example.com"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-text-secondary dark:text-gray-400 mb-1">Facebook URL</label>
+                                        <input
+                                            type="url"
+                                            name="facebookUrl"
+                                            value={formData.facebookUrl}
+                                            onChange={handleChange}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
+                                            placeholder="https://facebook.com/user"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-text-secondary dark:text-gray-400 mb-1">Instagram URL</label>
+                                        <input
+                                            type="url"
+                                            name="instagramUrl"
+                                            value={formData.instagramUrl}
+                                            onChange={handleChange}
+                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-text-primary dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
+                                            placeholder="https://instagram.com/user"
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Change Password Toggle */}

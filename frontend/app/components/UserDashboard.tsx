@@ -44,7 +44,7 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
                 }
 
                 // Filter upcoming plans
-                const upcoming = plans.filter((p: TravelPlan) => p.status === 'ACTIVE');
+                const upcoming = plans.filter((p: TravelPlan) => p.status === 'UPCOMING' || p.status === 'ONGOING');
                 setUpcomingPlans(upcoming);
 
                 // Filter pending requests matching upcoming plans (logic moved to backend efficiently, but ensuring status here)
@@ -125,8 +125,13 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
 
                 {/* Upcoming Plans */}
                 <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-text-primary dark:text-white">Upcoming Plans</h2>
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <div className="bg-primary/10 dark:bg-primary/20 p-2 rounded-xl text-primary">
+                                <Calendar size={20} />
+                            </div>
+                            <h2 className="text-xl font-bold text-text-primary dark:text-white">Upcoming Plans</h2>
+                        </div>
                         <Link href="/travel-plans/add" className="text-primary font-medium hover:underline text-sm">
                             + Create New
                         </Link>
@@ -172,7 +177,12 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
 
                 {/* Received Requests */}
                 <div className="space-y-4">
-                    <h2 className="text-xl font-bold text-text-primary dark:text-white">Pending Requests</h2>
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-xl text-blue-600 dark:text-blue-400">
+                            <Users size={20} />
+                        </div>
+                        <h2 className="text-xl font-bold text-text-primary dark:text-white">Pending Requests</h2>
+                    </div>
                     {joinRequests.length > 0 ? (
                         <div className="space-y-3">
                             {joinRequests.map((request) => (
@@ -217,7 +227,12 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
 
                 {/* My Sent Requests */}
                 <div className="space-y-4">
-                    <h2 className="text-xl font-bold text-text-primary dark:text-white">My Sent Requests</h2>
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="bg-purple-50 dark:bg-purple-900/30 p-2 rounded-xl text-purple-600 dark:text-purple-400">
+                            <ArrowRight size={20} />
+                        </div>
+                        <h2 className="text-xl font-bold text-text-primary dark:text-white">My Sent Requests</h2>
+                    </div>
                     {myRequests.length > 0 ? (
                         <div className="space-y-3">
                             {myRequests.map((request) => (

@@ -48,8 +48,11 @@ function TravelPlanSkeleton() {
     );
 }
 
+import { useSearchParams } from "next/navigation";
+
 export default function ExplorePage() {
     const { data: session } = useSession();
+    const searchParams = useSearchParams();
 
     // Main List State
     const [plans, setPlans] = useState<TravelPlan[]>([]);
@@ -59,13 +62,13 @@ export default function ExplorePage() {
     // Recommended List State
     const [recommendedPlans, setRecommendedPlans] = useState<TravelPlan[]>([]);
 
-    // Search Filters
-    const [destination, setDestination] = useState("");
-    const [travelType, setTravelType] = useState("");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-    const [interests, setInterests] = useState("");
-    const [sortBy, setSortBy] = useState("relevant"); // relevant, price_asc, price_desc, date_asc, date_desc
+    // Search Filters - Initialize from URL if present
+    const [destination, setDestination] = useState(searchParams.get("destination") || "");
+    const [travelType, setTravelType] = useState(searchParams.get("travelType") || "");
+    const [startDate, setStartDate] = useState(searchParams.get("startDate") || "");
+    const [endDate, setEndDate] = useState(searchParams.get("endDate") || "");
+    const [interests, setInterests] = useState(searchParams.get("interests") || "");
+    const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "relevant");
     const [showFilters, setShowFilters] = useState(false);
 
     // Fetch Recommended Plans

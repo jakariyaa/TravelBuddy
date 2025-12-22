@@ -64,39 +64,66 @@ const defaultTravelers = [
 
 export default function TopTravelers() {
     const { data: session } = useSession();
-    const [displayTravelers, setDisplayTravelers] = useState<Traveler[]>(defaultTravelers);
+    const [displayTravelers, setDisplayTravelers] = useState<Traveler[]>([]);
     const [isPersonalized, setIsPersonalized] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchRecommendations = async () => {
-            if (session?.user) {
-                try {
-                    const matches = await api.users.getMatches();
-                    if (matches && matches.length > 0) {
-                        const mappedTravelers: Traveler[] = matches.slice(0, 4).map(m => ({
-                            id: m.id,
-                            name: m.name,
-                            image: m.image,
-                            location: m.currentLocation || "Unknown",
-                            trips: m.travelPlans?.length || 0,
-                            rating: 0, // MatchedUser doesn't have rating yet in this context
-                            isVerified: m.isVerified,
-                            bio: m.bio,
-                            score: m.matchPercentage,
-                            sharedInterests: m.sharedInterests,
-                            currentLocation: m.currentLocation
-                        }));
-                        setDisplayTravelers(mappedTravelers);
-                        setIsPersonalized(true);
+        const fetchTravelers = async () => {
+            setIsLoading(true);
+            try {
+                let travelersData: Traveler[] = [];
+                let personalized = false;
+
+                if (session?.user) {
+                    try {
+                        const matches = await api.users.getMatches();
+                        if (matches && matches.length > 0) {
+                            travelersData = matches.slice(0, 4).map(m => ({
+                                id: m.id,
+                                name: m.name,
+                                image: m.image,
+                                location: m.currentLocation || "Unknown",
+                                trips: m.travelPlans?.length || 0,
+                                rating: 5,
+                                isVerified: m.isVerified,
+                                bio: m.bio,
+                                score: m.matchPercentage,
+                                sharedInterests: m.sharedInterests,
+                                currentLocation: m.currentLocation
+                            }));
+                            personalized = true;
+                        }
+                    } catch (error) {
+                        console.error("Failed to fetch matches, falling back to top travelers", error);
                     }
-                } catch (error) {
-                    console.error("Failed to fetch recommendations:", error);
                 }
+
+                // If no personalized data (either not logged in, or no matches found), fetch top travelers
+                if (travelersData.length === 0) {
+                    const topTravelers = await api.users.getTopTravelers();
+                    if (topTravelers && topTravelers.length > 0) {
+                        travelersData = topTravelers;
+                        personalized = false;
+                    } else {
+                        // Fallback to defaults if everything fails
+                        travelersData = defaultTravelers;
+                    }
+                }
+
+                setDisplayTravelers(travelersData);
+                setIsPersonalized(personalized);
+            } catch (error) {
+                console.error("Failed to fetch travelers:", error);
+                setDisplayTravelers(defaultTravelers);
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        fetchRecommendations();
+        fetchTravelers();
     }, [session]);
+
 
     return (
         <section className="py-20 bg-white dark:bg-gray-800">
@@ -119,100 +146,110 @@ export default function TopTravelers() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {displayTravelers.map((traveler) => (
-                        <div key={traveler.id} className="group bg-white dark:bg-gray-900 rounded-2xl p-5 hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-800 flex flex-col h-full relative">
-                            {/* Header: Photo & Match Indicator */}
-                            <div className="flex flex-col items-center mb-3 relative">
-                                <div className="relative">
-                                    <Image
-                                        src={traveler.image || `https://i.pravatar.cc/150?u=${traveler.id}`}
-                                        alt={traveler.name}
-                                        width={80}
-                                        height={80}
-                                        className="w-20 h-20 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm group-hover:scale-105 transition-transform duration-300 shrink-0"
-                                        unoptimized
-                                    />
-                                    {/* Match Badge for Personalized View */}
-                                    {/* Match Badge for Personalized View */}
-                                    {isPersonalized && (traveler.score || 0) > 0 && (
-                                        <div className="absolute -bottom-2 -right-6 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-[8px] font-bold px-1 rounded-full shadow-sm flex items-center gap-0.5 z-10 whitespace-nowrap">
-                                            {traveler.score}%
-                                        </div>
-                                    )}
-                                    {/* Rating for Default View */}
-                                    {!isPersonalized && traveler.rating && (
-                                        <div className="absolute -right-1 bottom-0 bg-yellow-400 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm border border-white dark:border-gray-800">
-                                            <Star size={8} className="fill-current" />
-                                            {traveler.rating}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
+                {isLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[...Array(4)].map((_, i) => (
+                            <div key={i} className="h-80 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
-                            {/* Body: Name, Location, Interests */}
-                            <div className="text-center flex-grow flex flex-col items-center">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight flex items-center justify-center gap-1 mb-1">
-                                    {traveler.name}
-                                    {traveler.isVerified && <BadgeCheck size={16} className="text-blue-500 fill-blue-500/10" />}
-                                </h3>
-
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-1">
-                                    {traveler.location || traveler.currentLocation || "Location Unknown"}
+                        {displayTravelers.map((traveler) => (
+                            <div key={traveler.id} className="group bg-white dark:bg-gray-900 rounded-2xl p-5 hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-800 flex flex-col h-full relative">
+                                {/* Header: Photo & Match Indicator */}
+                                <div className="flex flex-col items-center mb-3 relative">
+                                    <div className="relative">
+                                        <Image
+                                            src={traveler.image || `https://i.pravatar.cc/150?u=${traveler.id}`}
+                                            alt={traveler.name}
+                                            width={80}
+                                            height={80}
+                                            className="w-20 h-20 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm group-hover:scale-105 transition-transform duration-300 shrink-0"
+                                            unoptimized
+                                        />
+                                        {/* Match Badge for Personalized View */}
+                                        {/* Match Badge for Personalized View */}
+                                        {isPersonalized && (traveler.score || 0) > 0 && (
+                                            <div className="absolute -bottom-2 -right-6 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-[8px] font-bold px-1 rounded-full shadow-sm flex items-center gap-0.5 z-10 whitespace-nowrap">
+                                                {traveler.score}%
+                                            </div>
+                                        )}
+                                        {/* Rating for Default View */}
+                                        {!isPersonalized && traveler.rating && (
+                                            <div className="absolute -right-1 bottom-0 bg-yellow-400 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm border border-white dark:border-gray-800">
+                                                <Star size={8} className="fill-current" />
+                                                {traveler.rating}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
-                                {/* Interest Chips or Bio */}
-                                <div className="w-full mb-4">
-                                    {isPersonalized && traveler.sharedInterests ? (
-                                        <div className="flex flex-wrap justify-center gap-2">
-                                            {traveler.sharedInterests.slice(0, 3).map((interest: string, idx: number) => (
-                                                <span
-                                                    key={idx}
-                                                    className={`
+                                {/* Body: Name, Location, Interests */}
+                                <div className="text-center flex-grow flex flex-col items-center">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight flex items-center justify-center gap-1 mb-1">
+                                        {traveler.name}
+                                        {traveler.isVerified && <BadgeCheck size={16} className="text-blue-500 fill-blue-500/10" />}
+                                    </h3>
+
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-1">
+                                        {traveler.location || traveler.currentLocation || "Location Unknown"}
+                                    </div>
+
+                                    {/* Interest Chips or Bio */}
+                                    <div className="w-full mb-4">
+                                        {isPersonalized && traveler.sharedInterests ? (
+                                            <div className="flex flex-wrap justify-center gap-2">
+                                                {traveler.sharedInterests.slice(0, 3).map((interest: string, idx: number) => (
+                                                    <span
+                                                        key={idx}
+                                                        className={`
                                                         px-2.5 py-1 rounded-full text-[11px] font-medium 
                                                         ${['nature', 'hiking', 'outdoors'].some(k => interest.toLowerCase().includes(k))
-                                                            ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300'
-                                                            : ['beach', 'sea', 'ocean'].some(k => interest.toLowerCase().includes(k))
-                                                                ? 'bg-cyan-50 text-cyan-700 dark:bg-cyan-900/20 dark:text-cyan-300'
-                                                                : 'bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-300'
-                                                        }
+                                                                ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300'
+                                                                : ['beach', 'sea', 'ocean'].some(k => interest.toLowerCase().includes(k))
+                                                                    ? 'bg-cyan-50 text-cyan-700 dark:bg-cyan-900/20 dark:text-cyan-300'
+                                                                    : 'bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-300'
+                                                            }
                                                     `}
-                                                >
-                                                    {interest}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 px-2">
-                                            &quot;{traveler.bio || "Ready to explore the world!"}&quot;
-                                        </p>
-                                    )}
+                                                    >
+                                                        {interest}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 px-2">
+                                                &quot;{traveler.bio || "Ready to explore the world!"}&quot;
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* Footer: Action */}
-                            <div className="pt-3 mt-1 border-t border-gray-100 dark:border-gray-800 w-full flex items-center justify-between">
-                                {/* Hide Trips if 0 or irrelevant in personalized view unless user wants it. 
+                                {/* Footer: Action */}
+                                <div className="pt-3 mt-1 border-t border-gray-100 dark:border-gray-800 w-full flex items-center justify-between">
+                                    {/* Hide Trips if 0 or irrelevant in personalized view unless user wants it. 
                                     User said "Hide '0 Trips' unless meaningful". 
                                     Let's show it only if > 0.
                                 */}
-                                <div className="font-medium text-gray-900 dark:text-white">
-                                    {traveler.trips > 0 && (
-                                        <span>{traveler.trips} Trips</span>
-                                    )}
-                                </div>
+                                    <div className="font-medium text-gray-900 dark:text-white">
+                                        {traveler.trips > 0 && (
+                                            <span>{traveler.trips} Trips</span>
+                                        )}
+                                    </div>
 
-                                <Link
-                                    href={isPersonalized ? `/profile/${traveler.id}` : `/login`}
-                                    className="text-sm font-semibold text-primary hover:text-teal-700 flex items-center gap-1.5 transition-colors ml-auto"
-                                >
-                                    <UserPlus size={14} />
-                                    Connect
-                                </Link>
+                                    <Link
+                                        href={isPersonalized ? `/profile/${traveler.id}` : `/login`}
+                                        className="text-sm font-semibold text-primary hover:text-teal-700 flex items-center gap-1.5 transition-colors ml-auto"
+                                    >
+                                        <UserPlus size={14} />
+                                        Connect
+                                    </Link>
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
+
 
                 <div className="mt-12 text-center">
                     <Link

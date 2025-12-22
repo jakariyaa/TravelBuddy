@@ -37,6 +37,10 @@ export type UserMinAggregateOutputType = {
   currentLocation: string | null
   stripeCustomerId: string | null
   subscriptionStatus: $Enums.SubscriptionStatus | null
+  phoneNumber: string | null
+  facebookUrl: string | null
+  instagramUrl: string | null
+  websiteUrl: string | null
   isVerified: boolean | null
 }
 
@@ -53,6 +57,10 @@ export type UserMaxAggregateOutputType = {
   currentLocation: string | null
   stripeCustomerId: string | null
   subscriptionStatus: $Enums.SubscriptionStatus | null
+  phoneNumber: string | null
+  facebookUrl: string | null
+  instagramUrl: string | null
+  websiteUrl: string | null
   isVerified: boolean | null
 }
 
@@ -71,6 +79,10 @@ export type UserCountAggregateOutputType = {
   currentLocation: number
   stripeCustomerId: number
   subscriptionStatus: number
+  phoneNumber: number
+  facebookUrl: number
+  instagramUrl: number
+  websiteUrl: number
   isVerified: number
   _all: number
 }
@@ -89,6 +101,10 @@ export type UserMinAggregateInputType = {
   currentLocation?: true
   stripeCustomerId?: true
   subscriptionStatus?: true
+  phoneNumber?: true
+  facebookUrl?: true
+  instagramUrl?: true
+  websiteUrl?: true
   isVerified?: true
 }
 
@@ -105,6 +121,10 @@ export type UserMaxAggregateInputType = {
   currentLocation?: true
   stripeCustomerId?: true
   subscriptionStatus?: true
+  phoneNumber?: true
+  facebookUrl?: true
+  instagramUrl?: true
+  websiteUrl?: true
   isVerified?: true
 }
 
@@ -123,6 +143,10 @@ export type UserCountAggregateInputType = {
   currentLocation?: true
   stripeCustomerId?: true
   subscriptionStatus?: true
+  phoneNumber?: true
+  facebookUrl?: true
+  instagramUrl?: true
+  websiteUrl?: true
   isVerified?: true
   _all?: true
 }
@@ -214,6 +238,10 @@ export type UserGroupByOutputType = {
   currentLocation: string | null
   stripeCustomerId: string | null
   subscriptionStatus: $Enums.SubscriptionStatus
+  phoneNumber: string | null
+  facebookUrl: string | null
+  instagramUrl: string | null
+  websiteUrl: string | null
   isVerified: boolean
   _count: UserCountAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
@@ -253,6 +281,10 @@ export type UserWhereInput = {
   currentLocation?: Prisma.StringNullableFilter<"User"> | string | null
   stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFilter<"User"> | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.StringNullableFilter<"User"> | string | null
+  facebookUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  instagramUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  websiteUrl?: Prisma.StringNullableFilter<"User"> | string | null
   isVerified?: Prisma.BoolFilter<"User"> | boolean
   sessions?: Prisma.SessionListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
@@ -277,6 +309,10 @@ export type UserOrderByWithRelationInput = {
   currentLocation?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
   subscriptionStatus?: Prisma.SortOrder
+  phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  facebookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  instagramUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  websiteUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   isVerified?: Prisma.SortOrder
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   accounts?: Prisma.AccountOrderByRelationAggregateInput
@@ -304,6 +340,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   currentLocation?: Prisma.StringNullableFilter<"User"> | string | null
   stripeCustomerId?: Prisma.StringNullableFilter<"User"> | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFilter<"User"> | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.StringNullableFilter<"User"> | string | null
+  facebookUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  instagramUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  websiteUrl?: Prisma.StringNullableFilter<"User"> | string | null
   isVerified?: Prisma.BoolFilter<"User"> | boolean
   sessions?: Prisma.SessionListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
@@ -328,6 +368,10 @@ export type UserOrderByWithAggregationInput = {
   currentLocation?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
   subscriptionStatus?: Prisma.SortOrder
+  phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  facebookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  instagramUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  websiteUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   isVerified?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
@@ -352,6 +396,10 @@ export type UserScalarWhereWithAggregatesInput = {
   currentLocation?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusWithAggregatesFilter<"User"> | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  facebookUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  instagramUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  websiteUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   isVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
 }
 
@@ -370,6 +418,10 @@ export type UserCreateInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -394,6 +446,10 @@ export type UserUncheckedCreateInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -418,6 +474,10 @@ export type UserUpdateInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -442,6 +502,10 @@ export type UserUncheckedUpdateInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -466,6 +530,10 @@ export type UserCreateManyInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
 }
 
@@ -484,6 +552,10 @@ export type UserUpdateManyMutationInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
@@ -502,6 +574,10 @@ export type UserUncheckedUpdateManyInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
@@ -528,6 +604,10 @@ export type UserCountOrderByAggregateInput = {
   currentLocation?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   subscriptionStatus?: Prisma.SortOrder
+  phoneNumber?: Prisma.SortOrder
+  facebookUrl?: Prisma.SortOrder
+  instagramUrl?: Prisma.SortOrder
+  websiteUrl?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
 }
 
@@ -544,6 +624,10 @@ export type UserMaxOrderByAggregateInput = {
   currentLocation?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   subscriptionStatus?: Prisma.SortOrder
+  phoneNumber?: Prisma.SortOrder
+  facebookUrl?: Prisma.SortOrder
+  instagramUrl?: Prisma.SortOrder
+  websiteUrl?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
 }
 
@@ -560,6 +644,10 @@ export type UserMinOrderByAggregateInput = {
   currentLocation?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   subscriptionStatus?: Prisma.SortOrder
+  phoneNumber?: Prisma.SortOrder
+  facebookUrl?: Prisma.SortOrder
+  instagramUrl?: Prisma.SortOrder
+  websiteUrl?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
 }
 
@@ -713,6 +801,10 @@ export type UserCreateWithoutTravelPlansInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -736,6 +828,10 @@ export type UserUncheckedCreateWithoutTravelPlansInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -775,6 +871,10 @@ export type UserUpdateWithoutTravelPlansInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -798,6 +898,10 @@ export type UserUncheckedUpdateWithoutTravelPlansInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -821,6 +925,10 @@ export type UserCreateWithoutGivenReviewsInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -844,6 +952,10 @@ export type UserUncheckedCreateWithoutGivenReviewsInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -872,6 +984,10 @@ export type UserCreateWithoutReceivedReviewsInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -895,6 +1011,10 @@ export type UserUncheckedCreateWithoutReceivedReviewsInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -934,6 +1054,10 @@ export type UserUpdateWithoutGivenReviewsInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -957,6 +1081,10 @@ export type UserUncheckedUpdateWithoutGivenReviewsInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -991,6 +1119,10 @@ export type UserUpdateWithoutReceivedReviewsInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1014,6 +1146,10 @@ export type UserUncheckedUpdateWithoutReceivedReviewsInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1037,6 +1173,10 @@ export type UserCreateWithoutSentRequestsInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1060,6 +1200,10 @@ export type UserUncheckedCreateWithoutSentRequestsInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1099,6 +1243,10 @@ export type UserUpdateWithoutSentRequestsInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1122,6 +1270,10 @@ export type UserUncheckedUpdateWithoutSentRequestsInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1145,6 +1297,10 @@ export type UserCreateWithoutSessionsInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   travelPlans?: Prisma.TravelPlanCreateNestedManyWithoutUserInput
@@ -1168,6 +1324,10 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   travelPlans?: Prisma.TravelPlanUncheckedCreateNestedManyWithoutUserInput
@@ -1207,6 +1367,10 @@ export type UserUpdateWithoutSessionsInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   travelPlans?: Prisma.TravelPlanUpdateManyWithoutUserNestedInput
@@ -1230,6 +1394,10 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   travelPlans?: Prisma.TravelPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -1253,6 +1421,10 @@ export type UserCreateWithoutAccountsInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   travelPlans?: Prisma.TravelPlanCreateNestedManyWithoutUserInput
@@ -1276,6 +1448,10 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   currentLocation?: string | null
   stripeCustomerId?: string | null
   subscriptionStatus?: $Enums.SubscriptionStatus
+  phoneNumber?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  websiteUrl?: string | null
   isVerified?: boolean
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   travelPlans?: Prisma.TravelPlanUncheckedCreateNestedManyWithoutUserInput
@@ -1315,6 +1491,10 @@ export type UserUpdateWithoutAccountsInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   travelPlans?: Prisma.TravelPlanUpdateManyWithoutUserNestedInput
@@ -1338,6 +1518,10 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   currentLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionStatus?: Prisma.EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   travelPlans?: Prisma.TravelPlanUncheckedUpdateManyWithoutUserNestedInput
@@ -1437,6 +1621,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   currentLocation?: boolean
   stripeCustomerId?: boolean
   subscriptionStatus?: boolean
+  phoneNumber?: boolean
+  facebookUrl?: boolean
+  instagramUrl?: boolean
+  websiteUrl?: boolean
   isVerified?: boolean
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
@@ -1462,6 +1650,10 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   currentLocation?: boolean
   stripeCustomerId?: boolean
   subscriptionStatus?: boolean
+  phoneNumber?: boolean
+  facebookUrl?: boolean
+  instagramUrl?: boolean
+  websiteUrl?: boolean
   isVerified?: boolean
 }, ExtArgs["result"]["user"]>
 
@@ -1480,6 +1672,10 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   currentLocation?: boolean
   stripeCustomerId?: boolean
   subscriptionStatus?: boolean
+  phoneNumber?: boolean
+  facebookUrl?: boolean
+  instagramUrl?: boolean
+  websiteUrl?: boolean
   isVerified?: boolean
 }, ExtArgs["result"]["user"]>
 
@@ -1498,10 +1694,14 @@ export type UserSelectScalar = {
   currentLocation?: boolean
   stripeCustomerId?: boolean
   subscriptionStatus?: boolean
+  phoneNumber?: boolean
+  facebookUrl?: boolean
+  instagramUrl?: boolean
+  websiteUrl?: boolean
   isVerified?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "createdAt" | "updatedAt" | "role" | "bio" | "travelInterests" | "visitedCountries" | "currentLocation" | "stripeCustomerId" | "subscriptionStatus" | "isVerified", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "createdAt" | "updatedAt" | "role" | "bio" | "travelInterests" | "visitedCountries" | "currentLocation" | "stripeCustomerId" | "subscriptionStatus" | "phoneNumber" | "facebookUrl" | "instagramUrl" | "websiteUrl" | "isVerified", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
@@ -1539,6 +1739,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     currentLocation: string | null
     stripeCustomerId: string | null
     subscriptionStatus: $Enums.SubscriptionStatus
+    phoneNumber: string | null
+    facebookUrl: string | null
+    instagramUrl: string | null
+    websiteUrl: string | null
     isVerified: boolean
   }, ExtArgs["result"]["user"]>
   composites: {}
@@ -1983,6 +2187,10 @@ export interface UserFieldRefs {
   readonly currentLocation: Prisma.FieldRef<"User", 'String'>
   readonly stripeCustomerId: Prisma.FieldRef<"User", 'String'>
   readonly subscriptionStatus: Prisma.FieldRef<"User", 'SubscriptionStatus'>
+  readonly phoneNumber: Prisma.FieldRef<"User", 'String'>
+  readonly facebookUrl: Prisma.FieldRef<"User", 'String'>
+  readonly instagramUrl: Prisma.FieldRef<"User", 'String'>
+  readonly websiteUrl: Prisma.FieldRef<"User", 'String'>
   readonly isVerified: Prisma.FieldRef<"User", 'Boolean'>
 }
     

@@ -982,6 +982,10 @@ export const UserScalarFieldEnum = {
   currentLocation: 'currentLocation',
   stripeCustomerId: 'stripeCustomerId',
   subscriptionStatus: 'subscriptionStatus',
+  phoneNumber: 'phoneNumber',
+  facebookUrl: 'facebookUrl',
+  instagramUrl: 'instagramUrl',
+  websiteUrl: 'websiteUrl',
   isVerified: 'isVerified'
 } as const
 

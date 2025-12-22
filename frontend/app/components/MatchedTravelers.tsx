@@ -51,8 +51,10 @@ export default function MatchedTravelers() {
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center gap-2">
-                <Sparkles className="text-amber-500" size={20} />
+            <div className="flex items-center gap-2 mb-4">
+                <div className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-xl text-amber-600 dark:text-amber-400">
+                    <Sparkles size={20} />
+                </div>
                 <h2 className="text-xl font-bold text-text-primary dark:text-white">Recommended Travelers</h2>
             </div>
 

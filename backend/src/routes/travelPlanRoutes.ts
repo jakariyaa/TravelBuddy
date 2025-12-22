@@ -8,7 +8,8 @@ import {
     deletePlan,
     searchPlans,
     uploadPlanImages,
-    markPlanAsCompleted
+    markPlanAsCompleted,
+    getPopularDestinations
 } from '../controllers/travelPlanController.js';
 import { authenticateUser } from '../middleware/authMiddleware.js';
 import { validate } from '../middleware/validate.js';
@@ -20,6 +21,7 @@ const router = Router();
 
 router.post('/', authenticateUser, upload.array('images', 5), validate(createPlanSchema), createPlan);
 router.get('/my-plans', authenticateUser, getMyPlans);
+router.get('/popular', getPopularDestinations);
 router.get('/search', validate(searchPlansSchema), searchPlans);
 router.get('/', getAllPlans);
 router.get('/:id', getPlanById);

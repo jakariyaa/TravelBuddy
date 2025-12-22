@@ -429,3 +429,67 @@ export const markPlanAsCompleted = catchAsync(async (req: Request, res: Response
 
     res.json(updatedPlan);
 });
+
+export const getPopularDestinations = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    // Group plans by destination to find the most popular ones
+    const destinations = await prisma.travelPlan.groupBy({
+        by: ['destination'],
+        _count: {
+            destination: true,
+        },
+        _avg: {
+            budget: true,
+        },
+        orderBy: {
+            _count: {
+                destination: 'desc',
+            },
+        },
+        take: 4,
+    });
+
+    // Create a list of promises to fetch an image for each destination
+    const popularDestinations = await Promise.all(
+        destinations.map(async (dest) => {
+            // Find a plan for this destination to get an image and other details
+            const plan = await prisma.travelPlan.findFirst({
+                where: {
+                    destination: dest.destination,
+                    images: {
+                        isEmpty: false, // Ensure we get a plan with an image if possible
+                    }
+                },
+                select: {
+                    images: true,
+                    description: true,
+                },
+            });
+
+            // If no plan with image found, try any plan
+            let image = plan?.images?.[0];
+            let description = plan?.description;
+
+            if (!image) {
+                const anyPlan = await prisma.travelPlan.findFirst({
+                    where: { destination: dest.destination },
+                    select: { description: true }
+                });
+                description = anyPlan?.description;
+                // Fallback image if absolutely no image found in any plan
+                image = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+            }
+
+            return {
+                id: dest.destination, // using destination name as ID for frontend key
+                name: dest.destination,
+                image: image,
+                rating: 4.8, // Placeholder as we don't have destination ratings yet
+                reviews: dest._count.destination * 5, // Faking review count based on popularity multiplier
+                price: `$${Math.round(dest._avg.budget || 1000)}`,
+                description: description || `Experience the beauty of ${dest.destination}`,
+            };
+        })
+    );
+
+    res.json(popularDestinations);
+});

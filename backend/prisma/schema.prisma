@@ -45,6 +45,12 @@ model User {
   // Payment / Subscription
   stripeCustomerId   String?
   subscriptionStatus SubscriptionStatus @default(INACTIVE)
+  // Contact & Social
+  phoneNumber      String?
+  facebookUrl      String?
+  instagramUrl     String?
+  websiteUrl       String?
+
   isVerified         Boolean            @default(false)
 }
 
