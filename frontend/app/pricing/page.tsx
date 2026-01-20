@@ -65,7 +65,7 @@ export default function PricingPage() {
                                 Elevate Your Travel Experience
                             </h1>
                             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                                Get verified, find better matches, and unlock exclusive features with TravelBuddy Premium.
+                                Get verified, find better matches, and unlock exclusive features with Travner Premium.
                             </p>
                         </motion.div>
 

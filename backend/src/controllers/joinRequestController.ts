@@ -4,7 +4,6 @@ import { catchAsync } from '../utils/catchAsync.js';
 import { AppError } from '../utils/AppError.js';
 
 export const createRequest = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const { travelPlanId, message } = req.body;
 
@@ -16,7 +15,6 @@ export const createRequest = catchAsync(async (req: Request, res: Response, next
         return next(new AppError('Travel Plan ID is required', 400));
     }
 
-    // Check if plan exists
     const plan = await prisma.travelPlan.findUnique({
         where: { id: travelPlanId }
     });
@@ -29,7 +27,6 @@ export const createRequest = catchAsync(async (req: Request, res: Response, next
         return next(new AppError('Cannot join your own plan', 400));
     }
 
-    // Check if request already exists
     const existingRequest = await prisma.joinRequest.findUnique({
         where: {
             userId_travelPlanId: {
@@ -43,8 +40,6 @@ export const createRequest = catchAsync(async (req: Request, res: Response, next
         return next(new AppError('Request already sent', 400));
     }
 
-    // Feature Limitation: Check active requests count for non-premium users
-    // Fetch user subscription status
     const user = await prisma.user.findUnique({
         where: { id: userId },
         select: { isVerified: true, subscriptionStatus: true }
@@ -54,7 +49,6 @@ export const createRequest = catchAsync(async (req: Request, res: Response, next
         return next(new AppError('User not found', 404));
     }
 
-    // If not verified/active, check count
     if (!user.isVerified) {
         const activeRequestsCount = await prisma.joinRequest.count({
             where: {
@@ -81,7 +75,6 @@ export const createRequest = catchAsync(async (req: Request, res: Response, next
 });
 
 export const getPlanRequests = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const { planId } = req.params;
 
@@ -101,7 +94,6 @@ export const getPlanRequests = catchAsync(async (req: Request, res: Response, ne
         return next(new AppError('Travel plan not found', 404));
     }
 
-    // Only the host can view requests
     if (plan.userId !== userId) {
         return next(new AppError('Forbidden', 403));
     }
@@ -131,7 +123,6 @@ export const getPlanRequests = catchAsync(async (req: Request, res: Response, ne
 });
 
 export const respondToRequest = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const { requestId } = req.params;
     const { status } = req.body;
@@ -157,7 +148,6 @@ export const respondToRequest = catchAsync(async (req: Request, res: Response, n
         return next(new AppError('Request not found', 404));
     }
 
-    // Only host can respond
     if (request.travelPlan.userId !== userId) {
         return next(new AppError('Forbidden', 403));
     }
@@ -171,7 +161,6 @@ export const respondToRequest = catchAsync(async (req: Request, res: Response, n
 });
 
 export const getUserRequests = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
 
     if (!userId) {
@@ -198,34 +187,48 @@ export const getUserRequests = catchAsync(async (req: Request, res: Response, ne
 });
 
 export const getAllRequests = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const requesterRole = req.user?.role;
 
     if (requesterRole !== 'ADMIN') {
         return next(new AppError('Forbidden', 403));
     }
 
-    const requests = await prisma.joinRequest.findMany({
-        include: {
-            user: {
-                select: { id: true, name: true, image: true }
-            },
-            travelPlan: {
-                select: { id: true, destination: true, user: { select: { name: true } } }
-            }
-        },
-        orderBy: { createdAt: 'desc' }
-    });
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
 
-    res.json(requests);
+    const [requests, total] = await Promise.all([
+        prisma.joinRequest.findMany({
+            skip,
+            take: limit,
+            include: {
+                user: {
+                    select: { id: true, name: true, image: true }
+                },
+                travelPlan: {
+                    select: { id: true, destination: true, user: { select: { name: true } } }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        }),
+        prisma.joinRequest.count(),
+    ]);
+
+    res.json({
+        data: requests,
+        pagination: {
+            total,
+            page,
+            limit,
+            pages: Math.ceil(total / limit),
+        }
+    });
 });
 
 export const deleteRequest = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const requesterRole = req.user?.role;
     const { requestId } = req.params;
 
-    // @ts-ignore
     const userId = req.user?.id;
 
     if (!requestId) {
@@ -240,7 +243,6 @@ export const deleteRequest = catchAsync(async (req: Request, res: Response, next
         return next(new AppError('Request not found', 404));
     }
 
-    // Allow if admin or if user is the one who made the request
     if (requesterRole !== 'ADMIN' && request.userId !== userId) {
         return next(new AppError('Forbidden', 403));
     }
@@ -253,14 +255,12 @@ export const deleteRequest = catchAsync(async (req: Request, res: Response, next
 });
 
 export const getRequestsForUserPlans = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
 
     if (!userId) {
         return next(new AppError('Unauthorized', 401));
     }
 
-    // Fetch all requests for plans where the user is the host (userId matches)
     const requests = await prisma.joinRequest.findMany({
         where: {
             travelPlan: {
@@ -284,8 +284,6 @@ export const getRequestsForUserPlans = catchAsync(async (req: Request, res: Resp
             }
         },
         orderBy: { createdAt: 'desc' },
-        // Optional: Limit if needed, but "all pending" is usually the requirement
-        // take: 50 
     });
 
     res.json(requests);

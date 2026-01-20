@@ -1,6 +1,6 @@
-# Travel Buddy - Backend API
+# Travner - Backend API
 
-The robust RESTful API powering the Travel Buddy platform. Built with **Express.js**, **Prisma**, and **PostgreSQL**.
+The robust RESTful API powering the Travner platform. Built with **Express.js**, **Prisma**, and **PostgreSQL**.
 
 ## 🏗️ Project Structure
 

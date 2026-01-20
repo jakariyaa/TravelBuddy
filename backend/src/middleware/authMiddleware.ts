@@ -13,10 +13,8 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
             return;
         }
 
-        // @ts-ignore
         req.user = session.user;
 
-        // @ts-ignore
         if (!session.user.emailVerified) {
             res.status(403).json({ message: 'Email verification required. Please verify your email.' });
             return;
@@ -29,7 +27,6 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
 };
 
 export const authorizeAdmin = (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     if (req.user?.role !== 'ADMIN') {
         res.status(403).json({ message: 'Forbidden: Admins only' });
         return;

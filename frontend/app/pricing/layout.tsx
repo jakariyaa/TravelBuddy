@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Pricing - TravelBuddy",
+    title: "Pricing - Travner",
     description: "Choose the perfect plan for your travel needs.",
 };
 

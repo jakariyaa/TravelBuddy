@@ -5,23 +5,21 @@ import { catchAsync } from '../utils/catchAsync.js';
 import { AppError } from '../utils/AppError.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-    // @ts-ignore
     apiVersion: '2025-11-17.clover',
 });
 
 const PLANS = {
     monthly: {
-        name: 'Travel Buddy Premium (Monthly)',
+        name: 'Travner Premium (Monthly)',
         amount: 999, // $9.99
     },
     yearly: {
-        name: 'Travel Buddy Premium (Yearly)',
+        name: 'Travner Premium (Yearly)',
         amount: 9900, // $99.00
     }
 };
 
 export const createCheckoutSession = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const { plan } = req.body; // 'monthly' or 'yearly'
 
@@ -91,7 +89,6 @@ export const createCheckoutSession = catchAsync(async (req: Request, res: Respon
 });
 
 export const verifyCheckoutSession = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const { sessionId } = req.body;
 
@@ -145,7 +142,6 @@ export const handleWebhook = async (req: Request, res: Response) => {
         if (!endpointSecret || !sig) {
             event = req.body;
         } else {
-            // @ts-ignore
             const rawBody = req.rawBody;
             if (!rawBody) {
                 res.status(400).send("Webhook Error: No raw body");

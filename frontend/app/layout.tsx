@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Travel Buddy",
+  title: "Travner",
   description: "Find your perfect travel companion",
 };
 
@@ -16,6 +16,7 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "./components/ThemeProvider";
 import StoreProvider from "./StoreProvider";
 import AuthGuard from "./components/AuthGuard";
+import SplashScreen from "./components/SplashScreen";
 
 export default function RootLayout({
   children,
@@ -33,6 +34,7 @@ export default function RootLayout({
         >
           <StoreProvider>
             <AuthGuard>
+              <SplashScreen />
               {children}
             </AuthGuard>
             <Toaster position="top-center" richColors />

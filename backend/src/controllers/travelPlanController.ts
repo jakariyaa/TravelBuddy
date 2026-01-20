@@ -13,7 +13,6 @@ const calculateBudgetRange = (budget: number): string => {
 };
 
 export const createPlan = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const { destination, startDate, endDate, budget, travelType, description, interests } = req.body;
 
@@ -72,7 +71,6 @@ export const createPlan = catchAsync(async (req: Request, res: Response, next: N
 });
 
 export const getMyPlans = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
 
     if (!userId) {
@@ -88,24 +86,41 @@ export const getMyPlans = catchAsync(async (req: Request, res: Response, next: N
 });
 
 export const getAllPlans = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const plans = await prisma.travelPlan.findMany({
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    name: true,
-                    image: true,
-                    isVerified: true,
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const [plans, total] = await Promise.all([
+        prisma.travelPlan.findMany({
+            skip,
+            take: limit,
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                        isVerified: true,
+                    },
                 },
             },
-        },
-        orderBy: [
-            { status: 'asc' },
-            { createdAt: 'desc' }
-        ],
-    });
+            orderBy: [
+                { status: 'asc' },
+                { createdAt: 'desc' }
+            ],
+        }),
+        prisma.travelPlan.count(),
+    ]);
 
-    res.json(plans);
+    res.json({
+        data: plans,
+        pagination: {
+            total,
+            page,
+            limit,
+            pages: Math.ceil(total / limit),
+        }
+    });
 });
 
 export const getPlanById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -138,7 +153,6 @@ export const getPlanById = catchAsync(async (req: Request, res: Response, next: 
 });
 
 export const updatePlan = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const { id } = req.params;
     const { destination, startDate, endDate, budget, travelType, description, interests } = req.body;
@@ -159,7 +173,6 @@ export const updatePlan = catchAsync(async (req: Request, res: Response, next: N
         return next(new AppError('Travel plan not found', 404));
     }
 
-    // @ts-ignore
     if (existingPlan.userId !== userId && req.user?.role !== 'ADMIN') {
         return next(new AppError('Forbidden', 403));
     }
@@ -240,7 +253,6 @@ export const updatePlan = catchAsync(async (req: Request, res: Response, next: N
 });
 
 export const deletePlan = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const { id } = req.params;
 
@@ -261,7 +273,6 @@ export const deletePlan = catchAsync(async (req: Request, res: Response, next: N
     }
 
     // Check if user is owner or admin
-    // @ts-ignore
     if (existingPlan.userId !== userId && req.user?.role !== 'ADMIN') {
         return next(new AppError('Forbidden', 403));
     }
@@ -334,7 +345,6 @@ export const searchPlans = catchAsync(async (req: Request, res: Response, next: 
 });
 
 export const uploadPlanImages = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const { id } = req.params;
 
@@ -354,7 +364,6 @@ export const uploadPlanImages = catchAsync(async (req: Request, res: Response, n
         return next(new AppError('Travel plan not found', 404));
     }
 
-    // @ts-ignore
     if (existingPlan.userId !== userId && req.user?.role !== 'ADMIN') {
         return next(new AppError('Forbidden', 403));
     }
@@ -386,7 +395,6 @@ export const uploadPlanImages = catchAsync(async (req: Request, res: Response, n
 });
 
 export const markPlanAsCompleted = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const { id } = req.params;
 
@@ -406,7 +414,6 @@ export const markPlanAsCompleted = catchAsync(async (req: Request, res: Response
         return next(new AppError('Travel plan not found', 404));
     }
 
-    // @ts-ignore
     if (plan.userId !== userId && req.user?.role !== 'ADMIN') {
         return next(new AppError('Forbidden', 403));
     }
@@ -422,8 +429,8 @@ export const markPlanAsCompleted = catchAsync(async (req: Request, res: Response
         }
     }
 
-    const updatedPlan = await prisma.travelPlan.update({ // @ts-ignore
-        where: { id: id as string }, // @ts-ignore
+    const updatedPlan = await prisma.travelPlan.update({
+        where: { id: id as string },
         data: { status: newStatus }
     });
 

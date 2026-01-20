@@ -10,7 +10,7 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                     <div className="col-span-1 md:col-span-1">
                         <Link href="/" className="text-2xl font-bold text-primary mb-4 block">
-                            TravelBuddy
+                            Travner
                         </Link>
                         <p className="text-text-secondary text-sm leading-relaxed mb-6">
                             Connect with travelers, share adventures, and explore the world together. Your journey starts here.
@@ -62,7 +62,7 @@ export default function Footer() {
 
                 <div className="border-t border-gray-100 dark:border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-sm text-text-tertiary">
-                        &copy; {new Date().getFullYear()} TravelBuddy. All rights reserved.
+                        &copy; {new Date().getFullYear()} Travner. All rights reserved.
                     </p>
                     <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-green-500"></span>

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { api } from "@/app/utils/api";
-import { Calendar, Users, ArrowRight, CheckCircle, XCircle } from "lucide-react";
 import { User, TravelPlan, JoinRequest } from "@/app/types";
 import { toast } from "sonner";
 import MatchedTravelers from "./MatchedTravelers";
@@ -35,7 +34,6 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
                     allRequests = initialData.requests;
                     mySentRequests = initialData.mySentRequests;
                 } else {
-                    // Fetch all data in parallel
                     [plans, allRequests, mySentRequests] = await Promise.all([
                         api.travelPlans.getMyPlans(),
                         api.joinRequests.getRequestsForUserPlans(),
@@ -43,11 +41,9 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
                     ]);
                 }
 
-                // Filter upcoming plans
                 const upcoming = plans.filter((p: TravelPlan) => p.status === 'UPCOMING' || p.status === 'ONGOING');
                 setUpcomingPlans(upcoming);
 
-                // Filter pending requests matching upcoming plans (logic moved to backend efficiently, but ensuring status here)
                 const pendingRequests = allRequests.filter((r: JoinRequest) => r.status === 'PENDING');
                 setJoinRequests(pendingRequests);
 
@@ -68,7 +64,6 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
         try {
             await api.joinRequests.respond(requestId, status);
             toast.success(`Request ${status.toLowerCase()}`);
-            // Remove from list
             setJoinRequests(prev => prev.filter(r => r.id !== requestId));
         } catch {
             toast.error("Failed to update request");
@@ -126,12 +121,7 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
                 {/* Upcoming Plans */}
                 <div className="space-y-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                            <div className="bg-primary/10 dark:bg-primary/20 p-2 rounded-xl text-primary">
-                                <Calendar size={20} />
-                            </div>
-                            <h2 className="text-xl font-bold text-text-primary dark:text-white">Upcoming Plans</h2>
-                        </div>
+                        <h2 className="text-xl font-bold text-text-primary dark:text-white">Upcoming Plans</h2>
                         <Link href="/travel-plans/add" className="text-primary font-medium hover:underline text-sm">
                             + Create New
                         </Link>
@@ -153,11 +143,9 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
                                         <div className="flex-1">
                                             <h3 className="font-bold text-text-primary dark:text-white group-hover:text-primary transition-colors">{plan.destination}</h3>
                                             <div className="flex items-center gap-2 text-sm text-text-secondary dark:text-gray-400 mt-1">
-                                                <Calendar size={14} />
                                                 {new Date(plan.startDate).toLocaleDateString()}
                                             </div>
                                             <div className="flex items-center gap-2 text-sm text-text-secondary dark:text-gray-400 mt-1">
-                                                <Users size={14} />
                                                 {plan.travelType}
                                             </div>
                                         </div>
@@ -177,10 +165,7 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
 
                 {/* Received Requests */}
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-xl text-blue-600 dark:text-blue-400">
-                            <Users size={20} />
-                        </div>
+                    <div className="mb-4">
                         <h2 className="text-xl font-bold text-text-primary dark:text-white">Pending Requests</h2>
                     </div>
                     {joinRequests.length > 0 ? (
@@ -208,13 +193,13 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
                                             onClick={() => handleRequestAction(request.id, 'APPROVED')}
                                             className="flex-1 py-2 bg-green-50 text-green-600 rounded-lg text-sm font-bold hover:bg-green-100 transition-colors flex items-center justify-center gap-2"
                                         >
-                                            <CheckCircle size={16} /> Accept
+                                            Accept
                                         </button>
                                         <button
                                             onClick={() => handleRequestAction(request.id, 'REJECTED')}
                                             className="flex-1 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
                                         >
-                                            <XCircle size={16} /> Decline
+                                            Decline
                                         </button>
                                     </div>
                                 </div>
@@ -227,10 +212,7 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
 
                 {/* My Sent Requests */}
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="bg-purple-50 dark:bg-purple-900/30 p-2 rounded-xl text-purple-600 dark:text-purple-400">
-                            <ArrowRight size={20} />
-                        </div>
+                    <div className="mb-4">
                         <h2 className="text-xl font-bold text-text-primary dark:text-white">My Sent Requests</h2>
                     </div>
                     {myRequests.length > 0 ? (
@@ -246,7 +228,7 @@ export default function UserDashboard({ user, initialData }: UserDashboardProps)
                                         </p>
                                     </div>
                                     <Link href={`/travel-plans/${request.travelPlanId}`} className="p-2 text-text-secondary hover:text-primary transition-colors">
-                                        <ArrowRight size={18} />
+                                        →
                                     </Link>
                                 </div>
                             ))}

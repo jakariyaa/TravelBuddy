@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/app/utils/api";
 import {
+    ChevronLeft,
+    ChevronRight,
+    MoreHorizontal,
     Trash2,
     Search,
     MapPin as LuMapPin,
@@ -97,6 +100,14 @@ export default function AdminDashboard() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
+    // Pagination State
+    const [pagination, setPagination] = useState({
+        users: { page: 1, limit: 10, total: 0, pages: 0 },
+        plans: { page: 1, limit: 10, total: 0, pages: 0 },
+        reviews: { page: 1, limit: 10, total: 0, pages: 0 },
+        requests: { page: 1, limit: 10, total: 0, pages: 0 }
+    });
+
     // Modal States
     const [deleteModal, setDeleteModal] = useState<{
         isOpen: boolean;
@@ -128,17 +139,28 @@ export default function AdminDashboard() {
 
 
     const fetchData = async () => {
+        setIsLoading(true);
         try {
             const [usersData, plansData, reviewsData, requestsData] = await Promise.all([
-                api.users.getAll(),
-                api.travelPlans.getAll(),
-                api.reviews.getAll(),
-                api.requests.getAll()
+                api.users.getAll(pagination.users.page, pagination.users.limit),
+                api.travelPlans.getAll(pagination.plans.page, pagination.plans.limit),
+                api.reviews.getAll(pagination.reviews.page, pagination.reviews.limit),
+                api.requests.getAll(pagination.requests.page, pagination.requests.limit)
             ]);
-            setUsers(usersData);
-            setPlans(plansData);
-            setReviews(reviewsData);
-            setRequests(requestsData);
+
+            setUsers(usersData.data);
+            setPlans(plansData.data);
+            setReviews(reviewsData.data);
+            setRequests(requestsData.data);
+
+            setPagination(prev => ({
+                ...prev,
+                users: { ...prev.users, ...usersData.pagination },
+                plans: { ...prev.plans, ...plansData.pagination },
+                reviews: { ...prev.reviews, ...reviewsData.pagination },
+                requests: { ...prev.requests, ...requestsData.pagination }
+            }));
+
         } catch (error) {
             console.error("Failed to fetch admin data", error);
             toast.error("Failed to load admin data");
@@ -149,7 +171,14 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [pagination.users.page, pagination.plans.page, pagination.reviews.page, pagination.requests.page]);
+
+    const handlePageChange = (type: 'users' | 'plans' | 'reviews' | 'requests', newPage: number) => {
+        setPagination(prev => ({
+            ...prev,
+            [type]: { ...prev[type], page: newPage }
+        }));
+    };
 
     const confirmDelete = async () => {
         if (!deleteModal.id || !deleteModal.type) return;
@@ -248,10 +277,10 @@ export default function AdminDashboard() {
     }
 
     const tabs = [
-        { id: 'users', label: `Users (${users.length})`, icon: LuUsers },
-        { id: 'plans', label: `Plans (${plans.length})`, icon: FileText },
-        { id: 'reviews', label: `Reviews (${reviews.length})`, icon: LuMessageSquare },
-        { id: 'requests', label: `Requests (${requests.length})`, icon: LuActivity },
+        { id: 'users', label: `Users (${pagination.users.total})`, icon: LuUsers },
+        { id: 'plans', label: `Plans (${pagination.plans.total})`, icon: FileText },
+        { id: 'reviews', label: `Reviews (${pagination.reviews.total})`, icon: LuMessageSquare },
+        { id: 'requests', label: `Requests (${pagination.requests.total})`, icon: LuActivity },
     ];
 
     return (
@@ -279,7 +308,7 @@ export default function AdminDashboard() {
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 border-l-4 border-l-blue-500">
                     <div>
                         <p className="text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider">Total Users</p>
-                        <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-1">{users.length}</h3>
+                        <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-1">{pagination.users.total}</h3>
                     </div>
                 </div>
 
@@ -287,7 +316,7 @@ export default function AdminDashboard() {
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 border-l-4 border-l-emerald-500">
                     <div>
                         <p className="text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider">Active Plans</p>
-                        <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-1">{plans.length}</h3>
+                        <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-1">{pagination.plans.total}</h3>
                     </div>
                 </div>
 
@@ -295,7 +324,7 @@ export default function AdminDashboard() {
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 border-l-4 border-l-amber-500">
                     <div>
                         <p className="text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider">Total Reviews</p>
-                        <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-1">{reviews.length}</h3>
+                        <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-1">{pagination.reviews.total}</h3>
                     </div>
                 </div>
 
@@ -303,7 +332,7 @@ export default function AdminDashboard() {
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 border-l-4 border-l-purple-500">
                     <div>
                         <p className="text-xs font-bold text-text-secondary dark:text-gray-400 uppercase tracking-wider">Join Requests</p>
-                        <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-1">{requests.length}</h3>
+                        <h3 className="text-3xl font-bold text-text-primary dark:text-white mt-1">{pagination.requests.total}</h3>
                     </div>
                 </div>
             </div>
@@ -629,6 +658,73 @@ export default function AdminDashboard() {
                                         <p className="text-sm">Requests to join trips will appear here.</p>
                                     </div>
                                 )}
+                            </div>
+
+                            {/* Pagination Controls */}
+                            <div className="mt-6 flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-4">
+                                <div className="text-sm text-text-secondary dark:text-gray-400">
+                                    Showing <span className="font-medium text-text-primary dark:text-white">{((pagination[activeTab].page - 1) * pagination[activeTab].limit) + 1}</span> to <span className="font-medium text-text-primary dark:text-white">{Math.min(pagination[activeTab].page * pagination[activeTab].limit, pagination[activeTab].total)}</span> of <span className="font-medium text-text-primary dark:text-white">{pagination[activeTab].total}</span> results
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => handlePageChange(activeTab, Math.max(1, pagination[activeTab].page - 1))}
+                                        disabled={pagination[activeTab].page === 1}
+                                        className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        <ChevronLeft size={16} />
+                                    </button>
+
+                                    {/* Page Numbers */}
+                                    <div className="flex items-center gap-1">
+                                        {[...Array(Math.min(5, pagination[activeTab].pages))].map((_, i) => {
+                                            // Logic to show a window of pages around current page
+                                            let pageNum = i + 1;
+                                            if (pagination[activeTab].pages > 5) {
+                                                if (pagination[activeTab].page > 3) {
+                                                    pageNum = pagination[activeTab].page - 2 + i;
+                                                }
+                                                if (pageNum > pagination[activeTab].pages) {
+                                                    pageNum = pagination[activeTab].pages - (4 - i);
+                                                }
+                                            }
+
+                                            // Ensure valid page numbers
+                                            if (pageNum <= 0) return null;
+
+                                            return (
+                                                <button
+                                                    key={pageNum}
+                                                    onClick={() => handlePageChange(activeTab, pageNum)}
+                                                    className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${pagination[activeTab].page === pageNum
+                                                        ? "bg-primary text-white"
+                                                        : "text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                        }`}
+                                                >
+                                                    {pageNum}
+                                                </button>
+                                            );
+                                        })}
+                                        {pagination[activeTab].pages > 5 && pagination[activeTab].page < pagination[activeTab].pages - 2 && (
+                                            <>
+                                                <span className="px-2 text-gray-400">...</span>
+                                                <button
+                                                    onClick={() => handlePageChange(activeTab, pagination[activeTab].pages)}
+                                                    className="w-8 h-8 rounded-lg text-sm font-medium text-text-secondary dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                                >
+                                                    {pagination[activeTab].pages}
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    <button
+                                        onClick={() => handlePageChange(activeTab, Math.min(pagination[activeTab].pages, pagination[activeTab].page + 1))}
+                                        disabled={pagination[activeTab].page === pagination[activeTab].pages}
+                                        className="p-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        <ChevronRight size={16} />
+                                    </button>
+                                </div>
                             </div>
                         </motion.div>
                     </AnimatePresence>

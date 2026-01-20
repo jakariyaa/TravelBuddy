@@ -83,7 +83,7 @@ export { fetchWithAuth, uploadWithAuth };
 
 export const api = {
     users: {
-        getAll: () => fetchWithAuth<User[]>("/users"),
+        getAll: (page: number = 1, limit: number = 10) => fetchWithAuth<{ data: User[]; pagination: any }>(`/users?page=${page}&limit=${limit}`),
         getProfile: () => fetchWithAuth<User>("/users/profile"),
         getById: (id: string) => fetchWithAuth<User>(`/users/${id}`),
         updateProfile: (data: Partial<User>) => fetchWithAuth<User>("/users/profile", {
@@ -111,7 +111,7 @@ export const api = {
         getSystemStats: () => fetchWithAuth<{ totalUsers: number; newTripsCount: number; recentUsers: string[] }>("/users/stats"),
     },
     travelPlans: {
-        getAll: () => fetchWithAuth<TravelPlan[]>("/travel-plans"),
+        getAll: (page: number = 1, limit: number = 10) => fetchWithAuth<{ data: TravelPlan[]; pagination: any }>(`/travel-plans?page=${page}&limit=${limit}`),
         getMyPlans: () => fetchWithAuth<TravelPlan[]>("/travel-plans/my-plans"),
         getById: (id: string) => fetchWithAuth<TravelPlan>(`/travel-plans/${id}`),
         create: (data: FormData) => uploadWithAuth<TravelPlan>("/travel-plans", data),
@@ -126,7 +126,7 @@ export const api = {
             method: "POST",
             body: JSON.stringify(data),
         }),
-        getAll: () => fetchWithAuth<Review[]>("/reviews"),
+        getAll: (page: number = 1, limit: number = 10) => fetchWithAuth<{ data: Review[]; pagination: any }>(`/reviews?page=${page}&limit=${limit}`),
         getFeatured: () => fetchWithAuth<Review[]>("/reviews/featured"),
         getUserReviews: (userId: string, page: number = 1, limit: number = 10) => fetchWithAuth<UserReviewData>(`/reviews/user/${userId}?page=${page}&limit=${limit}`),
         update: (id: string, data: Partial<Review>) => fetchWithAuth<Review>(`/reviews/${id}`, {
@@ -136,7 +136,7 @@ export const api = {
         delete: (id: string) => fetchWithAuth<void>(`/reviews/${id}`, { method: "DELETE" }),
     },
     requests: {
-        getAll: () => fetchWithAuth<JoinRequest[]>("/join-requests"),
+        getAll: (page: number = 1, limit: number = 10) => fetchWithAuth<{ data: JoinRequest[]; pagination: any }>(`/join-requests?page=${page}&limit=${limit}`),
         delete: (id: string) => fetchWithAuth<void>(`/join-requests/${id}`, { method: "DELETE" }),
     },
     joinRequests: {

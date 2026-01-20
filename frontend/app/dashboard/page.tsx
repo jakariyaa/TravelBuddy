@@ -26,14 +26,8 @@ export default function DashboardPage() {
         if (!isPending && !session) {
             router.push("/login");
         } else if (session?.user?.id) {
-            // Fetch full profile to get role if not in session (though session usually has it)
-            // But let's fetch profile to be sure and get latest data
             const fetchProfile = async () => {
                 try {
-                    // Fetch profile and potential user dashboard data in parallel
-                    // We optimistically fetch user dashboard data. If user is ADMIN, we just ignore it.
-                    // If fetching dashboard data fails (e.g. 403), we ignore it here and let UserDashboard handle or retry (or just have null)
-
                     const [profile, dashDataResult] = await Promise.all([
                         api.users.getProfile(),
                         Promise.all([

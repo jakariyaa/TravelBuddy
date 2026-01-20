@@ -1,6 +1,6 @@
-# Travel Buddy - Frontend Client
+# Travner - Frontend Client
 
-The modern web interface for Travel Buddy, built with **Next.js 16**, **Redux Toolkit**, and **Tailwind CSS**.
+The modern web interface for Travner, built with **Next.js 16**, **Redux Toolkit**, and **Tailwind CSS**.
 
 ## 🏗️ Project Structure
 

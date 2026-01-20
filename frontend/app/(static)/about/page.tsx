@@ -12,7 +12,7 @@ export default function AboutPage() {
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6">
-                            About TravelBuddy
+                            About Travner
                         </h1>
                         <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                             We are on a mission to connect travelers worldwide, fostering friendships and shared adventures.
@@ -50,12 +50,10 @@ export default function AboutPage() {
                     </div>
 
                     <div className="mb-24">
-                        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">Meet the Team</h2>
-                        <div className="grid md:grid-cols-3 gap-8">
+                        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">Meet the Creator</h2>
+                        <div className="flex justify-center">
                             {[
-                                { name: "Sarah Chen", role: "Founder & CEO", image: "https://i.pravatar.cc/150?img=5" },
-                                { name: "Marcus Rodriguez", role: "Head of Community", image: "https://i.pravatar.cc/150?img=11" },
-                                { name: "Priya Patel", role: "Lead Developer", image: "https://i.pravatar.cc/150?img=9" }
+                                { name: "Jakariya Abbas", role: "Founder & Lead Developer", image: "https://i.pravatar.cc/150?img=11" }
                             ].map((member, i) => (
                                 <div key={i} className="text-center group">
                                     <div className="relative w-48 h-48 mx-auto mb-6 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg group-hover:scale-105 transition-transform duration-300">
@@ -75,7 +73,7 @@ export default function AboutPage() {
                     <div className="bg-primary/5 dark:bg-primary/10 rounded-3xl p-12 text-center">
                         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Ready to start your journey?</h2>
                         <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-                            Join thousands of travelers who have found their perfect travel companions on TravelBuddy.
+                            Join thousands of travelers who have found their perfect travel companions on Travner.
                         </p>
                         <a href="/register" className="inline-block bg-primary text-white px-8 py-3 rounded-full font-bold hover:bg-teal-700 transition-colors">
                             Join Today

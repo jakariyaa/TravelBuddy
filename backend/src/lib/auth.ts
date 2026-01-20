@@ -40,11 +40,11 @@ export const auth = betterAuth({
         emailOTP({
             async sendVerificationOTP({ email, otp, type }) {
                 try {
-                    let subject = "Your Verification Code - Travel Buddy";
+                    let subject = "Your Verification Code - Travner";
                     let htmlContent = `
                         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
                             <h2 style="color: #0f766e;">Verify Your Email</h2>
-                            <p>Thank you for signing up with Travel Buddy. Please use the following code to verify your email address:</p>
+                            <p>Thank you for signing up with Travner. Please use the following code to verify your email address:</p>
                             <div style="background-color: #f0fdfa; border: 1px solid #ccfbf1; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
                                 <span style="font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #0f766e;">${otp}</span>
                             </div>
@@ -59,10 +59,10 @@ export const auth = betterAuth({
                         });
 
                         if (!user) {
-                            return; // Silent fail or you can throw error if preferred, but silent is safer against enumeration
+                            return;
                         }
 
-                        subject = "Reset Your Password - Travel Buddy";
+                        subject = "Reset Your Password - Travner";
                         htmlContent = `
                             <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
                                 <h2 style="color: #0f766e;">Reset Your Password</h2>
@@ -84,8 +84,6 @@ export const auth = betterAuth({
                     });
                 } catch (error) {
                     console.error("Failed to send OTP email:", error);
-                    // We don't throw here to avoid crashing the auth flow, 
-                    // generally better-auth might handle strictly, but for now we log.
                 }
             },
             sendVerificationOnSignUp: true,

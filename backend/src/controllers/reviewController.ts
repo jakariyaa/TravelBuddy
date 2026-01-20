@@ -4,7 +4,6 @@ import { catchAsync } from '../utils/catchAsync.js';
 import { AppError } from '../utils/AppError.js';
 
 export const createReview = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const reviewerId = req.user?.id;
     const { revieweeId, travelPlanId, rating, comment } = req.body;
 
@@ -20,7 +19,6 @@ export const createReview = catchAsync(async (req: Request, res: Response, next:
         return next(new AppError('Cannot review yourself', 400));
     }
 
-    // Check if review already exists for this plan if provided
     if (travelPlanId) {
         const plan = await prisma.travelPlan.findUnique({
             where: { id: travelPlanId },
@@ -35,7 +33,6 @@ export const createReview = catchAsync(async (req: Request, res: Response, next:
             return next(new AppError('Can only review completed trips', 400));
         }
 
-        // Verify participation
         const isHost = plan.userId === reviewerId;
         const isParticipant = plan.joinRequests.some(req =>
             req.userId === reviewerId && req.status === 'APPROVED'
@@ -113,7 +110,6 @@ export const getUserReviews = catchAsync(async (req: Request, res: Response, nex
         orderBy: { createdAt: 'desc' }
     });
 
-    // Calculate average rating
     const aggregate = await prisma.review.aggregate({
         where: { revieweeId: userId },
         _avg: { rating: true },
@@ -136,7 +132,6 @@ export const getUserReviews = catchAsync(async (req: Request, res: Response, nex
 });
 
 export const updateReview = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const { id } = req.params;
     const { rating, comment } = req.body;
@@ -153,7 +148,6 @@ export const updateReview = catchAsync(async (req: Request, res: Response, next:
         return next(new AppError('Review not found', 404));
     }
 
-    // @ts-ignore
     if (review.reviewerId !== userId && req.user?.role !== 'ADMIN') {
         return next(new AppError('Forbidden', 403));
     }
@@ -172,38 +166,54 @@ export const updateReview = catchAsync(async (req: Request, res: Response, next:
 });
 
 export const getAllReviews = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const reviews = await prisma.review.findMany({
-        include: {
-            reviewer: {
-                select: {
-                    id: true,
-                    name: true,
-                    image: true
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const [reviews, total] = await Promise.all([
+        prisma.review.findMany({
+            skip,
+            take: limit,
+            include: {
+                reviewer: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true
+                    }
+                },
+                reviewee: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true
+                    }
+                },
+                travelPlan: {
+                    select: {
+                        id: true,
+                        destination: true
+                    }
                 }
             },
-            reviewee: {
-                select: {
-                    id: true,
-                    name: true,
-                    image: true
-                }
-            },
-            travelPlan: {
-                select: {
-                    id: true,
-                    destination: true
-                }
-            }
-        },
-        orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' }
+        }),
+        prisma.review.count(),
+    ]);
+
+    res.json({
+        data: reviews,
+        pagination: {
+            total,
+            page,
+            limit,
+            pages: Math.ceil(total / limit),
+        }
     });
-    res.json(reviews);
 });
 
 export const deleteReview = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
-    // @ts-ignore
     const userRole = req.user?.role;
     const { id } = req.params;
 
@@ -233,7 +243,7 @@ export const deleteReview = catchAsync(async (req: Request, res: Response, next:
 export const getFeaturedReviews = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const reviews = await prisma.review.findMany({
         where: {
-            rating: 5, // Only 5-star reviews
+            rating: 5,
         },
         take: 3,
         orderBy: {

@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const createRequestSchema = z.object({
     body: z.object({
         travelPlanId: z.string().min(1, 'Travel Plan ID is required'),
-        message: z.string().min(1, 'Message is required'),
+        message: z.string().optional().default(''),
     }),
 });
 

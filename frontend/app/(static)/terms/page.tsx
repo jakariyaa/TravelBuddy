@@ -23,7 +23,7 @@ export default function TermsPage() {
 
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">2. Description of Service</h2>
                         <p className="text-gray-600 dark:text-gray-300 mb-6">
-                            TravelBuddy provides a platform for travelers to connect, share travel plans, and find companions for their trips. You understand and agree that the Service may include advertisements and that these advertisements are necessary for TravelBuddy to provide the Service.
+                            Travner provides a platform for travelers to connect, share travel plans, and find companions for their trips. You understand and agree that the Service may include advertisements and that these advertisements are necessary for Travner to provide the Service.
                         </p>
 
                         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">3. User Conduct</h2>
@@ -33,7 +33,7 @@ export default function TermsPage() {
                         <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 mb-6 space-y-2">
                             <li>Upload, post, email, transmit or otherwise make available any content that is unlawful, harmful, threatening, abusive, harassing, tortious, defamatory, vulgar, obscene, libelous, invasive of anothers privacy, hateful, or racially, ethnically or otherwise objectionable.</li>
                             <li>Harm minors in any way.</li>
-                            <li>Impersonate any person or entity, including, but not limited to, a TravelBuddy official, forum leader, guide or host.</li>
+                            <li>Impersonate any person or entity, including, but not limited to, a Travner official, forum leader, guide or host.</li>
                         </ul>
                     </div>
                 </div>

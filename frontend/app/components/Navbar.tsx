@@ -35,7 +35,7 @@ export default function Navbar() {
                                 <Plane className="text-white transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" size={24} />
                             </div>
                             <span className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-primary to-teal-600 dark:from-white dark:via-primary dark:to-teal-400 tracking-tight">
-                                TravelBuddy
+                                Travner
                             </span>
                         </Link>
                     </div>
@@ -50,7 +50,7 @@ export default function Navbar() {
                                 </Link>
                                 <Link href="/find-buddy" className="text-text-secondary dark:text-gray-300 hover:text-primary transition-colors flex items-center gap-1">
                                     <UserPlus size={18} />
-                                    Find Travel Buddy
+                                    Find Travner
                                 </Link>
                                 <Link href="/pricing" className="text-text-secondary dark:text-gray-300 hover:text-primary transition-colors flex items-center gap-1">
                                     <CreditCard size={18} />
@@ -168,7 +168,7 @@ export default function Navbar() {
                                         className="block px-3 py-2 rounded-md text-base font-medium text-text-secondary dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-800"
                                         onClick={() => setIsOpen(false)}
                                     >
-                                        Find Travel Buddy
+                                        Find Travner
                                     </Link>
                                     <Link
                                         href="/pricing"

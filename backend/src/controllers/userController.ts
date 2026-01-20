@@ -5,7 +5,6 @@ import { catchAsync } from '../utils/catchAsync.js';
 import { AppError } from '../utils/AppError.js';
 
 export const getProfile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
 
     if (!userId) {
@@ -41,7 +40,6 @@ export const getProfile = catchAsync(async (req: Request, res: Response, next: N
 });
 
 export const updateProfile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const { name, bio, image, travelInterests, visitedCountries, currentLocation, phoneNumber, facebookUrl, instagramUrl, websiteUrl } = req.body;
 
@@ -139,22 +137,42 @@ export const getUserById = catchAsync(async (req: Request, res: Response, next: 
 });
 
 export const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const users = await prisma.user.findMany({
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            image: true,
-            createdAt: true,
-            isVerified: true,
-        },
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+        prisma.user.findMany({
+            skip,
+            take: limit,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                image: true,
+                createdAt: true,
+                isVerified: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        }),
+        prisma.user.count(),
+    ]);
+
+    res.json({
+        data: users,
+        pagination: {
+            total,
+            page,
+            limit,
+            pages: Math.ceil(total / limit),
+        }
     });
-    res.json(users);
 });
 
 export const uploadProfileImage = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
     const file = req.file;
 
@@ -166,7 +184,6 @@ export const uploadProfileImage = catchAsync(async (req: Request, res: Response,
         return next(new AppError('No image file provided', 400));
     }
 
-    // Upload to Cloudinary
     const b64 = Buffer.from(file.buffer).toString('base64');
     let dataURI = "data:" + file.mimetype + ";base64," + b64;
 
@@ -199,7 +216,6 @@ export const uploadProfileImage = catchAsync(async (req: Request, res: Response,
     res.json(updatedUser);
 });
 export const deleteUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const requesterRole = req.user?.role;
     const { id } = req.params;
 
@@ -219,7 +235,6 @@ export const deleteUser = catchAsync(async (req: Request, res: Response, next: N
 });
 
 export const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const requesterRole = req.user?.role;
     const { id } = req.params;
     const { name, bio, role, isVerified } = req.body;
@@ -299,7 +314,6 @@ export const searchUsers = catchAsync(async (req: Request, res: Response, next: 
 });
 
 export const getMatchedUsers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     const userId = req.user?.id;
 
     if (!userId) {
@@ -319,7 +333,6 @@ export const getMatchedUsers = catchAsync(async (req: Request, res: Response, ne
         return next(new AppError('User not found', 404));
     }
 
-    // If no interests, we fallback to random Recommendation (fetch recent/random users)
     const hasInterests = currentUser.travelInterests && currentUser.travelInterests.length > 0;
 
     const whereClause: any = {
@@ -330,8 +343,6 @@ export const getMatchedUsers = catchAsync(async (req: Request, res: Response, ne
         whereClause.travelInterests = { hasSome: currentUser.travelInterests };
     }
 
-    // If we have interests, we look for matches. If not, we just get some users to recommend.
-    // fetching more if random to allow shuffling
     const limit = hasInterests ? 50 : 100;
 
     let matches = await prisma.user.findMany({
@@ -356,12 +367,10 @@ export const getMatchedUsers = catchAsync(async (req: Request, res: Response, ne
         take: limit
     });
 
-    // If no interests were used to filter, shuffle the results to give "random" matches
     if (!hasInterests) {
         matches = matches.sort(() => 0.5 - Math.random());
     }
 
-    // Helper to extract country from location string (e.g., "Paris, France" -> "France")
     const getCountry = (loc: string | null) => {
         if (!loc) return '';
         const parts = loc.split(',');
@@ -370,19 +379,15 @@ export const getMatchedUsers = catchAsync(async (req: Request, res: Response, ne
 
     const myCountry = getCountry(currentUser.currentLocation);
 
-    // score matches
     const scoredMatches = matches.map(user => {
-        // 1. Interest Score from 60% (7 matches max)
         const sharedInterests = user.travelInterests.filter(i => currentUser.travelInterests.includes(i));
         const interestCount = Math.min(sharedInterests.length, 7);
         const interestScore = (interestCount / 7) * 60;
 
-        // 2. Location Score from 20% (Same country)
         const theirCountry = getCountry(user.currentLocation);
         const isSameCountry = myCountry && theirCountry && myCountry === theirCountry;
         const locationScore = isSameCountry ? 20 : 0;
 
-        // 3. Visited Countries Score from 20% (3 matches max)
         const sharedVisited = user.visitedCountries.filter(c => currentUser.visitedCountries.includes(c));
         const visitedCount = Math.min(sharedVisited.length, 3);
         const visitedScore = (visitedCount / 3) * 20;
@@ -393,16 +398,14 @@ export const getMatchedUsers = catchAsync(async (req: Request, res: Response, ne
             ...user,
             matchPercentage: totalScore, // 0-100
             sharedInterests: sharedInterests,
-            // map keys to frontend expected format if needed
             trips: user._count.travelPlans,
-            location: user.currentLocation // frontend uses 'location' or 'currentLocation'
+            location: user.currentLocation
         };
     });
 
-    // sort by score desc
     scoredMatches.sort((a, b) => b.matchPercentage - a.matchPercentage);
 
-    res.json(scoredMatches.slice(0, 10)); // return top 10
+    res.json(scoredMatches.slice(0, 10));
 });
 
 export const getTopTravelers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -428,7 +431,6 @@ export const getTopTravelers = catchAsync(async (req: Request, res: Response, ne
         }
     });
 
-    // Format for frontend
     const formattedTravelers = topTravelers.map(user => ({
         id: user.id,
         name: user.name,
@@ -437,7 +439,7 @@ export const getTopTravelers = catchAsync(async (req: Request, res: Response, ne
         trips: user._count.travelPlans,
         isVerified: user.isVerified,
         bio: user.bio,
-        rating: 5.0 // Default high rating for top travelers
+        rating: 5.0
     }));
 
     res.json(formattedTravelers);
@@ -446,7 +448,6 @@ export const getTopTravelers = catchAsync(async (req: Request, res: Response, ne
 export const getSystemStats = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const totalUsers = await prisma.user.count();
 
-    // Count trips created in the last 7 days
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
@@ -458,8 +459,6 @@ export const getSystemStats = catchAsync(async (req: Request, res: Response, nex
         }
     });
 
-    // Get 5 random users for the avatar stack (or recent ones)
-    // Using random for variety if possible, or just recent
     const recentUsers = await prisma.user.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },

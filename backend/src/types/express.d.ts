@@ -1,0 +1,10 @@
+import { User } from "@prisma/client";
+
+declare global {
+    namespace Express {
+        interface Request {
+            user?: Partial<User> & { id: string; role?: string; emailVerified?: boolean; isVerified?: boolean };
+            rawBody?: Buffer;
+        }
+    }
+}

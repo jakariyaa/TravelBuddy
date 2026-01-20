@@ -8,6 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { User } from "@/app/types";
+import { Skeleton } from "@/app/components/ui/skeleton";
 
 export default function FindBuddyPage() {
     const [users, setUsers] = useState<User[]>([]);
@@ -54,7 +55,7 @@ export default function FindBuddyPage() {
             <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 pt-24 pb-12 px-4 shadow-sm">
                 <div className="max-w-7xl mx-auto space-y-6">
                     <div className="text-center max-w-2xl mx-auto">
-                        <h1 className="text-3xl md:text-4xl font-bold text-text-primary dark:text-white mb-4">Find Your Travel Buddy</h1>
+                        <h1 className="text-3xl md:text-4xl font-bold text-text-primary dark:text-white mb-4">Find Your Travner</h1>
                         <p className="text-text-secondary dark:text-gray-400 text-lg">Connect with travelers heading your way or sharing your passions.</p>
                     </div>
 
@@ -107,7 +108,21 @@ export default function FindBuddyPage() {
                 {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {[1, 2, 3, 4, 5, 6].map((i) => (
-                            <div key={i} className="h-64 bg-gray-200 dark:bg-gray-800 rounded-3xl animate-pulse" />
+                            <div key={i} className="h-full bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col">
+                                <Skeleton className="h-32 w-full rounded-none" />
+                                <div className="p-6 space-y-4">
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-6 w-3/4" />
+                                        <Skeleton className="h-4 w-1/2" />
+                                    </div>
+                                    <Skeleton className="h-4 w-full" />
+                                    <div className="flex gap-2">
+                                        <Skeleton className="h-6 w-16 rounded-full" />
+                                        <Skeleton className="h-6 w-16 rounded-full" />
+                                        <Skeleton className="h-6 w-16 rounded-full" />
+                                    </div>
+                                </div>
+                            </div>
                         ))}
                     </div>
                 ) : users.length > 0 ? (

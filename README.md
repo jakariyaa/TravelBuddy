@@ -1,4 +1,4 @@
-# 🌍 Travel Buddy
+# 🌍 Travner
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-16.0-black)
@@ -7,7 +7,7 @@
 ![Prisma](https://img.shields.io/badge/Prisma-ORM-green)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
 
-**Travel Buddy** is a comprehensive full-stack web application designed to banish the isolation of solo travel. It connects adventurous souls, facilitates collaborative trip planning, and provides a secure platform to find like-minded companions.
+**Travner** is a comprehensive full-stack web application designed to banish the isolation of solo travel. It connects adventurous souls, facilitates collaborative trip planning, and provides a secure platform to find like-minded companions.
 
 ## 🚀 Live Demo
 
@@ -111,7 +111,7 @@ To run the full application locally, you will need to start both the Frontend an
 Clone the repository:
 ```bash
 git clone <repository_url>
-cd travel-buddy
+cd travner
 ```
 
 ### 2. Backend Setup

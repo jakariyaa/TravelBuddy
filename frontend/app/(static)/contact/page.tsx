@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, Globe, Phone } from "lucide-react";
 
 export default function ContactPage() {
     const [submitted, setSubmitted] = useState(false);
@@ -40,8 +40,7 @@ export default function ContactPage() {
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Email</h3>
-                                    <p className="text-gray-600 dark:text-gray-400">support@travelbuddy.com</p>
-                                    <p className="text-gray-600 dark:text-gray-400">partners@travelbuddy.com</p>
+                                    <p className="text-gray-600 dark:text-gray-400">jakariya3460@gmail.com</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-4">
@@ -50,20 +49,18 @@ export default function ContactPage() {
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Phone</h3>
-                                    <p className="text-gray-600 dark:text-gray-400">+1 (555) 123-4567</p>
-                                    <p className="text-sm text-gray-500 mt-1">Mon-Fri, 9am - 5pm EST</p>
+                                    <p className="text-gray-600 dark:text-gray-400">+880 15807-20125</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-4">
                                 <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center shrink-0">
-                                    <MapPin size={24} />
+                                    <Globe size={24} />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Office</h3>
-                                    <p className="text-gray-600 dark:text-gray-400">
-                                        123 Adventure Lane<br />
-                                        San Francisco, CA 94107
-                                    </p>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Website</h3>
+                                    <a href="https://jakariya.eu.org" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
+                                        jakariya.eu.org
+                                    </a>
                                 </div>
                             </div>
                         </div>

@@ -34,7 +34,7 @@ app.use('/api/join-requests', joinRequestRoutes);
 app.use('/api/payments', paymentRoutes);
 
 app.get('/', (req: Request, res: Response) => {
-    res.send('TravelBuddy Backend is running!');
+    res.send('Travner Backend is running!');
 });
 
 import { globalErrorHandler } from './middleware/errorMiddleware.js';

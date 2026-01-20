@@ -55,7 +55,7 @@ export default function Hero() {
                         <h1 className="text-5xl lg:text-7xl font-bold text-text-primary dark:text-white leading-[1.1] mb-6 tracking-tight">
                             Find Your Perfect <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-teal-400">
-                                Travel Buddy
+                                Travner
                             </span>
                         </h1>
 
