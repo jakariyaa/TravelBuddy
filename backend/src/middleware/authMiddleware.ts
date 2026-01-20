@@ -13,7 +13,7 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
             return;
         }
 
-        req.user = session.user;
+        req.user = session.user as any;
 
         if (!session.user.emailVerified) {
             res.status(403).json({ message: 'Email verification required. Please verify your email.' });

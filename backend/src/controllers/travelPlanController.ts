@@ -1,5 +1,6 @@
 import { type Request, type Response, type NextFunction } from 'express';
 import { prisma } from '../lib/prisma.js';
+import { PlanStatus } from '../generated/prisma/enums.js';
 import cloudinary from '../config/cloudinary.js';
 import { catchAsync } from '../utils/catchAsync.js';
 import { AppError } from '../utils/AppError.js';
@@ -418,7 +419,7 @@ export const markPlanAsCompleted = catchAsync(async (req: Request, res: Response
         return next(new AppError('Forbidden', 403));
     }
 
-    let newStatus = 'COMPLETED';
+    let newStatus: PlanStatus = 'COMPLETED';
     if (plan.status === 'COMPLETED') {
         const now = new Date();
         const start = new Date(plan.startDate);
